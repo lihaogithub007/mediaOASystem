@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<!--[if IE 8]> <html class="ie8"> <![endif]-->
+<!--[if IE 9]> <html class="ie9"> <![endif]-->
+<!--[if !IE]><!--> <html> <!--<![endif]-->
+<head>
+<meta charset="utf-8" />
+<title>新媒体智能管理系统</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+<meta content="" name="description" />
+<meta content="" name="author" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="renderer" content="webkit|ie-comp|ie-stand" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap-fileupload.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/font-awesome/css/font-awesome.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style_responsive.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style_default.css" rel="stylesheet" id="style_color" />
+<link href="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/fancybox/source/jquery.fancybox.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/toastr/toastr.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/uniform/css/uniform.default.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/bootstrap-toggle-buttons/static/stylesheets/bootstrap-toggle-buttons.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/My97DatePicker/skin/WdatePicker.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/bootstrap-datepicker/css/datepicker.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/bootstrap-timepicker/compiled/timepicker.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/css/custom/custom.css" rel="stylesheet" type="text/css" />
+</head>
+<body class="fixed-top">
+	<div id="header" class="navbar navbar-inverse navbar-fixed-top">
+		$!httpInclude.include("/common/_header.htm") 
+	</div>
+	<div id="container" class="row-fluid">
+		<div id="sidebar" class="nav-collapse collapse">
+			$!httpInclude.include("/common/_sidebar.htm?op=schedule_sms") 
+		</div>
+		<div id="main-content">
+			<div class="container-fluid">
+				<div class="row-fluid">
+					<div class="span12">
+						<h3 class="page-title">合同到期提醒添加</h3>
+						<ul class="breadcrumb">
+							<li><a href="$!webPath/index.htm"><i class="icon-home"></i></a><span class="divider">&nbsp;</span></li>
+					        <li><a href="javascript:void(0);">消息管理</a><span class="divider">&nbsp;</span></li>
+							<li><a href="$!webPath/admin/sms/contract_sms_remind_add.htm?currentPage=$!currentPage">合同到期提醒添加</a><span class="divider-last">&nbsp;</span></li>
+						</ul>
+					</div>
+				</div>
+				<div class="row-fluid">
+					<form name="theForm" id="theForm" action="$!webPath/admin/sms/contract_sms_remind_add_save.htm" method="post" class="form-horizontal">
+		            	<div class="span12">
+							<div class="widget">
+		                    	<div class="widget-title">
+		                        	<h4><i class="icon-reorder"></i>合同到期提醒添加</h4>
+		                     	</div>
+                     			<div class="widget-body form">
+		                        	<div class="control-group">
+		                        		<label class="control-label"><font class="red_font">*</font>提醒类型</label>
+	                                    <div class="controls">
+		                                 	<select data-placeholder="请选择提醒类型"  class="input-xlarge chosen" tabindex="-1" name="remind_type" id="remind_type">
+												<option value="">请选择提醒类型</option>
+												<option value="0">岗位</option>
+												<option value="1">个人</option>
+											</select>
+		                              	</div>
+		                           	</div>
+		                           	<div class="control-group" id="remind_user">
+		                           		<label class="control-label"><font class="red_font">*</font>收信人</label>
+		                              	<div class="controls">
+		                                 	<select data-placeholder="请选择收信人" class="span6 chosen" tabindex="-1" name="user_id" id="user_id">
+												<option value="">请选择收信人</option>
+												#foreach($obj in $!users)
+						                        <option value="$!obj.id">$!{obj.true_name}($!obj.mobile)</option>
+						                        #end
+											</select>
+		                              	</div>
+		                           	</div>
+		                           	<div class="control-group" id="remind_duty">
+		                           		<label class="control-label"><font class="red_font">*</font>收信岗位</label>
+		                              	<div class="controls">
+		                                 	<select data-placeholder="请选择收信岗位" class="span6 chosen" tabindex="-1" name="duty_id" id="duty_id">
+												<option value="">请选择收信岗位</option>
+												#foreach($obj in $!dutys)
+						                        <option value="$!obj.id">$!{obj.duty_name}</option>
+						                        #end
+											</select>
+		                              	</div>
+		                           	</div>
+		                           	<div class="control-group">
+		                            	<label class="control-label"><font class="red_font">*</font>发送内容</label>
+		                              	<div class="controls">
+		                                	<textarea class="span6" name="remind_content" id="remind_content" rows="3" maxlength="255"></textarea>
+		                              	</div>
+		                            </div>
+		                            <div class="control-group">
+		                        		<label class="control-label"><font class="red_font">*</font>提前发送时间</label>
+	                                    <div class="controls">
+	                                        <input type="text" id="remind_time" name="remind_time" placeholder="提前发送时间" class="input-xlarge popovers" maxlength="10"
+	                                        	data-trigger="hover" data-content="输入提前发送时间,单位为天"/>天
+	                                        <span class="help-inline"></span>
+	                                    </div>
+		                           	</div>
+		                           	<div class="control-group">
+                                        <label class="control-label"><font class="red_font">*</font>是否启用</label>
+                                        <div class="controls">
+                                            <div class="basic-toggle-button">
+                                                <input type="checkbox" class="toggle" checked="checked"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                           			<div class="form-actions">
+                           				<input type="button" id="btn_submit" class="btn btn-primary" value="保存"/>
+                           				<a href="$!webPath/admin/sms/contract_sms_remind_list.htm?currentPage=$!currentPage" class="btn">返回</a>
+                           			</div>
+	                     		</div>
+	                  		</div>
+		                </div>
+		                <input type="hidden" name="currentPage" id="currentPage" value="$!currentPage"/>
+		                <input type="hidden" name="disabled" id="disabled" value="false"/>
+				  	</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="footer">
+		$!httpInclude.include("/common/_footer.htm")	
+	</div>
+	<script src="$!webPath/resources/js/jquery-1.8.3.min.js"></script>
+    <script src="$!webPath/resources/assets/bootstrap/js/bootstrap.min.js"></script>   
+    <script src="$!webPath/resources/js/jquery.blockui.js"></script>
+    <!-- ie8 fixes -->
+    <!--[if lt IE 9]>
+    <script src="$!webPath/resources/js/excanvas.js"></script>
+    <script src="$!webPath/resources/js/respond.js"></script>
+    <![endif]-->   
+    <script src="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.jquery.js" type="text/javascript"></script>
+    <script src="$!webPath/resources/assets/uniform/jquery.uniform.min.js" type="text/javascript"></script>
+    <script src="$!webPath/resources/assets/bootstrap-toggle-buttons/static/js/jquery.toggle.buttons.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/js/jquery.validate.min.js" type="text/javascript" ></script>
+	<script src="$!webPath/resources/js/jquery.validate.ext.js" type="text/javascript" ></script>
+	<script src="$!webPath/resources/js/jquery.form.min.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/assets/My97DatePicker/WdatePicker.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/assets/bootstrap-datepicker/js/bootstrap-datepicker.js" type="text/javascript" ></script> 
+    <script src="$!webPath/resources/assets/bootstrap-daterangepicker/date.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/assets/bootstrap-daterangepicker/daterangepicker.js" type="text/javascript" ></script> 
+    <script src="$!webPath/resources/assets/bootstrap-timepicker/js/bootstrap-timepicker.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/assets/toastr/toastr.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/js/scripts.js"></script>
+    <script src="$!webPath/resources/js/custom/common.js"></script>
+    <script>
+	jQuery(document).ready(function() {   
+		App.init();
+		initToastr();
+		jqueryValidate();
+		bindEvent();
+		bindChangeEvent();
+		selectType();
+		jQuery('.basic-toggle-button').toggleButtons({
+			onChange: function($el, status, e) {  
+                jQuery("#disabled").val(!status);
+            },
+            label: {
+                enabled: "是",
+                disabled: "否"
+            },  
+            style: {  
+                enabled: "info",  
+                disabled: ""  
+            } 
+        });
+	});
+	function jqueryValidate(){
+		jQuery("#theForm").validate({
+			errorPlacement : function(error, element) { 
+				$(error).appendTo($(element).parent()); 
+			},
+			rules:{
+				remind_type:{required:true},
+				remind_content:{required:true},
+				remind_time:{isDouble:[],required:true},
+	       	},
+			messages:{
+				remind_type:{required:"提醒类型不能为空"},
+				remind_content:{required:"发送内容不能为空"},
+				remind_time:{required:"提前发送时间不能为空"},
+			}
+		}); 
+		var validator = $("#theForm").data("validator");
+        validator.settings.ignore = ":hidden:not(select)";
+	}
+	function bindEvent(){
+		jQuery("#btn_submit").bind("click", function(){
+			if (jQuery("#theForm").valid()) {
+				if(jQuery("#remind_type").val() == 1){
+					if(isEmpty(jQuery("#user_id").val())){
+						alert("提醒人不能为空");
+						return false;
+					}
+				}
+				if(jQuery("#remind_type").val() == 0){
+					if(isEmpty(jQuery("#duty_id").val())){
+						alert("提醒岗位不能为空");
+						return false;
+					}
+				}
+				jQuery("#loadingBar").show();
+				ajaxFormSubmit('theForm','defaultAjaxSaveCallBack');
+			}
+		});
+	}
+	function unBindEvent(){
+		jQuery("#btn_submit").unbind();
+	}
+	function bindChangeEvent(){
+		jQuery("#user_id").change(function(){
+			var value = jQuery(this).val();
+			if(isEmpty(value)){
+				jQuery("#user_mobile").val("");
+			}else{
+                var opt_text = $("#user_id").find("option:selected").text();
+                var user_mobile = opt_text.substring(opt_text.indexOf("(")+1,opt_text.indexOf(")"));
+                jQuery("#user_mobile").val(user_mobile);
+            }
+		});
+	}
+	function selectType(){
+		jQuery("#remind_type").change(function(){
+		var remind_type = jQuery("#remind_type").val();
+			if(remind_type == 1){
+				jQuery("#remind_user").show();
+				jQuery("#remind_duty").hide();
+			} else {
+				jQuery("#remind_user").hide();
+				jQuery("#remind_duty").show();
+			}
+		})
+	}
+	
+	
+	</script>
+</body>
+</html>

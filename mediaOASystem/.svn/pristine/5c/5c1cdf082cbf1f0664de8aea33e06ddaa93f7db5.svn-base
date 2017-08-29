@@ -1,0 +1,33 @@
+#if($!userFamilyMemberList && $!userFamilyMemberList.size()>0)
+	#foreach($obj in $!userFamilyMemberList)
+	<div class="bd" id="familymember_view_$!obj.id">
+        <div class="con edit ebox">
+            <div class="e">
+			    <label>姓名</label><i>：</i>
+			    <div>&nbsp;$!obj.family_member_name</div>
+			</div>
+            <div class="e">
+			    <label>关系</label><i>：</i>
+			    <div>&nbsp;$!family_relationship_map.get("$!obj.family_relationship")</div>
+			</div>
+			<div class="e">
+			    <label>工作单位</label><i>：</i>
+			    <div>&nbsp;$!obj.family_member_unit</div>
+			</div>
+			<div class="e">
+			    <label>岗位</label><i>：</i>
+			    <div>&nbsp;$!obj.family_member_duty</div>
+			</div>
+			<div class="e">
+			    <label>联系电话</label><i>：</i>
+			    <div>&nbsp;$!obj.family_member_mobile</div>
+			</div>
+            <div class="clearfix"></div>
+            <span class="ed_icon"><em class="edi icons" id="familymember_edit_$!obj.id" onclick="editButtonClick(this)"></em>
+            <em class="del icons" id="familymember_delete_$!obj.id" onclick="deleteButtonClick(this)"></em></span>
+         </div>
+     </div>
+	#end
+#else
+	<div class="none icons" id="familymember_empty">没有家庭成员记录！</div>
+#end

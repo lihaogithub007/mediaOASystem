@@ -1,0 +1,158 @@
+<style>
+.accordion {
+    margin-bottom: 10px;
+}
+.accordion .accordion-group{
+    padding-bottom: 20px;
+}
+.form-horizontal .control-group{
+	margin-bottom: 10px;
+}
+.form-horizontal .control-label{
+	width:124px;
+}
+.form-horizontal .controls {
+    margin-left: 140px;
+}
+.float_left{
+	float:left;
+	width:50%;
+	min-width:365px;
+}
+.clear_left{
+	clear:left;
+}
+.accordion-inner-add {
+    padding: 9px 15px;
+}
+</style>
+<div class="accordion">
+	<div class="accordion-group">
+	    <div id="collapse_$!count" class="">
+            <div class="accordion-inner-add">
+            	<div class="control-group">
+                    <label class="control-label"><font class="red_font">*</font>休假类型</label>
+                    <div class="controls">
+                        <select data-placeholder="请选择休假类型" class="span6 chosen" name="leave_type_$!count" id="leave_type_$!count">
+							<option value="">请选择休假类型</option>
+							#foreach($key in ${leave_type_map.keySet()})
+			                <option value="$key">${leave_type_map.get($key)}</option>
+			                #end
+						</select>
+						<span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label"><font class="red_font">*</font>开始时间</label>
+                    <div class="controls">
+                        <input type="text" name="begin_time_$!count" id="begin_time_$!count" placeholder="开始时间" class="span6 popovers"
+                        	data-trigger="hover" data-content="请选择开始时间" readonly="readonly" 
+                        	onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',minDate:'#F{$dp.$D(\'vacation_begin_date\')}',maxDate:'#F{$dp.$D(\'end_time_$!\')}'})" onblur="compareDetailDate('$!count')"/>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label"><font class="red_font">*</font>结束时间</label>
+                    <div class="controls">
+                        <input type="text" name="end_time_$!count" id="end_time_$!count" placeholder="结束时间" class="span6 popovers"
+                        	data-trigger="hover" data-content="请选择结束时间" readonly="readonly" 
+                        	onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',minDate:'#F{$dp.$D(\'begin_time_$!count\')}',maxDate:'#F{$dp.$D(\'vacation_end_date\')}'})" onblur="compareDetailDate('$!count')"/>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label"><font class="red_font">*</font>休假天数</label>
+                    <div class="controls">
+                        <input type="text" name="dates_$!count" id="dates_$!count" placeholder="休假天数" class="span6 popovers" maxlength="5"
+                        	data-trigger="hover" data-content="请输入休假天数" onblur="compareDetailDate('$!count')"/>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="control-group">
+                	<label class="control-label"></label>
+                    <div class="controls">
+                        <a href="javascript:void(0);" onclick="del(this)" class="btn">删除</a>
+                    </div>
+                </div>
+			</div>
+		</div>
+	</div>
+	<input type="hidden" name="vacation_apply_details" id="vacation_apply_details_$!count"/>
+</div>
+<script type="text/javascript">
+jQuery(document).ready(function(){
+	jQuery('.popovers').popover();
+	addRule("leave_type_$!count","请选择休假类型");
+	addRule("begin_time_$!count","请选择开始时间");
+	addRule("end_time_$!count","请选择结束时间");
+	addRule("dates_$!count","请输入休假天数");
+	addRuleIsDecimal4point1("dates_$!count");
+	if (!jQuery().chosen) {
+        return;
+    }
+    $(".chosen").chosen({
+        allow_single_deselect: true,
+        search_contains:true,
+       	no_results_text: "没有找到"
+    });
+	jQuery("select#leave_type_$!count").change(function(){
+        var thisVal = jQuery(this).val();
+        var thisId = jQuery(this).attr("id");
+        if("1"==thisVal){
+        	var user_id = jQuery("#user_id").val();
+        	if(isEmpty(user_id)){
+        		alert("请选择申请人");
+        		jQuery(this).next("span").html("");
+        		return false;
+        	}
+        	jQuery.ajax({
+				type : "post",
+				url : "$!webPath/admin/work_attendance/ajax_get_total_annual_leave_days.htm",
+				data : {
+					user_id:user_id,
+					vacation_begin_date:jQuery("#vacation_begin_date").val(),
+					vacation_end_date:jQuery("#vacation_end_date").val(),
+				},
+				dataType : "json",
+			    async:false,
+			    success:function(data){
+			    	if(data.result){
+			    		jQuery("select#"+thisId).siblings("span").html("已休年假："+data.data);
+			        }
+			    },
+			    error : function() {
+			        alert("系统异常，请稍后重试！");
+			        jQuery("select#leave_type_$!count").siblings("span").html("");
+			    }
+			});
+            
+        }else if("2"==thisVal){
+            jQuery(this).siblings("span").html("请附医院证明");
+        }else if("5"==thisVal){
+            jQuery(this).siblings("span").html("请附子女出生证明");
+        }else if("6"==thisVal){
+            jQuery(this).siblings("span").html("请附结婚证复印件");
+        }else{
+        	jQuery(this).siblings("span").html("");
+        }
+        show_hide_upload_area();
+    });
+});
+
+function addRule(id,msg){
+	jQuery("#"+id).rules("add",{ 
+		required:true,
+		messages:{
+			required:msg
+		}
+	});  
+}
+function addRuleIsDecimal4point1(id){
+	jQuery("#"+id).rules("add",{ 
+		decimal4point1:[],
+	}); 
+}
+function removeRule(id){
+	jQuery("#"+id).rules("remove"); 
+}
+</script>

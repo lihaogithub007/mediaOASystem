@@ -1,0 +1,43 @@
+@CHARSET "UTF-8";
+#queryForm{
+	margin-bottom:10px;
+}
+.ipt_container {
+    position: relative;
+    display: inline-block;
+    height: 28px;
+    line-height: 29px;
+    zoom: 1;
+}
+.btn{
+    padding: 3px 15px;
+}
+input.search-ipt {
+	margin: 1px 0;
+    padding: 3px 10px 3px 5px;
+    outline: 0;
+}
+label.error:before{content:' '}
+label.error{color:red;}
+.red_font{color:red;vertical-align: middle;}
+.red_font:after{content:' '}
+
+/* for权限start */
+.manage_box_title>label{
+	font-weight: bold;
+}
+.manage_box_title {
+    height: 30px;
+    line-height: 30px;
+    font-size: 14px;
+    width: 100%;
+    margin-top:5px;
+}
+.manage_box_main > label{
+	font-size: 13px;
+}
+.manage_box_main {
+    border-bottom: 1px solid #e5e5e5;
+    margin-bottom:20px;
+}
+/* for权限end */

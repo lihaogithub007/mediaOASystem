@@ -1,0 +1,74 @@
+package com.yuyu.soft.service;
+
+import java.util.List;
+import java.util.Map;
+
+import com.yuyu.soft.entity.Department;
+import com.yuyu.soft.entity.DispatchUnit;
+import com.yuyu.soft.entity.Equipment;
+import com.yuyu.soft.entity.InsideIncomeDispatches;
+import com.yuyu.soft.entity.ProjectCooperation;
+import com.yuyu.soft.entity.User;
+import com.yuyu.soft.util.PagerInfo;
+import com.yuyu.soft.util.ResultMsg;
+
+/**
+ * 项目协同接口
+ *                       
+ * @Filename: SyscfgService.java
+ * @Version: 1.0
+ *
+ */
+public interface IProjectCooperationService {
+
+	 /**
+     * 查询所有台外收文列表
+     */
+	List<ProjectCooperation> queryProjectCooperationList(String hql, Map<String, Object> paramsMap,
+			PagerInfo pager);
+
+	/**
+     * 根据ID获取项目协同对象
+     */
+	ProjectCooperation getProjectCooperation(Long id);
+
+	/**
+	 * 添加协同记录保存
+	 */
+	ResultMsg add_save(ProjectCooperation projectCooperation);
+
+	/**
+	 * 添加协同记录
+	 */
+	void addProjectCooperation(ProjectCooperation projectCooperation);
+
+	/**
+	 * 删除协同记录
+	 */
+	void deleteProjectCooperation(ProjectCooperation projectCooperation);
+
+	/**
+	 * 修改协同记录
+	 */
+	public void updateProjectCooperation(ProjectCooperation projectCooperation);
+
+	/**
+	 * 编辑协同记录保存
+	 */
+	ResultMsg edit_save(ProjectCooperation projectCooperation);
+
+	
+	/**
+	 * 查询协同记录数量(sql)
+     * 用于导出Excel
+	 */
+	public int getCountForExportExcel(String project_name, String initiator_name, String project_date);
+
+	/**
+	 * 查询协同记录(sql)
+	 * 用于导出Excel
+	 */
+	List<Object[]> getProjectCooperationsForExportExcel(String project_name, String initiator_name, String project_date,
+			int beginIndex, int pageSize);
+    
+}

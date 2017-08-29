@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<!--[if IE 8]> <html class="ie8"> <![endif]-->
+<!--[if IE 9]> <html class="ie9"> <![endif]-->
+<!--[if !IE]><!--> <html> <!--<![endif]-->
+<head>
+<meta charset="utf-8" />
+<title>新媒体智能管理系统</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+<meta content="" name="description" />
+<meta content="" name="author" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="renderer" content="webkit|ie-comp|ie-stand" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap-fileupload.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/font-awesome/css/font-awesome.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style_responsive.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style_default.css" rel="stylesheet" id="style_color" />
+<link href="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/fancybox/source/jquery.fancybox.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/toastr/toastr.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/uniform/css/uniform.default.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/My97DatePicker/skin/WdatePicker.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/css/custom/custom.css" rel="stylesheet" type="text/css" />
+</head>
+<body class="fixed-top">
+	<div id="header" class="navbar navbar-inverse navbar-fixed-top">
+		$!httpInclude.include("/common/_header.htm") 
+	</div>
+	<div id="container" class="row-fluid">
+		<div id="sidebar" class="nav-collapse collapse">
+			$!httpInclude.include("/common/_sidebar.htm?op=usercenter") 
+		</div>
+		<div id="main-content">
+			<div class="container-fluid">
+				<div class="row-fluid">
+					<div class="span12">
+						<!-- <div id="theme-change" class="hidden-phone">
+							<i class="icon-cogs"></i>
+							<span class="settings">
+								<span class="text">主题:</span>
+								<span class="colors">
+								    <span class="color-default" data-style="default"></span>
+								    <span class="color-gray" data-style="gray"></span>
+								    <span class="color-purple" data-style="purple"></span>
+								    <span class="color-navy-blue" data-style="navy-blue"></span>
+								</span>
+							</span>
+						</div> -->
+						<h3 class="page-title">用户详情</h3>
+						<ul class="breadcrumb">
+							<li><a href="$!webPath/index.htm"><i class="icon-home"></i></a><span class="divider">&nbsp;</span></li>
+					        <li><a href="javascript:void(0);">个人办公</a><span class="divider">&nbsp;</span></li>
+							<li><a href="$!webPath/admin/usercenter/usercenter.htm">个人资料</a><span class="divider-last">&nbsp;</span></li>
+						</ul>
+					</div>
+				</div>
+				<div class="row-fluid">
+					<div class="span12">
+						<form name="theForm" id="theForm" action="$!webPath/admin/usercenter/usercenter_edit_save.htm" method="post">
+						<div class="widget">
+	                    	<div class="widget-title">
+	                        	<h4><i class="icon-user"></i>个人资料</h4>
+	                     	</div>
+                   			<div class="widget-body" style="min-height:540px;">
+                   				<div class="span2"></div>
+                   				<div class="span8">
+	                                <h4>$!usercenter.true_name<small>&nbsp;（tel:$!usercenter.mobile）</small>
+	                                	<span style="float:right;clear:right;">
+	                                		<a href="javascript:void(0);" style="text-decoration: none;" id="btn_usercenter_edit"><i class="icon icon-edit"></i></a>
+	                                	</span>
+	                                </h4>
+	                                <table class="table table-borderless">
+	                                    <tbody id="usercenter_tbody">
+		                                    <tr>
+		                                        <td class="span2"><font class="red_font"></font>姓名:</td>
+		                                        <td>
+		                                        	<span class="text_span">$!usercenter.true_name</span>
+		                                        	<span class="ipt_span" style="display:none;">
+		                                        		<input type="text" name="true_name" id="true_name" value="$!usercenter.true_name" placeholder="姓名" 
+		                                        			class="input-xlarge popovers" maxlength="50" data-trigger="hover" data-content="输入姓名，最多50字符"/>
+		                                        	</span>
+		                                        </td>
+		                                    </tr>
+		                                    <tr>
+		                                        <td class="span2"><font class="red_font"></font>手机号:</td>
+		                                        <td>
+		                                        	<span class="text_span">$!usercenter.mobile</span>
+		                                        	<span class="ipt_span" style="display:none;">
+			                                        	<input type="tel" name="mobile" id="mobile" value="$!usercenter.mobile" placeholder="手机号" 
+			                                        		class="input-xlarge popovers" maxlength="11" data-trigger="hover" data-content="输入11位手机号, 只能输入数字"/>
+	                                        		</span>
+		                                        </td>
+		                                    </tr>
+		                                    <tr>
+		                                        <td class="span2"><font class="red_font"></font>出生日期:</td>
+		                                        <td>
+		                                        	<span class="text_span">$!CommUtil.parseShortDateTime($!usercenter.birthday)</span>
+		                                        	<span class="ipt_span" style="display:none;">
+		                                        		<input type="text" name="birthday" id="birthday" value="$!CommUtil.parseShortDateTime($!usercenter.birthday)" placeholder="出生日期" 
+		                                        			class="input-xlarge popovers" data-trigger="hover" data-content="请点击选择出生日期" readonly="readonly"
+				                                        	onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',maxDate:'%y-%M-%d'})"/>
+		                                        	</span>
+		                                        </td>
+		                                    </tr>
+		                                    <tr>
+		                                        <td class="span2">工作证号:</td>
+		                                        <td>
+		                                        	<span class="text_span">$!usercenter.card_number</span>
+		                                        	<span class="ipt_span" style="display:none;">
+		                                        		<input type="text" name="card_number" id="card_number" value="$!usercenter.card_number" placeholder="工作证号" 
+		                                        			class="input-xlarge popovers" maxlength="50" data-trigger="hover" data-content="输入工作证号，最多50字符"/>
+		                                        	</span>
+		                                        </td>
+		                                    </tr>
+		                                    <tr>
+		                                        <td class="span2">座机:</td>
+		                                        <td>
+		                                        	<span class="text_span">$!usercenter.tel_number</span>
+		                                        	<span class="ipt_span" style="display:none;">
+		                                        		<input type="tel" name="tel_number" id="tel_number" value="$!usercenter.tel_number" placeholder="座机" 
+		                                        			class="input-xlarge popovers" maxlength="20" data-trigger="hover" data-content="输入座机号, 只能输入数字"/>
+		                                        	</span>
+		                                        </td>
+		                                    </tr>
+		                                    <tr>
+		                                        <td class="span2"><font class="red_font"></font>部门/科组:</td>
+		                                        <td>
+		                                        	<span class="text_span">$!{usercenter.department.department_name}</span>
+		                                        	<span class="select_span">
+		                                        		<input type="hidden" value="$!{usercenter.department.id}"/>
+		                                        		<select data-placeholder="请选择部门" class="input-xlarge chosen" tabindex="-1" name="department_id" id="department_id">
+															<option value="">请选择部门</option>
+															#foreach($obj in $!departments)
+									                        <option value="$!obj.id">$!obj.department_name</option>
+									                        #end
+														</select>
+		                                        	</span>
+		                                        </td>
+		                                    </tr>
+		                                    <tr>
+		                                        <td class="span2">岗位:</td>
+		                                        <td>
+		                                        	<span class="text_span">$!{usercenter.duty.duty_name}</span>
+		                                        	<span class="select_span">
+		                                        		<input type="hidden" value="$!{usercenter.duty.id}"/>
+		                                        		<select data-placeholder="请选择岗位" class="input-xlarge chosen" tabindex="" name="duty_id" id="duty_id">
+															<option value="">请选择岗位</option>
+															#foreach($obj in $!dutys)
+									                        <option value="$!obj.id">$!obj.duty_name</option>
+									                        #end
+														</select>
+		                                        	</span>
+		                                        </td>
+		                                    </tr>
+		                                    <tr>
+		                                        <td class="span2">聘用类型:</td>
+		                                        <td>
+		                                        	<span class="text_span">$!user_relationship_map.get("$!{usercenter.user_relationship}")</span>
+		                                        	<span class="select_span">
+		                                        		<input type="hidden" value="$!usercenter.user_relationship"/>
+		                                        		<select data-placeholder="请选择聘用类型" class="input-xlarge chosen" tabindex="-1" name="user_relationship" id="user_relationship">
+															<option value="">请选择聘用类型</option>
+															#foreach($key in ${user_relationship_map.keySet()})
+											                <option value="$key">${user_relationship_map.get($key)}</option>
+											                #end
+														</select>
+		                                        	</span>
+		                                        </td>
+		                                    </tr>
+		                                    <tr id="hide_btn_tr" style="display:none;">
+		                                        <td class="span2"></td>
+		                                        <td>
+		                                        	<input type="button" id="btn_submit" class="btn btn-primary" value="保存"/>
+		                                        	<input type="button" id="btn_cancel" class="btn" value="取消"/>
+												</td>
+		                                    </tr>
+	                                    </tbody>
+	                                </table>
+                   				</div>
+                   				<div class="space5"></div>
+                     		</div>
+                  		</div>
+                  			<input type="hidden" name="id" id="id" value="$!usercenter.id"/>
+                  		</form>
+	                </div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="footer">
+		$!httpInclude.include("/common/_footer.htm")	
+	</div>
+	<script src="$!webPath/resources/js/jquery-1.8.3.min.js"></script>
+    <script src="$!webPath/resources/assets/bootstrap/js/bootstrap.min.js"></script>   
+    <script src="$!webPath/resources/js/jquery.blockui.js"></script>
+    <!-- ie8 fixes -->
+    <!--[if lt IE 9]>
+    <script src="$!webPath/resources/js/excanvas.js"></script>
+    <script src="$!webPath/resources/js/respond.js"></script>
+    <![endif]-->   
+    <script src="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.jquery.js" type="text/javascript"></script>
+    <script src="$!webPath/resources/assets/uniform/jquery.uniform.min.js" type="text/javascript"></script>
+    <script src="$!webPath/resources/js/jquery.validate.min.js" type="text/javascript" ></script>
+	<script src="$!webPath/resources/js/jquery.validate.ext.js" type="text/javascript" ></script>
+	<script src="$!webPath/resources/js/jquery.form.min.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/assets/My97DatePicker/WdatePicker.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/assets/toastr/toastr.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/js/scripts.js"></script>
+    <script src="$!webPath/resources/js/custom/common.js"></script>
+    <script>
+	jQuery(document).ready(function() {   
+		jQuery("#department_id").val("$!{usercenter.department.id}");
+		jQuery("#department_id").trigger("chosen:updated");
+		jQuery("#duty_id").val("$!{usercenter.duty.id}"); 
+		jQuery("#duty_id").trigger("chosen:updated");
+		jQuery("#user_relationship").val("$!{usercenter.user_relationship}"); 
+		jQuery("#user_relationship").trigger("chosen:updated");
+		App.init();
+		jqueryValidate();
+		initBindEvent();
+		hideFunc();
+		initToastr();
+	});
+	function jqueryValidate(){
+		jQuery("#theForm").validate({
+			errorPlacement : function(error, element) { 
+				$(error).appendTo($(element).parent()); 
+			},
+			rules:{},
+			messages:{}
+		}); 
+		var validator = $("#theForm").data("validator");
+        validator.settings.ignore = ":hidden:not(select)";
+	}
+	function initBindEvent(){
+		jQuery("#btn_usercenter_edit").unbind();
+		jQuery("#btn_usercenter_edit").bind("click", function(){
+			if(jQuery(this).children("i.icon").hasClass("icon-edit")){
+				showFunc();
+				bindEvent();
+				bindChangeEvent();
+				addRule();
+				jQuery("font.red_font").html("*");
+			}else{
+				window.location.href = "$!webPath/admin/usercenter/usercenter.htm";
+			}
+			jQuery(this).children("i.icon").toggleClass("icon-edit").toggleClass("icon-remove");
+		});
+	}
+	function bindEvent(){
+		jQuery("#btn_submit").unbind();
+		jQuery("#btn_submit").bind("click", function(){
+			if (jQuery("#theForm").valid()) {
+				jQuery("#loadingBar").show();
+				ajaxFormSubmit('theForm','defaultAjaxSaveCallBack');
+			}
+		});
+		jQuery("#btn_cancel").unbind();
+		jQuery("#btn_cancel").bind("click", function(){
+			jQuery("#btn_usercenter_edit").click();
+		});
+	}
+	function unBindEvent(){
+		jQuery("#btn_submit").unbind();
+	}
+	function bindChangeEvent(){
+		jQuery("#department_id").unbind();
+		jQuery("#department_id").change(function(){
+			jQuery.ajax({
+				type : "post",
+				url : "$!webPath/admin/duty/ajaxQueryDutyUnderDepartment.htm",
+				data : {//设置数据源
+					department_id : jQuery(this).val()
+				},
+				dataType : "json",//设置需要返回的数据类型
+				success : function(data) {
+					if(data && data != null && data.result){
+						jQuery("#duty_id").empty();  
+						jQuery("#duty_id").append("<option value=''>请选择岗位</option>");
+						jQuery.each(data.data, function(index, item){
+							var option = jQuery("<option>").val(item.id).text(item.duty_name);
+							jQuery("#duty_id").append(option);
+						});
+						jQuery("#duty_id").trigger("chosen:updated");
+					}
+				},
+				error : function() {
+					alert("系统异常，请稍后重试！");
+				}
+			});
+		});
+	}
+	function addRule(){
+		$("#true_name").rules("add",{ 
+            required:true,
+            messages:{
+                required:"姓名不能为空"
+            }
+		});  
+		$("#mobile").rules("add",{ 
+            required:true,
+            isMobile:[],
+			remote:{
+				url: "$!webPath/verify_user_mobile.htm",     //后台处理程序
+		        type: "post",               //数据发送方式
+		        dataType: "json",           //接受数据格式   
+		        data: {                     //要传递的数据
+		        	"user_id":"$!usercenter.id", 	
+		        	"mobile": function(){return jQuery("#mobile").val();}
+				}
+			},
+            messages:{
+            	required:"手机号不能为空",
+				remote:"手机号已存在, 不能重复" 
+            }
+		});  
+		$("#birthday").rules("add",{ 
+            required:true,
+            messages:{
+            	required:"出生日期不能为空"
+            }
+		});  
+		$("#department_id").rules("add",{ 
+            required:true,
+            messages:{
+            	required:"部门/科组不能为空"
+            }
+		});  
+	}
+	function showFunc(){
+		jQuery("#usercenter_tbody span.text_span").hide();
+		jQuery("#usercenter_tbody span.ipt_span").show();
+		jQuery("#usercenter_tbody span.select_span").show();
+		jQuery("#hide_btn_tr").show();
+	}
+	function hideFunc(){
+		jQuery("#usercenter_tbody span.text_span").show();
+		jQuery("#usercenter_tbody span.ipt_span").hide();
+		jQuery("#usercenter_tbody span.select_span").hide();
+		jQuery("#hide_btn_tr").hide();
+	}
+	
+	</script>
+</body>
+</html>

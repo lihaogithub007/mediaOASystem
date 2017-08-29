@@ -1,0 +1,199 @@
+package com.yuyu.soft.service.impl;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.springframework.stereotype.Service;
+
+import com.yuyu.soft.dao.IBaseDao;
+import com.yuyu.soft.entity.VacationApply;
+import com.yuyu.soft.entity.VacationApplyDetails;
+import com.yuyu.soft.service.IAttendanceRecordService;
+import com.yuyu.soft.service.IUserService;
+import com.yuyu.soft.service.IVacationApplyDetailsService;
+import com.yuyu.soft.util.CommUtil;
+import com.yuyu.soft.util.Constants;
+import com.yuyu.soft.util.PagerInfo;
+import com.yuyu.soft.util.ResultMsg;
+
+@Service("vacationApplyDetailsService")
+public class VacationApplyDetailsServiceImpl implements IVacationApplyDetailsService {
+
+    @Resource
+    private IBaseDao<VacationApplyDetails> vacationApplyDetailsDao;
+    @Resource
+    private IUserService                   userService;
+    @Resource
+    private IAttendanceRecordService       attendanceRecordService;
+
+    @Override
+    public List<VacationApplyDetails> queryVacationApplyDetails(Long user_id, Long vacation_apply_id) {
+
+        if (user_id == null && vacation_apply_id == null) {
+            return new ArrayList<VacationApplyDetails>();
+        }
+        StringBuilder s = new StringBuilder();
+        s.append("from VacationApplyDetails t where t.disabled = false");
+        if (user_id != null) {
+            s.append(" and t.user.id = ").append(user_id);
+        }
+        if (vacation_apply_id != null) {
+            s.append(" and t.vacationApply.id = ").append(vacation_apply_id);
+        }
+        s.append(" order by t.createtime asc");
+        List<VacationApplyDetails> vacationApplyDetailss = vacationApplyDetailsDao.find(s
+            .toString());
+        if ((vacationApplyDetailss == null) || (vacationApplyDetailss.size() == 0)) {
+            return new ArrayList<VacationApplyDetails>();
+        }
+        return vacationApplyDetailss;
+    }
+
+    @Override
+    public List<VacationApplyDetails> queryVacationApplyDetails(String hql,
+                                                                Map<String, Object> paramsMap,
+                                                                PagerInfo pager) {
+        if (pager != null) {
+            pager.setRowsCount(vacationApplyDetailsDao.count("select count(t) " + hql, paramsMap));
+            return vacationApplyDetailsDao.find(hql, paramsMap, pager.getStart(),
+                pager.getPageSize());
+        } else {
+            return vacationApplyDetailsDao.find(hql, paramsMap);
+        }
+
+    }
+
+    @Override
+    public VacationApplyDetails getVacationApplyDetails(Long id) {
+        return vacationApplyDetailsDao.get(VacationApplyDetails.class, id);
+    }
+
+    @Override
+    public void addVacationApplyDetails(VacationApplyDetails vacationApplyDetails) {
+        this.vacationApplyDetailsDao.save(vacationApplyDetails);
+    }
+
+    @Override
+    public void updateVacationApplyDetails(VacationApplyDetails vacationApplyDetails) {
+        this.vacationApplyDetailsDao.update(vacationApplyDetails);
+    }
+
+    @Override
+    public void delVacationApplyDetails(VacationApplyDetails vacationApplyDetails) {
+        vacationApplyDetails = getVacationApplyDetails(vacationApplyDetails.getId());
+        vacationApplyDetails.setDisabled(true);
+        updateVacationApplyDetails(vacationApplyDetails);
+    }
+
+    @Override
+    public ResultMsg save(VacationApply vacationApply, String vad_arr) {
+        ResultMsg rmg = save_check_and_init(vacationApply, vad_arr);
+        if (!rmg.getResult()) {
+            return rmg;
+        }
+        back_leave_days(vacationApply);
+        List<VacationApplyDetails> vadList = (List<VacationApplyDetails>) rmg.getData();
+        if (vadList != null && vadList.size() > 0) {
+            for (VacationApplyDetails vad : vadList) {
+                addVacationApplyDetails(vad);
+                vad = getVacationApplyDetails(vad.getId());
+                attendanceRecordService.update_leave_days(vad, "add");
+            }
+        }
+        return CommUtil.setResultMsgData(rmg, true, "请假申请明细保存成功");
+    }
+
+    @Override
+    public void back_leave_days(VacationApply vacationApply) {
+        List<VacationApplyDetails> oldList = queryVacationApplyDetails(null, vacationApply.getId());
+        if (oldList != null && oldList.size() > 0) {
+            for (VacationApplyDetails vad : oldList) {
+                vad = getVacationApplyDetails(vad.getId());
+                delVacationApplyDetails(vad);
+                attendanceRecordService.update_leave_days(vad, "subtract");
+            }
+        }
+    }
+
+    private ResultMsg save_check_and_init(VacationApply vacationApply, String vad_arr) {
+        if (vacationApply == null || vacationApply.getId() == null) {
+            return CommUtil.setResultMsgData(null, false, "请假申请对象为空");
+        }
+        if (vacationApply.getUser() == null || vacationApply.getUser().getId() == null) {
+            return CommUtil.setResultMsgData(null, false, "请假申请申请人为空");
+        }
+
+        try {
+            ResultMsg rmg = CommUtil.setResultMsgData(null, true, "校验成功");
+            List<VacationApplyDetails> vadList = new ArrayList<VacationApplyDetails>();
+            JSONArray array = JSONArray.fromObject(vad_arr);
+            Date date = new Date();
+            BigDecimal tempDecimal = new BigDecimal(-1);
+            for (int i = 0; i < array.size(); i++) {
+                JSONObject obj = (JSONObject) array.get(i);
+                Integer leave_type = CommUtil.null2Integer(obj.get("leave_type"));
+                if (leave_type == null
+                    || CommUtil.isBlank(Constants.LEAVE_TYPE_MAP.get(leave_type.toString()))) {
+                    return CommUtil.setResultMsgData(rmg, false, "请假申请对象为空");
+                }
+                Date begin_time = CommUtil.formatDate(CommUtil.null2String(obj.get("begin_time")));
+                Date end_time = CommUtil.formatDate(CommUtil.null2String(obj.get("end_time")));
+                if (begin_time == null) {
+                    return CommUtil.setResultMsgData(rmg, false, "请假明细开始时间为空");
+                }
+                if (begin_time.before(vacationApply.getVacation_begin_date())) {
+                    return CommUtil.setResultMsgData(rmg, false, "请假明细开始时间在请假开始时间之前");
+                }
+                if (end_time == null) {
+                    return CommUtil.setResultMsgData(rmg, false, "请假明细结束时间为空");
+                }
+                if (end_time.after(vacationApply.getVacation_end_date())) {
+                    return CommUtil.setResultMsgData(rmg, false, "请假明细结束时间在请假结束时间之后");
+                }
+                if (begin_time.after(end_time)) {
+                    return CommUtil.setResultMsgData(rmg, false, "请假明细开始时间在请假明细结束时间之后");
+                }
+                BigDecimal dates = CommUtil.null2BigDecimal(obj.get("dates"));
+                if (dates == null || dates.compareTo(tempDecimal) <= 0) {
+                    return CommUtil.setResultMsgData(rmg, false, "请假明细天数为空");
+                }
+
+                VacationApplyDetails vad = new VacationApplyDetails();
+                vad.setDisabled(false);
+                vad.setCreatetime(date);
+                vad.setVacationApply(vacationApply);
+                vad.setUser(vacationApply.getUser());
+                vad.setLeave_type(leave_type);
+                vad.setBegin_time(begin_time);
+                vad.setEnd_time(end_time);
+                vad.setDates(dates);
+                vadList.add(vad);
+            }
+            for (int i = 0; i < vadList.size() - 1; i++) {
+                VacationApplyDetails vad = vadList.get(i);
+                Date begin_time = vad.getBegin_time();
+                Date end_time = vad.getEnd_time();
+                for (int j = i + 1; j < vadList.size(); j++) {
+                    VacationApplyDetails vad2 = vadList.get(j);
+                    Date begin_time2 = vad2.getBegin_time();
+                    Date end_time2 = vad2.getEnd_time();
+                    if (!(begin_time.after(end_time2) || begin_time2.after(end_time))) {
+                        return CommUtil.setResultMsgData(rmg, false, "请假明细时间存在冲突");
+                    }
+                }
+            }
+            rmg.setData(vadList);
+            return rmg;
+        } catch (Exception e) {
+            return CommUtil.setResultMsgData(null, false, e.getMessage());
+        }
+    }
+}

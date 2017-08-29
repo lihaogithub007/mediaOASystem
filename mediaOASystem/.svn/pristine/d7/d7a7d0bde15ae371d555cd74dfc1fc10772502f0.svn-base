@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<!--[if IE 8]> <html class="ie8"> <![endif]-->
+<!--[if IE 9]> <html class="ie9"> <![endif]-->
+<!--[if !IE]><!--> <html> <!--<![endif]-->
+<head>
+<meta charset="utf-8" />
+<title>新媒体智能管理系统</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="" name="description"/>
+<meta content="" name="author"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="renderer" content="webkit|ie-comp|ie-stand" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="$!webPath/resources/assets/font-awesome/css/font-awesome.css" rel="stylesheet"/>
+<link href="$!webPath/resources/css/style.css" rel="stylesheet"/>
+<link href="$!webPath/resources/css/style_responsive.css" rel="stylesheet"/>
+<link href="$!webPath/resources/css/style_default.css" rel="stylesheet" id="style_color"/>
+<link href="$!webPath/resources/assets/toastr/toastr.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/fancybox/source/jquery.fancybox.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/My97DatePicker/skin/WdatePicker.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/css/custom/resume.css" rel="stylesheet" type="text/css" />
+</head>
+<body class="full-screen-body">
+	<div class="login-header">
+    	<div id="logo" class="center" style="width:400px;padding-top:13px;">
+        	<img src="$!webPath/resources/img/logo_log.png" alt="logo" class="center" />
+		</div>
+	</div>
+	<div class="main">
+        <div class="column Fm" id="maincontent">
+            <div class="box mk top_wrap" id="basedetail">
+                <div class="head" id="Basic">
+                    <div class="name" title="$!resume.name">$!CommUtil.substring($!resume.name,20)</div>
+                    <p class="at">
+                    	应聘岗位：$!{resume.duty.duty_name}
+				       	#if("1"=="$!resume.sex" || "2"=="$!resume.sex") &nbsp;│&nbsp; $!sex_map.get("$!resume.sex") #end
+				       	#if(""!="$!resume.birthday") 
+				       	&nbsp;│&nbsp; $!CommUtil.getAge($!resume.birthday)岁($!CommUtil.parseDateTime("yyyy/MM/dd",$!resume.birthday))
+				    	#end
+                    </p>
+                    <div class="tab">
+                        <span class="email icons at" title="$!resume.email">$!resume.email</span>&nbsp;
+                        <span class="tel icons">$!resume.mobile</span>
+                    </div>
+                    <div class="abox">
+                        <div class="mbox" onclick="showMoreClickEvent(this)">
+                            <span class="icons">更多展开</span><em class="icons"></em>
+                        </div>
+                        <div class="all">
+                        	<div class="e e2_base clear_left">
+				                <label>目前薪资</label><i>：</i><div>&nbsp;$!{resume.current_salary}&nbsp;元&nbsp;(税前)</div>
+				            </div>
+				            <div class="e e2_base">
+				                <label>期望薪资</label><i>：</i><div>&nbsp;$!{resume.expect_salary}&nbsp;元&nbsp;(税前)</div>
+				            </div>
+				            <div class="e e2_base clear_left">
+				                <label>可到岗时间</label><i>：</i><div>&nbsp;$!resume.available_time</div>
+				            </div>
+                        	<div class="e e2_base">
+				                <label>政治面貌</label><i>：</i><div>&nbsp;$!political_status_map.get("$!resume.political_status")</div>
+				            </div>
+                        	<div class="e e2_base clear_left">
+				                <label>国籍</label><i>：</i><div>&nbsp;$!resume.nationality</div>
+				            </div>
+				            <div class="e e2_base">
+				                <label>民族</label><i>：</i><div>&nbsp;$!resume.nation</div>
+				            </div>
+				            <div class="e e2_base clear_left">
+				                <label>婚姻状况</label><i>：</i><div>&nbsp;$!marriage_status_map.get("$!resume.marriage_status")</div>
+				            </div>
+				            <div class="e e2_base">
+				                <label>子女情况</label><i>：</i><div>&nbsp;$!resume.condition_of_children</div>
+				            </div>
+				            <div class="e e2_base clear_left">
+				                <label>身高</label><i>：</i><div>&nbsp;$!resume.stature&nbsp;cm</div>
+				            </div>
+				            <div class="e e2_base">
+				                <label>体重</label><i>：</i><div>&nbsp;$!resume.body_weight&nbsp;kg</div>
+				            </div>
+				            <div class="e e2_base clear_left">
+				                <label>健康状况</label><i>：</i><div>&nbsp;$!resume.health_condition</div>
+				            </div>
+				            <div class="e e2_base">
+				                <label>过往病史</label><i>：</i><div>&nbsp;$!resume.past_illness_history</div>
+				            </div>
+				            <div class="e e2_base clear_left">
+				                <label>最高学历</label><i>：</i><div>&nbsp;$!resume.highest_education</div>
+				            </div>
+				            <div class="e e2_base">
+				                <label>毕业院校</label><i>：</i><div>&nbsp;$!resume.graduate_school</div>
+				            </div>
+				            <div class="e e2_base clear_left">
+				                <label>专业</label><i>：</i><div>&nbsp;$!resume.major</div>
+				            </div>
+				            <div class="e e2_base clear_left">
+				                <label>外语种类/水平</label><i>：</i><div>&nbsp;$!resume.foreign_language_level</div>
+				            </div>
+				            <div class="e e2_base">
+				                <label>计算机水平</label><i>：</i><div>&nbsp;$!resume.computer_skill</div>
+				            </div>
+				            <div class="e e2_base clear_left">
+				                <label>获得职称</label><i>：</i><div>&nbsp;$!resume.job_titles</div>
+				            </div>
+				            <div class="e e2_base">
+				                <label>资格证书</label><i>：</i><div>&nbsp;$!resume.qualification_certificate</div>
+				            </div>
+				            <div class="e e2_base clear_left">
+				                <label>户口所在地</label><i>：</i><div>&nbsp;$!resume.domicile_place</div>
+				            </div>
+				            <div class="e e2_base">
+				                <label>身份证号</label><i>：</i><div>&nbsp;$!resume.ID_number</div>
+				            </div>
+				            <div class="e e2_base clear_left">
+				                <label>家庭地址</label><i>：</i><div>&nbsp;$!resume.home_address</div>
+				            </div>
+				            <div class="e e2_base">
+				                <label>在京居住地址</label><i>：</i><div>&nbsp;$!resume.present_address</div>
+				            </div>
+				            <div class="e e2_base clear_left">
+				                <label>工作年限</label><i>：</i><div>&nbsp;$!resume.work_years</div>
+				            </div>
+				            <div class="e e2_base">
+				                <label>同行工作年限</label><i>：</i><div>&nbsp;$!resume.same_industry_work_years</div>
+				            </div>
+				            <div class="e e2_base clear_left" style="width:800px;">
+				                <label>兴趣爱好</label><i>：</i><div>&nbsp;$!resume.hobby_and_interest</div>
+				            </div>
+				            <div class="e e2_base clear_left" style="width:800px;">
+				                <label>技能专长</label><i>：</i><div>&nbsp;$!resume.skills</div>
+				            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+                <span class="ed_icon_blue icons" id="basedetail_edit" onclick="editButtonClick(this)"></span><span class="ed_icon_yellow icons"></span>
+            </div>
+            <div class="box mk">
+                <div class="hd">
+                    <strong class="icons" id="Work"><em class="e2 icons"></em>工作经历</strong>
+                    <span class="copywrite">&nbsp;&nbsp;*请从最近的一次工作经历填起</span>
+                    <a id="work_new" onclick="newButtonClick(this);" class="add icons">新增工作</a>
+                </div>
+                <div id="work">
+                	#if($!resumeWorkList && $!resumeWorkList.size()>0)
+	                	#foreach($obj in $!resumeWorkList)
+	                		<div class="bd" id="work_view_$!obj.id">
+		                        <div class="con edit">
+		                            <div class="sp">
+		                                <span>$!CommUtil.parseDateTime("yyyy/MM/dd",$!obj.work_time_begin)-$!CommUtil.parseDateTime("yyyy/MM/dd",$!obj.work_time_end)</span>
+		                                <strong class="w360 at" title="$obj.work_comp_name">$!CommUtil.substring($!obj.work_comp_name,25)</strong>
+		                                <strong class="fbox"><span class="zhi at">$!work_type_map.get("$!obj.work_type")</span><em></em></strong>
+		                            </div>
+		                            <div class="e e2 clear_left">
+		                                <label>岗位</label><i>：</i>
+		                                <div>&nbsp;$!obj.work_duty_name</div>
+		                            </div>
+		                            <div class="e e2_base">
+		                                <label>月收入(税前)</label><i>：</i>
+		                                <div>&nbsp;$!{obj.month_salary}&nbsp;元</div>
+		                            </div>
+		                            <div class="e e2 clear_left">
+		                                <label>证明人</label><i>：</i>
+		                                <div>&nbsp;$!{obj.voucher_name}</div>
+		                            </div>
+		                            <div class="e e2_base">
+		                                <label>证明电话</label><i>：</i>
+		                                <div>&nbsp;$!{obj.voucher_mobile}</div>
+		                            </div>
+		                            <div class="clearfix"></div>
+		                            <span class="ed_icon"><em class="edi icons" id="work_edit_$!obj.id" onclick="editButtonClick(this)"></em>
+		                            <em class="del icons" id="work_delete_$!obj.id" onclick="deleteButtonClick(this)"></em></span>
+		                        </div>
+		                    </div>
+	                	#end
+	                #else
+	                	<div class="none icons" id="work_empty">没有工作经历！</div>
+                	#end
+                </div>
+            </div> 
+            <div class="box mk">
+                <div class="hd">
+                    <strong class="icons" id="Education"><em class="e4 icons"></em>教育经历</strong>
+                    <span class="copywrite">&nbsp;&nbsp;*请从高中教育填起</span>
+                    <a id="education_new" onclick="newButtonClick(this);" class="add icons">新增教育</a>
+                </div>
+                <div id="education">
+                    #if($!resumeEducationList && $!resumeEducationList.size()>0)
+	                	#foreach($obj in $!resumeEducationList)
+	                		<div class="bd" id="education_view_$!obj.id">
+		                        <div class="con edit ebox">
+		                            <div class="sp">
+		                                <span>$!CommUtil.parseDateTime("yyyy/MM/dd",$!obj.admission_date)-$!CommUtil.parseDateTime("yyyy/MM/dd",$!obj.graduation_date)</span>
+		                                <strong class="w360 at" title="$obj.edu_school_name">$!CommUtil.substring($!obj.edu_school_name,25)</strong>
+		                            </div>
+		                            <div class="e">
+						                <label>专业</label><i>：</i>
+						                <div>&nbsp;$!obj.edu_major</div>
+						            </div>
+						            <div class="e">
+						                <label>学习性质</label><i>：</i>
+						                <div>&nbsp;$!edu_type_map.get("$!obj.edu_type")</div>
+						            </div>
+						            <div class="e">
+						                <label>学位</label><i>：</i>
+						                <div>&nbsp;$!obj.edu_offering</div>
+						            </div>
+		                            <div class="clearfix"></div>
+		                            <span class="ed_icon"><em class="edi icons" id="education_edit_$!obj.id" onclick="editButtonClick(this)"></em>
+		                            <em class="del icons" id="education_delete_$!obj.id" onclick="deleteButtonClick(this)"></em></span>
+		                        </div>
+		                    </div>
+	                	#end
+	                #else
+	                	<div class="none icons" id="education_empty">没有教育经历！</div>
+                	#end
+                </div>
+            </div>
+            <div class="box mk">
+            	<div class="hd">
+                    <strong class="icons" id="Family_member"><em class="e01 icons"></em>家庭成员</strong>
+                    <span class="copywrite">&nbsp;&nbsp;*配偶、子女、父母等</span>
+                    <a id="familymember_new" onclick="newButtonClick(this);" class="add icons">新增成员</a>
+                </div>
+                <div id="familymember">
+                    #if($!resumeFamilyMemberList && $!resumeFamilyMemberList.size()>0)
+	                	#foreach($obj in $!resumeFamilyMemberList)
+	                		<div class="bd" id="familymember_view_$!obj.id">
+		                        <div class="con edit">
+		                            <div class="e e2 clear_left">
+						                <label>姓名</label><i>：</i>
+						                <div>&nbsp;$!obj.family_member_name</div>
+						            </div>
+		                            <div class="e e2">
+						                <label>关系</label><i>：</i>
+						                <div>&nbsp;$!family_relationship_map.get("$!obj.family_relationship")</div>
+						            </div>
+						            <div class="e e2 clear_left">
+						                <label>工作单位</label><i>：</i>
+						                <div>&nbsp;$!obj.family_member_unit</div>
+						            </div>
+						            <div class="e e2">
+						                <label>职务</label><i>：</i>
+						                <div>&nbsp;$!obj.family_member_duty</div>
+						            </div>
+						            <div class="e e2 clear_left">
+						                <label>所在地址</label><i>：</i>
+						                <div>&nbsp;$!obj.family_member_work_place</div>
+						            </div>
+						            <div class="e e2">
+						                <label>联系电话</label><i>：</i>
+						                <div>&nbsp;$!obj.family_member_mobile</div>
+						            </div>
+		                            <div class="clearfix"></div>
+		                            <span class="ed_icon"><em class="edi icons" id="familymember_edit_$!obj.id" onclick="editButtonClick(this)"></em>
+		                            <em class="del icons" id="familymember_delete_$!obj.id" onclick="deleteButtonClick(this)"></em></span>
+		                        </div>
+		                    </div>
+	                	#end
+	                #else
+	                	<div class="none icons" id="familymember_empty">没有家庭成员记录！</div>
+                	#end
+                </div>
+            </div>
+            <div class="box mk">
+				<div class="hd">
+					<strong class="icons" id="Graduate"><em class="e1 icons"></em>其他信息</strong>
+				</div>
+				<div id="resumeothers">
+					<div class="bd" id="resumeothers_view_$!resume.resumeOthers.id">
+                        <div class="con edit">
+                            <div class="e_no_width">
+					            <label>何时何地受到何种奖励：</label>
+					            <div>&nbsp;$!resume.resumeOthers.reward_name</div>
+					        </div>
+					        <div class="e_no_width">
+					            <label>何时何地受到何种处分：</label>
+					            <div>&nbsp;$!resume.resumeOthers.punishment_name</div>
+					        </div>
+					        <div class="e_no_width">
+					            <label>离职原因：</label>
+					            <div>&nbsp;$!dimission_reason_map.get("$!resume.resumeOthers.dimission_reason")</div>
+					        </div>
+					        <div class="e_no_width">
+					            <label>与原单位劳动合同情况：</label>
+					            <div>&nbsp;$!resume.resumeOthers.contract_status_with_old_unit</div>
+					        </div>
+					        <div class="e_no_width">
+					            <label>有无竞业条例：</label>
+					            <div>&nbsp;$!have_or_not_map.get("$!resume.resumeOthers.has_non_competition")</div>
+					        </div>
+					        <div class="e_no_width">
+					            <label>应聘原因：</label>
+					            <div>&nbsp;$!resume.resumeOthers.apply_reason</div>
+					        </div>
+					        <div class="e_no_width">
+					            <label>有无亲属在本单位任职：</label>
+					            <div>&nbsp;$!have_or_not_map.get("$!resume.resumeOthers.has_relatives_in_unit")</div>
+					        </div>
+					        <div class="e_no_width">
+					            <label>如未能被申请岗位录用，有无其他意向岗位：</label>
+					            <div>&nbsp;$!have_or_not_map.get("$!resume.resumeOthers.accept_other_positions")</div>
+					        </div>
+					        <div class="e_no_width">
+					            <label>是否接受单位调剂：</label>
+					            <div>&nbsp;$!is_or_not_map.get("$!resume.resumeOthers.accept_unit_adjustment")</div>
+					        </div>
+					        <div class="e_no_width">
+					            <label>个人评价：</label>
+					            <div>&nbsp;$!resume.resumeOthers.self_evaluation</div>
+					        </div>
+					        <div class="e_no_width">
+					            <label>其他补充说明或其它个人特别的期望：</label>
+					            <div>&nbsp;$!resume.resumeOthers.supplement_instruction</div>
+					        </div>
+                            <div class="clearfix"></div>
+                            <span class="ed_icon"><em class="edi icons" id="resumeothers_edit_$!resume.resumeOthers.id" onclick="editButtonClick(this)"></em></span>
+                        </div>
+                    </div>
+				</div>
+			</div>
+        </div>
+       	<div class="box mk">
+			<div class="hd">
+				<strong class="icons" id="Photo"><em class="e7 icons"></em>上传照片</strong>
+			</div>
+			<div id="photo">
+				<div class="bd" id="photo_view_photo">
+	            	<div class="con edit">
+	            		#if($!attachments && $!attachments.size()>0)
+	            		<div style="width:80%;text-align:left;">
+			       		#foreach($attach in $!attachments)
+							<span class="span2">
+						   		#if($!CommUtil.isImage("$!attach.mime_type"))
+						        	<a class="fancybox-button" data-rel="fancybox-button" title="$!attach.original_file_name" href="$!webPath/$!attach.save_path/$!attach.save_file_name">
+									<div class="zoom">
+										<img src="$!webPath/$!attach.save_path/$!attach.save_file_name">
+											<div class="zoom-icon"></div>
+										</div>
+									</a>
+								#end    
+						    </span>
+						#end
+						</div>
+						#else
+						<div class="none icons" id="photo_empty">没有上传照片</div>
+						#end
+                       <div class="clearfix"></div>
+                       <span class="ed_icon"><em class="edi icons" id="photo_edit_photo" onclick="editButtonClick(this)"></em>
+                   </div>
+               </div>
+			</div>
+		</div>
+        <div class="resume_main_footer">
+			<p class="note">
+				<span>
+					本人在该申请表中所填写的一切均属实且准确。如有隐瞒或虚报，自愿接受立即解雇的处理。<br/>
+					本人授权应聘单位调查上述资料的真实性。
+				</span>
+			</p>
+		</div>
+		<div style="margin:0px auto;text-align:center;width:100%;">
+        	<input type="button" name="btn_close" class="p_but" style="margin:20px auto;height:30px;line-height:30px;padding:0px 6px;" value="提交"
+        		onclick="javascript:window.opener=null;window.close();"/>
+        </div>
+        <input type="hidden" name="resume_id" id="resume_id" value="$!resume.id"/>
+    </div>
+	<div id="login-copyright">
+    	$!httpInclude.include("/common/copyright.htm") 
+	</div>
+	<script src="$!webPath/resources/js/jquery-1.8.3.min.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/vendor/jquery.ui.widget.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/tmpl.min.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/load-image.min.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/canvas-to-blob.min.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/jquery.blueimp-gallery.min.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/jquery.iframe-transport.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/jquery.fileupload.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/jquery.fileupload-process.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/jquery.fileupload-image.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/jquery.fileupload-validate.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/jquery.fileupload-ui.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/main.js"></script>
+	<!--[if (gte IE 8)&(lt IE 10)]>
+	<script src="$!webPath/resources/assets/fileupload/js/cors/jquery.xdr-transport.js"></script>
+	<![endif]-->
+	<script src="$!webPath/resources/assets/bootstrap/js/bootstrap.min.js"></script>
+	<script src="$!webPath/resources/js/jquery.blockui.js"></script>
+    <script src="$!webPath/resources/assets/toastr/toastr.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.jquery.js" type="text/javascript"></script>
+    <script src="$!webPath/resources/assets/fancybox/source/jquery.fancybox.pack.js"></script>  
+    <script src="$!webPath/resources/js/jquery.validate.min.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/js/jquery.validate.ext.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/assets/My97DatePicker/WdatePicker.js" type="text/javascript" ></script>
+   	<script src="$!webPath/resources/js/jquery.form.min.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/js/scripts.js"></script>
+    <script src="$!webPath/resources/js/custom/common.js"></script>
+	<script>
+	jQuery(document).ready(function() {     
+		App.init();
+		initToastr();
+	});
+	var aConfig = {
+	    "basedetail": {
+	        "info": {
+	            "ajax": "resume_base.htm",
+	            "key": "",
+	            "type":"1",
+	            "editclass": "box mk com",
+	            "viewclass": "box mk top_wrap"
+	        }
+	    },
+	    "work": {
+	        "info": {
+	            "ajax": "resume_work.htm",
+	            "key": "work_id",
+	            "type":"work"
+	        }
+	    },
+	    "education": {
+	        "info": {
+	            "ajax": "resume_education.htm",
+	            "key": "education_id",
+	            "type":"education"
+	        }
+	    },
+	    "schoolaward": {
+	        "info": {
+	            "ajax": "resume_schoolaward.htm",
+	            "key": "schoolaward_id",
+	            "type":"schoolaward"
+	        }
+	    },
+	    "familymember": {
+	        "info": {
+	            "ajax": "resume_family_member.htm",
+	            "key": "familymember_id",
+	            "type":"familymember"
+	        }
+	    },
+	    "resumeothers": {
+	        "info": {
+	            "ajax": "resume_others.htm",
+	            "key": "resumeothers_id",
+	            "type":"resumeothers",
+	        }
+	    },
+	    "photo": {
+	        "info": {
+	            "ajax": "resume_photo.htm",
+	            "key": "photo_id",
+	            "type":"photo"
+	        }
+	    },
+	}
+	
+	function getTypeInfo(sModule){
+	    return aConfig[sModule]["info"];
+	}
+	function showMoreClickEvent(p_oEvent){
+	    if( ($(p_oEvent).hasClass("on")) && (!$(p_oEvent).parent().parent().hasClass("m1")) ){
+	        $(p_oEvent).removeClass("on").children("span").html("更多展开").next().css("display","none").parent().next().css("display","none");
+	    }else if((!$(p_oEvent).hasClass("on")) && (!$(p_oEvent).parent().parent().hasClass("m1")) ){
+	        $(p_oEvent).addClass("on").children("span").html("更多收起").next().css("display","block").parent().next().css("display","block");
+	    }else if(($(p_oEvent).hasClass("on")) && ($(p_oEvent).parent().parent().hasClass("m1")) ){
+	        $(p_oEvent).removeClass("on").children("em").css("display","none").parent().next().css("display","none");
+	    }else{
+	        $(p_oEvent).addClass("on").children("em").css("display","block").parent().next().css("display","block");
+	    }
+	}
+	
+	//新增按钮事件
+	function newButtonClick(p_oObject){
+	    
+		var sType = p_oObject.id.split("_")[0];
+	    if(!checkNumofEachModule("hide", sType, "new")){
+	        return;
+	    }
+	    var resume_id = $("#resume_id").val();
+	    aTypeInfo = getTypeInfo(sType);
+	    
+	    var oDataparams = {
+	        resume_id:resume_id
+	    };
+	        
+	    $.ajax({
+	        url:"$!webPath/resume/" + aTypeInfo["ajax"] + "?action=new",
+	        type:"POST",
+	        data:oDataparams,
+	        datatype:"text",
+	        async:false,
+	        success:function(data){
+	            if(data){
+	                if($("#" + sType + "_empty").length > 0){
+	                    $("#" + sType + "_empty").remove();
+	                }
+	                $("#" + sType).prepend(data);
+	            }
+	        }
+	    });
+	}
+	//编辑按钮事件
+	function editButtonClick(p_oObject){
+	    var sType = p_oObject.id.split("_")[0];
+	    if(!checkNumofEachModule("hide", sType)){
+	        return;
+	    }
+	    var resume_id = $("#resume_id").val();
+	    aTypeInfo = getTypeInfo(sType);
+	    
+	    var oDataparams = {
+	        resume_id:resume_id
+	    };
+	    if(aTypeInfo["type"] != "1"){
+	        var sId = p_oObject.id.split("_")[2];
+	        oDataparams[aTypeInfo["key"]] = sId;
+	    }
+	    $.ajax({
+	        url:"$!webPath/resume/" + aTypeInfo["ajax"] + "?action=modify",
+	        type:"POST",
+	        data:oDataparams,
+	        async:false,
+	        success:function(data){
+	            if(data){
+	                if(aTypeInfo["type"] == "1"){
+	                    $("#" + sType).empty();
+	                    $("#" + sType).attr("class", aTypeInfo["editclass"]);
+	                    $("#" + sType).append(data);
+	                }else{
+	                    $("#" + sType + "_view_" + sId).replaceWith(data);
+	                }
+	            }
+	           
+	        }
+	    })
+	}
+	//删除按钮事件
+	function deleteButtonClick(p_oObject){
+	    if(existEditDiv){
+	        return;
+	    }
+	    if(confirm("确认删除这条记录?")){
+	    	var sType = p_oObject.id.split("_")[0];
+		    var resume_id = $("#resume_id").val();
+		    aTypeInfo = getTypeInfo(sType);
+		    
+		    var oDataparams = {
+		        resume_id:resume_id
+		    };
+		    if(aTypeInfo["type"] != "1"){
+		        var sId = p_oObject.id.split("_")[2];
+		        oDataparams[aTypeInfo["key"]] = sId;
+		    }
+		    $.ajax({
+		        url:"$!webPath/resume/" + aTypeInfo["ajax"] + "?action=delete",
+		        type:"POST",
+		        data:oDataparams,
+		        datatype:"text",
+		        async:false,
+		        success:function(data){
+		        	if(data){
+		                $("#" + sType).empty();
+		                $("#" + sType).append(data);
+		                if($("#" + sType + "_save").length == 0){
+		                    $("#" + sType).attr("class", aTypeInfo["viewclass"]);
+		                }
+		            }
+		        }
+		    });
+	    }
+	}
+	//保存按钮事件
+	function saveButtonClick(p_oObject, formId){
+	    if (!$("#"+formId).valid()) {
+	    	return false;
+	    }
+	    var sType = p_oObject.id.split('_')[0];
+	    if(!checkNumofEachModule("show", sType)){
+	        return;
+	    }
+	    var resume_id = $("#resume_id").val();
+	    aTypeInfo = getTypeInfo(sType);
+	    
+	    var oDataparams = {
+	        resume_id:resume_id
+	    };
+	    if(aTypeInfo["type"] != "1"){
+	        var sId = p_oObject.id.split("_")[2];
+	        oDataparams[aTypeInfo["key"]] = sId;
+	    }
+	    $("#"+formId).ajaxSubmit({
+	    	url:"$!webPath/resume/" + aTypeInfo["ajax"] + "?action=save",
+	        type:"POST",
+	        data:oDataparams,
+	        datatype:"text",
+	        async:false,
+			success : function(data) { 
+				if(data){
+	                $("#" + sType).empty();
+	                $("#" + sType).append(data);
+	                if($("#" + sType + "_save").length == 0){
+	                    $("#" + sType).attr("class", aTypeInfo["viewclass"]);
+	                }
+	            }
+			}
+		}); 
+	    goToDiv(p_oObject.id.split("_")[0]);
+	}
+	//保存按钮事件
+	function saveButtonClickForPhoto(p_oObject, formId){
+	    if (!$("#"+formId).valid()) {
+	    	return false;
+	    }
+	    var sType = p_oObject.id.split('_')[0];
+	    if(!checkNumofEachModule("show", sType)){
+	        return;
+	    }
+	    var resume_id = $("#resume_id").val();
+	    aTypeInfo = getTypeInfo(sType);
+	    
+	    var oDataparams = {
+	        resume_id:resume_id
+	    };
+	    if(aTypeInfo["type"] != "1"){
+	        var sId = p_oObject.id.split("_")[2];
+	        oDataparams[aTypeInfo["key"]] = sId;
+	    }
+	    setAttachmentsIds();
+	    $("#"+formId).ajaxSubmit({
+	    	url:"$!webPath/resume/" + aTypeInfo["ajax"] + "?action=save",
+	        type:"POST",
+	        data:oDataparams,
+	        datatype:"text",
+	        async:false,
+			success : function(data) { 
+				if(data){
+	                $("#" + sType).empty();
+	                $("#" + sType).append(data);
+	                if($("#" + sType + "_save").length == 0){
+	                    $("#" + sType).attr("class", aTypeInfo["viewclass"]);
+	                }
+	            }
+			}
+		}); 
+	    goToDiv(p_oObject.id.split("_")[0]);
+	}
+	function goToDiv(target_id){
+		var _targetDiv = $("#"+target_id).offset().top;
+		jQuery("html,body").animate({scrollTop:_targetDiv},100);
+	}
+	//取消按钮事件
+	function cancelButtonClick(p_oObject){
+	    var sType = p_oObject.id.split("_")[0];
+	    if(!checkNumofEachModule("show", sType)){
+	        return;
+	    }
+	    var resume_id = $("#resume_id").val();
+	    aTypeInfo = getTypeInfo(sType);
+	    
+	    var oDataparams = {
+	        resume_id:resume_id
+	    };
+	    if(aTypeInfo["type"] != "1"){
+	        var sId = p_oObject.id.split("_")[2];
+	        oDataparams[aTypeInfo["key"]] = sId;
+	    }
+	    $.ajax({
+	        url:"$!webPath/resume/" + aTypeInfo["ajax"] + "?action=cancel",
+	        type:"POST",
+	        data:oDataparams,
+	        async:false,
+	        success:function(data){
+	        	if(data){
+	                $("#" + sType).empty();
+	                $("#" + sType).append(data);
+	                if($("#" + sType + "_cancel").length == 0){
+	                    $("#" + sType).attr("class", aTypeInfo["viewclass"]);
+	                }
+	        	}
+	        }
+	    });
+	    goToDiv(p_oObject.id.split("_")[0]);
+	}
+	var existEditDiv;
+	function checkNumofEachModule(sType){
+	    var sModule = arguments[1] || "";
+	    var sAction = arguments[2] || "";
+	    
+	    if(sType == "hide"){
+	        if(existEditDiv){
+	            return false;
+	        }
+	        $("#maincontent").find("span.ed_icon_blue.icons").attr("class", "ed_icon_undel icons");
+	        $("#maincontent").find("em.edi.icons").attr("class", "unedi icons");
+	        $("#maincontent").find("em.del.icons").attr("class", "undel icons");
+	        $("#maincontent").find(".add.icons").attr("class", "unadd icons");
+	        existEditDiv = true;
+	    }
+	    if(sType == "show"){
+	        if(existEditDiv){
+	            $("#maincontent").find("span.ed_icon_undel.icons").attr("class", "ed_icon_blue icons");
+	            $("#maincontent").find("em.unedi.icons").attr("class", "edi icons");
+	            $("#maincontent").find("em.undel.icons").attr("class", "del icons");
+	            $("#maincontent").find(".unadd.icons").attr("class", "add icons");
+	            existEditDiv = false;
+	        }
+	    }
+	    return true;
+	}
+	function checkTextAreaInput(p_oObj, p_iMaxLen){
+	    var sId = arguments[2] ? arguments[2] : (p_oObj.id.toString() + "_chars");
+	    if (p_oObj == null || p_oObj == undefined || p_oObj == ""){
+	        return;
+	    };
+	    if ($("#" + sId).length == 0){
+	        return;
+	    }
+	    if (p_iMaxLen == null || p_iMaxLen == undefined || p_iMaxLen == ""){
+	        p_iMaxLen = 1000;
+	    }
+	    var iLen = p_oObj.value.length;
+	    var sMessage = iLen + "/" + p_iMaxLen + " 字";
+	    $("#" + sId).text(sMessage);
+	    if (iLen > p_iMaxLen){ 
+	    	var text = $("#"+p_oObj.id.toString()).val();
+	    	$("#"+p_oObj.id.toString()).val(text.substring(0,p_iMaxLen));
+	    	sMessage = p_iMaxLen + "/" + p_iMaxLen + " 字";
+	    	$("#" + sId).text(sMessage);
+	    }  
+	}
+	</script>
+</body>
+</html>

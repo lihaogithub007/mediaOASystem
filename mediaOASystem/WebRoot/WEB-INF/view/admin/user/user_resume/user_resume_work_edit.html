@@ -1,0 +1,133 @@
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="$!webPath/resources/css/style.css" rel="stylesheet"/>
+<link href="$!webPath/resources/assets/toastr/toastr.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/css/custom/resume.css" rel="stylesheet" type="text/css" />
+<form name="workForm" id="workForm" action="" method="post" class="form-horizontal">
+<div class="bd com" id="work_modify_">
+    <div class="con">
+        <div class="h30">
+            <div class="c c2">
+                <label>起始时间</label><i>*</i>
+                <div class="sh">
+					<input type="text" name="work_time_begin" id="work_time_begin" value="$!CommUtil.parseShortDateTime($!resumeWork.work_time_begin)" 
+     					onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',maxDate:'#F{$dp.$D(\'work_time_end\')}'})" class="ef input-xlarge" readonly="readonly"/>
+                </div>
+                <div class="err"></div>
+            </div>
+            <div class="c c4">
+            	<label>截止时间</label><i>*</i>
+                <div class="sh">
+                    <input type="text" name="work_time_end" id="work_time_end"  value="$!CommUtil.parseShortDateTime($!resumeWork.work_time_end)" 
+                		onfocus="WdatePicker({dateFmt:'yyyy-MM-dd', minDate:'#F{$dp.$D(\'work_time_begin\')}',maxDate:'%y-%M-%d'})" class="ef input-xlarge" readonly="readonly"/>
+                </div>
+                <div class="err"></div>
+            </div>
+        </div>
+        <div class="h30">
+            <div class="c c2">
+                <label>工作单位</label><i>*</i>
+                <div class="sh">
+					<input type="text" name="work_comp_name" id="work_comp_name" value="$!resumeWork.work_comp_name" class="ef input-xlarge" maxlength="50"/>
+                </div>
+                <div class="err"></div>
+            </div>
+            <div class="c c4">
+            	<label>岗位</label><i>*</i>
+                <div class="sh">
+                    <input type="text" name="work_duty_name" id="work_duty_name" value="$!resumeWork.work_duty_name" class="ef input-xlarge" maxlength="50"/>
+                </div>
+                <div class="err"></div>
+            </div>
+        </div>
+        <div class="h30">
+	        <div class="c c2">
+	            <label>月收入(税前)</label><i>*</i>
+                <div class="sh">
+                	<input type="text" name="month_salary" id="month_salary" value="$!resumeWork.month_salary" class="ef input-xlarge" maxlength="13"/>
+                </div>
+                <div class="err"></div>
+	        </div>
+	        <div class="c c4">
+	            <label>工作性质</label><i>*</i>
+                <div class="sh">
+                	<select data-placeholder="请选择工作性质" class="ef input-xlarge chosen" name="work_type" id="work_type">
+						<option value="">请选择工作性质</option>
+						#foreach($key in ${work_type_map.keySet()})
+		                <option value="$key">${work_type_map.get($key)}</option>
+		                #end
+					</select>
+                </div>
+                <div class="err"></div>
+	        </div>
+        </div>
+        <div class="h30">
+            <div class="c c2">
+                <label>证明人</label><i>&nbsp;</i>
+                <div class="sh">
+					<input type="text" name="voucher_name" id="voucher_name" value="$!resumeWork.voucher_name" class="ef input-xlarge" maxlength="50"/>
+                </div>
+                <div class="err"></div>
+            </div>
+            <div class="c c4">
+            	<label>证明人电话</label><i>&nbsp;</i>
+                <div class="sh">
+                    <input type="tel" name="voucher_mobile" id="voucher_mobile" value="$!resumeWork.voucher_mobile" class="ef input-xlarge" maxlength="11"/>
+                </div>
+                <div class="err"></div>
+            </div>
+        </div>
+    </div>
+    <div class="btnbox">
+        <span class="p_but" id="work_save_$!resumeWork.id" onclick="saveButtonClick(this,'workForm');">保存</span>
+        <span class="p_but gray" id="work_cancel_$!resumeWork.id" onclick="cancelButtonClick(this)">取消</span>
+    </div>
+</div>
+<input type="hidden" name="resume_work_id" value="$!resumeWork.id"/>
+</form>
+<script src="$!webPath/resources/js/jquery-1.8.3.min.js"></script>
+<script src="$!webPath/resources/assets/bootstrap/js/bootstrap.min.js"></script>
+<script src="$!webPath/resources/assets/toastr/toastr.js" type="text/javascript" ></script>
+<script src="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.jquery.js" type="text/javascript"></script>
+<script src="$!webPath/resources/js/jquery.validate.min.js" type="text/javascript" ></script>
+<script src="$!webPath/resources/js/jquery.validate.ext.js" type="text/javascript" ></script>
+<script src="$!webPath/resources/js/jquery.form.min.js" type="text/javascript" ></script>
+<script>
+$(document).ready(function() {
+	$("#work_type").val("$!{resumeWork.work_type}"); 
+	$("#work_type").trigger("chosen:updated");
+	App.init();
+	jqueryValidate();
+	$("div.chosen-container.chosen-container-single").css("width","284");
+});
+function jqueryValidate(){
+	jQuery("#workForm").validate({   
+		errorElement : "span",
+		errorPlacement : function(error, element) { 
+			$(error).appendTo($(element).parent().siblings("div.err"));
+		},
+		onfocusout : function(element) {
+	        $(element).valid();
+	    },
+		rules:{     
+			work_time_begin:{required:true},
+			work_time_end:{required:true},
+			work_comp_name:{required:true},
+			work_duty_name:{required:true},
+			month_salary:{required:true,isDouble:[]},
+			work_type:{required:true},
+			voucher_mobile:{isMobile:[]},
+       	},
+		messages:{
+			work_time_begin:{required:"请选择起始时间"},
+			work_time_end:{required:"请选择截止时间"},
+			work_comp_name:{required:"请输入工作单位"},
+			work_duty_name:{required:"请输入岗位"},
+			month_salary:{required:"请输入月收入"},
+			work_type:{required:"请选择工作性质"},
+		}
+	}); 
+	var validator = $("#workForm").data("validator");
+    validator.settings.ignore = ":hidden:not(select)";
+}
+</script>

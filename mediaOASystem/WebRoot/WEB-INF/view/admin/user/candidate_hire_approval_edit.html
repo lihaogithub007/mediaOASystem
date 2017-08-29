@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<!--[if IE 8]> <html class="ie8"> <![endif]-->
+<!--[if IE 9]> <html class="ie9"> <![endif]-->
+<!--[if !IE]><!--> <html> <!--<![endif]-->
+<head>
+<meta charset="utf-8" />
+<title>新媒体智能管理系统</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+<meta content="" name="description" />
+<meta content="" name="author" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="renderer" content="webkit|ie-comp|ie-stand" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap-fileupload.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/font-awesome/css/font-awesome.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style_responsive.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style_default.css" rel="stylesheet" id="style_color" />
+<link href="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/fancybox/source/jquery.fancybox.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/toastr/toastr.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/uniform/css/uniform.default.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/My97DatePicker/skin/WdatePicker.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/css/custom/custom.css" rel="stylesheet" type="text/css" />
+</head>
+<body class="fixed-top">
+    <div id="header" class="navbar navbar-inverse navbar-fixed-top">
+        $!httpInclude.include("/common/_header.htm") 
+    </div>
+    <div id="container" class="row-fluid">
+        <div id="sidebar" class="nav-collapse collapse">
+            $!httpInclude.include("/common/_sidebar.htm?op=candidate_hire_approval_manage") 
+        </div>
+        <div id="main-content">
+            <div class="container-fluid">
+                <div class="row-fluid">
+                    <div class="span12">
+                        <h3 class="page-title">应聘人员录用审批编辑</h3>
+                        <ul class="breadcrumb">
+                            <li><a href="$!webPath/index.htm"><i class="icon-home"></i></a><span class="divider">&nbsp;</span></li>
+                            <li><a href="javascript:void(0);">人事管理</a><span class="divider">&nbsp;</span></li>
+                            <li><a href="$!webPath/admin/user/candidate_hire_approval_edit.htm?currentPage=$!currentPage">应聘人员录用审批编辑</a><span class="divider-last">&nbsp;</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row-fluid">
+                    <form name="theForm" id="theForm" action="$!webPath/admin/user/candidate_hire_approval_edit_save.htm" method="post" class="form-horizontal">
+                        <div class="span12">
+                            <div class="widget">
+                                <div class="widget-title">
+                                    <h4><i class="icon-reorder"></i>应聘人员录用审批编辑</h4>
+                                </div>
+                                <div class="widget-body form">
+                                    <div class="control-group">
+                                        <label class="control-label">姓名</label>
+	                                    <div class="controls"><span class="text">$!obj.name</span></div>
+                                    </div>
+                                    <div class="control-group">
+                                        <label class="control-label"><font class="red_font">*</font>应聘岗位</label>
+                                        <div class="controls">
+                                            <select data-placeholder="请选择应聘岗位" class="input-xxlarge chosen" tabindex="" name="duty_id" id="duty_id">
+                                                <option value="">请选择应聘岗位</option>
+                                                #foreach($obj in $!dutys)
+                                                <option value="$!obj.id">$!{obj.duty_name}($!obj.department.department_name)</option>
+                                                #end
+                                            </select>
+                                            <span class="help-inline"></span>
+                                        </div>
+                                    </div>
+                                    <div class="control-group">
+                                        <label class="control-label">笔试成绩</label>
+                                        <div class="controls">
+                                            <input type="text" name="written_score" value="$!obj.written_score" placeholder="笔试成绩" class="input-xxlarge popovers" maxlength="5"
+                                            	data-trigger="hover" data-content="输入笔试成绩，整数或小数，最多一位小数"/>
+                                            <span class="help-inline"></span>
+                                        </div>
+                                    </div>
+                                    <div class="control-group">
+                                        <label class="control-label">面试成绩</label>
+                                        <div class="controls">
+                                            <input type="text" name="interview_score" value="$!obj.interview_score" placeholder="面试成绩" class="input-xxlarge popovers" maxlength="5"
+                                            	data-trigger="hover" data-content="输入面试成绩，整数或小数，最多一位小数"/>
+                                            <span class="help-inline"></span>
+                                        </div>
+                                    </div>
+                                    <div class="control-group">
+                                        <label class="control-label">最终成绩</label>
+                                        <div class="controls">
+                                            <input type="text" name="final_score" value="$!obj.final_score" placeholder="最终成绩" class="input-xxlarge popovers" maxlength="5"
+                                            	data-trigger="hover" data-content="输入最终成绩，整数或小数，最多一位小数"/>
+                                            <span class="help-inline"></span>
+                                        </div>
+                                    </div>
+                                    <div class="control-group">
+                                        <label class="control-label"><font class="red_font">*</font>是否录用</label>
+                                        <div class="controls">
+                                            <select data-placeholder="是否录用" class="input-xxlarge chosen" name="hire_result" id="hire_result">
+												<option value="">是否录用</option>
+												#foreach($key in ${is_or_not_map.keySet()})
+								                <option value="$key">${is_or_not_map.get($key)}</option>
+								                #end
+											</select>
+                                            <span class="help-inline"></span>
+                                        </div>
+                                    </div>
+                                    <div class="control-group" id="hired_status_wrap" style="display:none;">
+                                        <label class="control-label">录用状态</label>
+                                        <div class="controls">
+                                            <select data-placeholder="请选择录用状态" class="input-xxlarge chosen" name="hired_status" id="hired_status">
+												#foreach($key in ${hired_status_map.keySet()})
+								                <option value="$key">${hired_status_map.get($key)}</option>
+								                #end
+											</select>
+                                            <span class="help-inline"></span>
+                                        </div>
+                                    </div>
+                                    <div class="control-group">
+                                        <label class="control-label">现薪资(元)</label>
+                                        <div class="controls">
+                                            <input type="text" name="current_salary" value="$!obj.current_salary" placeholder="现薪资" class="input-xxlarge popovers" maxlength="13"
+                                            	data-trigger="hover" data-content="输入现薪资，整数或小数，最多两位小数"/>
+                                            <span class="help-inline"></span>
+                                        </div>
+                                    </div>
+                                    <div class="control-group">
+                                        <label class="control-label">期望薪资(元)</label>
+                                        <div class="controls">
+                                            <input type="text" name="expect_salary" value="$!obj.expect_salary" placeholder="期望薪资" class="input-xxlarge popovers" maxlength="13"
+                                            	data-trigger="hover" data-content="输入期望薪资，整数或小数，最多两位小数"/>
+                                            <span class="help-inline"></span>
+                                        </div>
+                                    </div>
+                                    <div class="control-group">
+                                        <label class="control-label">个人情况</label>
+                                        <div class="controls">
+                                        	#set($personal_information='')
+                                        	#if(""==$!obj.personal_information)
+                                        		#if($!obj.resume.resumeEducationList.size()>0)
+													#foreach($edu in $!obj.resume.resumeEducationList)
+														#if(!$edu.disabled)
+															#set($personal_information = $personal_information+${edu.edu_school_name}+${edu.edu_major}+'专业'+$!CommUtil.parseDateTime('yyyy年MM月', $!edu.graduation_date)+'毕业, ')
+														#end
+													#end
+												#else
+													#set($personal_information = $personal_information+'XX大学XX专业XX毕业, ')
+												#end
+												#if($!obj.resume.resumeWorkList.size()>0)
+													#foreach($work in $!obj.resume.resumeWorkList)
+														#if(!$work.disabled)
+															#set($personal_information = $personal_information+$!CommUtil.parseDateTime('yyyy年', $!work.work_time_begin)+'-'+$!CommUtil.parseDateTime('yyyy年', $!work.work_time_end)+'在'+${work.work_comp_name}+'公司担任'+${work.work_duty_name}+'职务, ' )
+														#end
+													#end
+												#else
+													#set($personal_information = $personal_information+'XX年-XX年在XXX公司担任XX职务, ')
+												#end
+												#set($work_years='X')
+												#if(''!='$!{obj.resume.work_years}')
+													#set($work_years=$!{obj.resume.work_years})
+												#end
+												#set($foreign_language_level='英语X水平')
+												#if(''!='$!{obj.resume.foreign_language_level}')
+													#set($foreign_language_level=$!{obj.resume.foreign_language_level})
+												#end
+												#set($personal_information = $personal_information+'具有'+$work_years+'年工作经验, ')
+												#set($personal_information = $personal_information+$foreign_language_level)
+											#else
+												#set($personal_information=$!{obj.personal_information})
+											#end
+                                            <textarea name="personal_information" class="input-xxlarge" rows="3">$personal_information</textarea>
+                                            <span class="help-inline"></span>
+                                        </div>
+                                    </div>
+                                    <div class="control-group">
+                                        <label class="control-label">核定岗级</label>
+                                        <div class="controls">
+                                            <input type="text" name="duty_level" value="$!obj.duty_level" placeholder="核定岗级" class="input-xxlarge popovers" maxlength="13"
+                                            	data-trigger="hover" data-content="输入核定岗级，整数或小数，最多两位小数"/>
+                                            <span class="help-inline"></span>
+                                        </div>
+                                    </div>
+                                    <div class="control-group">
+                                        <label class="control-label">建议薪资</label>
+                                        <div class="controls">
+                                            <input type="text" name="suggest_salary" value="$!obj.suggest_salary" placeholder="建议薪资" class="input-xxlarge popovers" maxlength="13"
+                                            	data-trigger="hover" data-content="输入建议薪资，整数或小数，最多两位小数"/>
+                                            <span class="help-inline"></span>
+                                        </div>
+                                    </div>
+                                    <div class="control-group">
+                                        <label class="control-label">组别</label>
+                                        <div class="controls">
+                                            <select data-placeholder="请选择组别" class="input-xxlarge chosen" tabindex="" name="department_id" id="department_id">
+                                                <option value="">请选择组别</option>
+                                                #foreach($obj in $!departments)
+                                                <option value="$!obj.id">$!obj.department_name</option>
+                                                #end
+                                            </select>
+                                            <span class="help-inline"></span>
+                                        </div>
+                                    </div>
+                                    <div class="control-group">
+                                        <label class="control-label">入职日期</label>
+                                        <div class="controls">
+                                            <input type="text" name="entry_time" id="entry_time" value="$!CommUtil.parseShortDateTime($!obj.entry_time)" placeholder="入职日期" class="input-xxlarge popovers"
+                                            	data-trigger="hover" data-content="请选择输入入职日期（提交时必填）" readonly="readonly" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'})"/>
+                                            <span class="help-inline"></span>
+                                        </div>
+                                    </div>
+                                    <div class="control-group">
+                                        <label class="control-label">科组审批</label>
+                                        <div class="controls">
+                                            <input type="text" name="department_approval" id="department_approval" value="$!obj.department_approval" placeholder="科组审批" class="input-xxlarge popovers" maxlength="50"
+                                            	data-trigger="hover" data-content="请输入科组审批（提交时必填），最多50字符"/>
+                                            <span class="help-inline"></span>
+                                        </div>
+                                    </div>
+                                    <div class="control-group">
+                                        <label class="control-label">领导审批</label>
+                                        <div class="controls">
+                                            <input type="text" name="leader_approval" id="leader_approval" value="$!obj.leader_approval" placeholder="领导审批" class="input-xxlarge popovers" maxlength="50"
+                                            	data-trigger="hover" data-content="请输入领导审批（提交时必填），最多50字符"/>
+                                            <span class="help-inline"></span>
+                                        </div>
+                                    </div>
+                                    <div class="form-actions">
+                                        <input type="button" id="btn_save" class="btn btn-primary" value="保存"/>
+                                        <input type="button" id="btn_submit" class="btn btn-primary" value="提交"/>
+                                        <a href="$!webPath/admin/user/candidate_hire_approval_list.htm?currentPage=$!currentPage" class="btn">返回</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="currentPage" id="currentPage" value="$!currentPage"/>
+                        <input type="hidden" name="id" id="id" value="$!obj.id"/>
+                        <input type="hidden" name="type" id="type"/>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="footer">
+        $!httpInclude.include("/common/_footer.htm")    
+    </div>
+    <script src="$!webPath/resources/js/jquery-1.8.3.min.js"></script>
+    <script src="$!webPath/resources/assets/bootstrap/js/bootstrap.min.js"></script>   
+    <script src="$!webPath/resources/js/jquery.blockui.js"></script>
+    <!-- ie8 fixes -->
+    <!--[if lt IE 9]>
+    <script src="$!webPath/resources/js/excanvas.js"></script>
+    <script src="$!webPath/resources/js/respond.js"></script>
+    <![endif]-->   
+    <script src="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.jquery.js" type="text/javascript"></script>
+    <script src="$!webPath/resources/assets/uniform/jquery.uniform.min.js" type="text/javascript"></script>
+    <script src="$!webPath/resources/js/jquery.validate.min.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/js/jquery.validate.ext.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/js/jquery.form.min.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/assets/My97DatePicker/WdatePicker.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/assets/toastr/toastr.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/js/scripts.js"></script>
+    <script src="$!webPath/resources/js/custom/common.js"></script>
+    <script>
+    jQuery(document).ready(function() {  
+    	jQuery("#duty_id").val("$!{obj.duty.id}");
+		jQuery("#duty_id").trigger("chosen:updated");
+    	jQuery("#hire_result").val("$!{obj.hire_result}");
+		jQuery("#hire_result").trigger("chosen:updated");
+    	jQuery("#hired_status").val("$!{obj.hired_status}");
+		jQuery("#hired_status").trigger("chosen:updated");
+    	jQuery("#department_id").val("$!{obj.department.id}");
+		jQuery("#department_id").trigger("chosen:updated");
+        App.init();
+        initToastr();
+        jqueryValidate();
+        bindEvent();
+        bindChangeEvent();
+        if("1"=="$!obj.hire_result"){
+        	jQuery("#hired_status_wrap").show();
+		}else{
+			jQuery("#hired_status_wrap").hide();
+		}
+        $("div.chosen-container.chosen-container-single").css("width","544");
+    });
+    
+    function jqueryValidate(){
+    	jQuery.validator.addMethod("decimal4point1",function(value,element){
+    		var reg=/(^0(\.\d{1}){1}$)|(^[1-9]\d{0,2}(\.\d{1})?$)/;
+    		return this.optional(element) || (reg.test(value));
+    	}, "必须是数字或小数, 整数位最多3位，小数位最多一位");
+        jQuery("#theForm").validate({
+            errorPlacement : function(error, element) { 
+            	$(error).appendTo($(element).parent());
+            },
+            rules:{
+            	duty_id:{required:true},
+            	hire_result:{required:true},
+            	written_score:{decimal4point1:[]},
+            	interview_score:{decimal4point1:[]},
+            	final_score:{decimal4point1:[]},
+            	current_salary:{isDouble:[]},
+            	expect_salary:{isDouble:[]},
+            	duty_level:{isDouble:[]},
+            	suggest_salary:{isDouble:[]},
+            },
+            messages:{
+            	duty_id:{required:"请选择应聘职位"},
+            	hire_result:{required:"是否录用不能为空"},
+            }
+        }); 
+        var validator = $("#theForm").data("validator");
+        validator.settings.ignore = ":hidden:not(select)";
+    }
+    function bindEvent(){
+        jQuery("#btn_save").bind("click", function(){
+            if (jQuery("#theForm").valid()) {
+            	jQuery("#type").val("save");
+                jQuery("#loadingBar").show();
+                ajaxFormSubmit('theForm','defaultAjaxSaveCallBack');
+            }
+        });
+        jQuery("#btn_submit").bind("click", function(){
+        	if(confirm("提交后不能修改、删除，确认提交?")){
+	            if (jQuery("#theForm").valid() && submitCheck()) {
+	            	jQuery("#type").val("submit");
+	                jQuery("#loadingBar").show();
+	                ajaxFormSubmit('theForm','defaultAjaxSaveCallBack');
+	            }
+        	}
+        });
+    }
+	function submitCheck(){
+		var hire_result = jQuery("#hire_result").val();
+		var entry_time = jQuery("#entry_time").val();
+		var department_approval = jQuery("#department_approval").val(); 
+		var leader_approval = jQuery("#leader_approval").val();
+		if("1"==hire_result && isEmpty(entry_time)){
+			alert("提交操作必须选择入职日期");
+			return false;
+		}
+		if("1"==hire_result && isEmpty(department_approval)){
+			alert("提交操作必须输入科组审批");
+			return false;
+		}
+		if("1"==hire_result && isEmpty(leader_approval)){
+			alert("提交操作必须输入领导审批");
+			return false;
+		}
+		return true;
+	}
+    function unBindEvent(){
+        jQuery("#btn_save").unbind();
+        jQuery("#btn_submit").unbind();
+    }
+    function bindChangeEvent(){
+    	jQuery("select[name='duty_id']").change(function(){
+    		var thisVal = jQuery(this).val();
+    		if(isEmpty(thisVal)){
+    			jQuery("#department_id").val("");
+    		}else{
+    			var text = jQuery(this).find("option:selected").text();
+    			text = text.substring(text.indexOf("(")+1, text.indexOf(")"));
+    			jQuery("#department_id option:contains('"+text+"')").each(function(){
+    				if (jQuery(this).text() == text) {
+    		  			jQuery(this).attr('selected', true);
+    		  			jQuery("#department_id").trigger("chosen:updated");
+    			  	}
+    			});
+    		}
+    	});
+    	jQuery("select[name='hire_result']").change(function(){
+    		var thisVal = jQuery(this).val();
+    		if("1"==thisVal){
+    			jQuery("#hired_status_wrap").show();	
+    		}else{
+    			jQuery("#hired_status_wrap").hide();
+    		}
+    	});
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+package com.yuyu.soft.service.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.yuyu.soft.dao.IBaseDao;
+import com.yuyu.soft.entity.ScheduleSmsRemind;
+import com.yuyu.soft.entity.SmsRemindLogs;
+import com.yuyu.soft.service.ISmsRemindLogsService;
+import com.yuyu.soft.util.PagerInfo;
+@Service("smsRemindLogs")
+public class SmsRemindLogsServiceImpl implements ISmsRemindLogsService {
+
+	
+	@Resource
+    private IBaseDao<SmsRemindLogs> smsRemindLogsDao;
+	
+	/**
+     * 添加短信提醒日志
+     */
+	@Override
+	public void addSmsRemindLogs(SmsRemindLogs smsRemindLogs) {
+		this.smsRemindLogsDao.save(smsRemindLogs);
+	}
+
+	
+    /**
+     * 查询设备列表
+     */
+	public List<SmsRemindLogs> querySmsRemindLogsList(String hql, Map<String, Object> paramsMap, PagerInfo pager){
+		if (pager != null) {
+            pager.setRowsCount(smsRemindLogsDao.count("select count(t) " + hql, paramsMap));
+            return smsRemindLogsDao.find(hql, paramsMap, pager.getStart(), pager.getPageSize());
+        } else {
+            return smsRemindLogsDao.find(hql, paramsMap);
+        }
+	}
+	
+	/**
+	 * 根据ID获取提醒记录对象
+	 */
+	public SmsRemindLogs getSmsRemindLogs(Long id){
+		return smsRemindLogsDao.get(SmsRemindLogs.class, id);
+		
+	}
+}

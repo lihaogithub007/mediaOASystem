@@ -1,0 +1,15 @@
+#if($subSections)
+#foreach($subSection in $subSections)
+<tr name="tr_sub_section_$!subSection.section.id">
+	<td style="padding-left:50px;">
+       	<input type="text" value="$!subSection.sub_section_name" attrName="$!subSection.sub_section_name"  
+       	  class="input-xlarge popovers" data-trigger="hover" data-content="子版块可编辑，最多50汉字"
+       		onblur="ajax_update('$!webPath/admin/user/sub_section_ajax_edit_save.htm', this, '$!subSection.id', 'sub_section')"/>
+	</td>
+    <td>
+		<a href="$!webPath/admin/user/sub_section_delete.htm?id=$!subSection.id&currentPage=$!currentPage" 
+			onclick="if(confirm('请确认该子模块下没有用户，否则不能删除')==false) return false;" style="font-size:14px;">删除</a>&nbsp;
+	</td>
+</tr>
+#end
+#end

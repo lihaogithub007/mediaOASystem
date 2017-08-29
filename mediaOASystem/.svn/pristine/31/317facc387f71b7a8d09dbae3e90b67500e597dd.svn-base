@@ -1,0 +1,395 @@
+package com.yuyu.soft.service.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.stereotype.Service;
+
+import com.yuyu.soft.dao.IBaseDao;
+import com.yuyu.soft.entity.Duty;
+import com.yuyu.soft.entity.Resume;
+import com.yuyu.soft.service.IDutyService;
+import com.yuyu.soft.service.IResumeService;
+import com.yuyu.soft.util.CommUtil;
+import com.yuyu.soft.util.Constants;
+import com.yuyu.soft.util.PagerInfo;
+import com.yuyu.soft.util.ResultMsg;
+import com.yuyu.soft.util.WebForm;
+
+@Service("resumeService")
+public class ResumeServiceImpl implements IResumeService {
+
+    @Resource
+    private IBaseDao<Resume> resumeDao;
+    @Resource
+    private IDutyService     dutyService;
+
+    @Override
+    public int getCountForExportExcel(String name, String highest_education, String apply_job_name,
+                                      String work_years, Integer resume_status) {
+        String sql = getCountSQL()
+                     + getCommonSQL(name, highest_education, apply_job_name, work_years,
+                         resume_status);
+        return resumeDao.countBySql(sql, null);
+    }
+
+    @Override
+    public List<Object[]> getResumesForExportExcel(String name, String highest_education,
+                                                   String apply_job_name, String work_years,
+                                                   Integer resume_status, int beginIndex,
+                                                   int pageSize) {
+
+        String sql = getQueryListSQL()
+                     + getCommonSQL(name, highest_education, apply_job_name, work_years,
+                         resume_status);
+
+        List<Object[]> list = (ArrayList<Object[]>) resumeDao.findBySql(sql, null, beginIndex,
+            pageSize);
+
+        return list;
+    }
+
+    private String getCountSQL() {
+        return "select count(r.id)";
+    }
+
+    private String getQueryListSQL() {
+        StringBuffer s = new StringBuffer();
+        s.append("select");
+        s.append(" r.name");//姓名
+        s.append(" ,r.mobile");//手机号
+        s.append(" ,case r.sex when 1 then '男' when 2 then '女' else '' end as sex");//性别
+        s.append(" ,r.nationality");//国籍
+        s.append(" ,date_format(r.birthday,'%Y年%m月%d日') as birthday");//出生日期
+        s.append(" ,d.duty_name");//面试岗位
+        s.append(" ,r.work_years");//工作年限
+        s.append(" ,r.same_industry_work_years");//同行业工作年限
+        s.append(" ,r.highest_education");//最高学历
+        s.append(" ,r.major");//专业
+        s.append(" ,r.current_salary");//当前月收入
+        s.append(" ,r.expect_salary");//期望月收入
+        s.append(" ,case r.resume_status when 1 then '面试' when 2 then '未录用' when 3 then '已录用' else '' end as resume_status");//简历状态
+        return s.toString();
+    }
+
+    private String getCommonSQL(String name, String highest_education, String apply_job_name,
+                                String work_years, Integer resume_status) {
+        StringBuffer s = new StringBuffer();
+        s.append(" from tb_resume r");
+        s.append(" left join tb_duty d on r.duty_id = d.id");
+        s.append(" where r.disabled = 0");
+        if (CommUtil.isNotNull(name)) {
+            s.append(" and r.name like '%").append(name.trim()).append("%'");
+        }
+        if (CommUtil.isNotNull(highest_education)) {
+            s.append(" and r.highest_education like '%").append(highest_education.trim())
+                .append("%'");
+        }
+        if (CommUtil.isNotNull(apply_job_name)) {
+            s.append(" and d.duty_name like '%").append(apply_job_name.trim()).append("%'");
+        }
+        if (CommUtil.isNotNull(work_years) && CommUtil.null2Integer(work_years) != null) {
+            s.append(" and r.work_years like '%").append(CommUtil.null2Integer(work_years))
+                .append("%'");
+        }
+        if (resume_status != null) {
+            s.append(" and r.resume_status = ").append(resume_status);
+        }
+        s.append(" order by r.createtime desc");
+        return s.toString();
+    }
+
+    @Override
+    public List<Resume> queryResume(String hql, Map<String, Object> paramsMap, PagerInfo pager) {
+        if (pager != null) {
+            pager.setRowsCount(resumeDao.count("select count(t) " + hql, paramsMap));
+            return resumeDao.find(hql, paramsMap, pager.getStart(), pager.getPageSize());
+        } else {
+            return resumeDao.find(hql, paramsMap);
+        }
+
+    }
+
+    @Override
+    public List<Resume> queryResumeForApproval(Integer status, String resumeIds) {
+
+        StringBuilder s = new StringBuilder();
+        s.append("from Resume t where t.disabled = false");
+        if (status != null) {
+            s.append(" and t.resume_status = ").append(status);
+        }
+        if (CommUtil.isNotNull(resumeIds)) {
+            s.append(" and t.id in (").append(resumeIds).append(")");
+        }
+        s.append(" and t.id not in (select distinct cha.resume.id from CandidateHireApproval cha where cha.disabled = false and cha.approval_status=1)");
+        List<Resume> resumes = resumeDao.find(s.toString());
+        if ((resumes == null) || (resumes.size() == 0)) {
+            return new ArrayList<Resume>();
+        }
+        return resumes;
+    }
+
+    @Override
+    public Resume getResume(Long id) {
+        return resumeDao.get(Resume.class, id);
+    }
+
+    @Override
+    public void addResume(Resume resume) {
+        this.resumeDao.save(resume);
+    }
+
+    @Override
+    public void updateResume(Resume resume) {
+        this.resumeDao.update(resume);
+    }
+
+    @Override
+    public void delResume(Resume resume) {
+        resume = getResume(resume.getId());
+        resume.setDisabled(true);
+        updateResume(resume);
+    }
+
+    @Override
+    public List<Resume> queryResumeByMobile(String mobile) {
+        Map<String, Object> paramsMap = new HashMap<String, Object>();
+        paramsMap.put("mobile", mobile);
+        StringBuilder s = new StringBuilder();
+        s.append("from Resume t where t.disabled = false");
+        s.append(" and t.mobile =:mobile");
+        List<Resume> resumes = resumeDao.find(s.toString(), paramsMap);
+        if ((resumes == null) || (resumes.size() == 0)) {
+            return new ArrayList<Resume>();
+        }
+        return resumes;
+    }
+
+    @Override
+    public ResultMsg add_save(String mobile) {
+        if (CommUtil.isBlank(mobile)) {
+            return CommUtil.setResultMsgData(null, false, "手机号不能为空");
+        }
+        mobile = mobile.trim();
+        if (!CommUtil.matcherMobile(mobile)) {
+            return CommUtil.setResultMsgData(null, false, "手机号格式不正确");
+        }
+        List<Resume> tempList = queryResumeByMobile(mobile);
+        if (tempList.size() > 0) {
+            return CommUtil.setResultMsgData(null, false, "已存在该手机号简历");
+        }
+        Resume resume = new Resume();
+        resume.setDisabled(false);
+        resume.setCreatetime(new Date());
+        resume.setMobile(mobile);
+        resume.setResume_status(1);//面试
+        addResume(resume);
+        return CommUtil.setResultMsgData(null, true, "保存简历成功");
+    }
+
+    @Override
+    public ResultMsg resume_save(HttpServletRequest request, Long resume_id, Long duty_id) {
+        ResultMsg rmg = resume_save_check(resume_id);
+        if (!rmg.getResult()) {
+            return rmg;
+        }
+        WebForm wf = new WebForm();
+        Resume dbResume = getResume(resume_id);
+        Resume resume = (Resume) wf.toPo(request, dbResume);
+
+        resume_save_init(resume, duty_id);
+        updateResume(resume);
+        return CommUtil.setResultMsgData(rmg, true, "简历基础信息保存成功");
+    }
+
+    //校验信息
+    private ResultMsg resume_save_check(Long resume_id) {
+        if (resume_id == null) {
+            return CommUtil.setResultMsgData(null, false, "简历标识为空");
+        }
+        Resume resume = getResume(resume_id);
+        if (resume == null || resume.getId() == null) {
+            return CommUtil.setResultMsgData(null, false, "简历对象为空");
+        }
+        return CommUtil.setResultMsgData(null, true, "简历校验成功");
+    }
+
+    //对不符合数据库设计的字段初始化
+    private void resume_save_init(Resume resume, Long duty_id) {
+        if (resume == null) {
+            return;
+        }
+        //姓名
+        String name = resume.getName();
+        if (CommUtil.isBlank(name)) {
+            resume.setName("");
+        } else if (CommUtil.isNotNull(name) && name.length() > 50) {
+            resume.setName("");
+        }
+        //性别
+        Integer sex = resume.getSex();
+        if (sex != null && CommUtil.isBlank(Constants.SEX_MAP.get(sex.toString()))) {
+            resume.setSex(null);
+        }
+        //应聘岗位 
+        if (duty_id != null) {
+            Duty duty = dutyService.getDuty(duty_id);
+            if (duty != null && duty.getId() != null) {
+                resume.setDuty(duty);
+            }
+        }
+        //可到岗时间
+        String available_time = resume.getAvailable_time();
+        if (CommUtil.isNotNull(available_time) && available_time.length() > 50) {
+            resume.setAvailable_time("");
+        }
+        //政治面貌
+        Integer political_status = resume.getPolitical_status();
+        if (political_status != null
+            && CommUtil.isBlank(Constants.POLITICAL_STATUS_MAP.get(political_status.toString()))) {
+            resume.setPolitical_status(null);
+        }
+        //民族
+        String nation = resume.getNation();
+        if (CommUtil.isNotNull(nation) && nation.length() > 20) {
+            resume.setNation("");
+        }
+        //婚姻状况
+        Integer marriage_status = resume.getMarriage_status();
+        if (marriage_status != null
+            && CommUtil.isBlank(Constants.MARRIAGE_STATUS_MAP.get(marriage_status.toString()))) {
+            resume.setMarriage_status(null);
+        }
+        //子女情况
+        String condition_of_children = resume.getCondition_of_children();
+        if (CommUtil.isNotNull(condition_of_children) && condition_of_children.length() > 10) {
+            resume.setCondition_of_children(null);
+        }
+        //国籍
+        String nationality = resume.getNationality();
+        if (CommUtil.isNotNull(nationality) && nationality.length() > 50) {
+            resume.setNationality("");
+        }
+        //健康状况
+        String health_condition = resume.getHealth_condition();
+        if (CommUtil.isNotNull(health_condition) && health_condition.length() > 50) {
+            resume.setHealth_condition("");
+        }
+        //过往病史
+        String past_illness_history = resume.getPast_illness_history();
+        if (CommUtil.isNotNull(past_illness_history) && past_illness_history.length() > 50) {
+            resume.setPast_illness_history("");
+        }
+        //最高学历
+        String highest_education = resume.getHighest_education();
+        if (CommUtil.isNotNull(highest_education) && highest_education.length() > 20) {
+            resume.setHighest_education("");
+        }
+        //毕业院校
+        String graduate_school = resume.getGraduate_school();
+        if (CommUtil.isNotNull(graduate_school) && graduate_school.length() > 50) {
+            resume.setGraduate_school("");
+        }
+        //专业
+        String major = resume.getMajor();
+        if (CommUtil.isNotNull(major) && major.length() > 50) {
+            resume.setMajor("");
+        }
+        //外语种类及水平
+        String foreign_language_level = resume.getForeign_language_level();
+        if (CommUtil.isNotNull(foreign_language_level) && foreign_language_level.length() > 50) {
+            resume.setForeign_language_level(null);
+        }
+        //计算机水平
+        String computer_skill = resume.getComputer_skill();
+        if (CommUtil.isNotNull(computer_skill) && computer_skill.length() > 50) {
+            resume.setComputer_skill(null);
+        }
+        //职称
+        String job_titles = resume.getJob_titles();
+        if (CommUtil.isNotNull(job_titles) && job_titles.length() > 50) {
+            resume.setJob_titles(null);
+        }
+        //资格证书
+        String qualification_certificate = resume.getQualification_certificate();
+        if (CommUtil.isNotNull(qualification_certificate)
+            && qualification_certificate.length() > 50) {
+            resume.setQualification_certificate("");
+        }
+        //户口所在地
+        String domicile_place = resume.getDomicile_place();
+        if (CommUtil.isNotNull(domicile_place) && domicile_place.length() > 50) {
+            resume.setDomicile_place("");
+        }
+        //证件号码
+        String ID_number = resume.getID_number();
+        if (CommUtil.isNotNull(ID_number) && ID_number.length() > 20) {
+            resume.setID_number("");
+        }
+        //邮箱
+        String email = resume.getEmail();
+        if (CommUtil.isNotNull(email) && email.length() > 30) {
+            resume.setEmail("");
+        }
+        //家庭地址
+        String home_address = resume.getHome_address();
+        if (CommUtil.isNotNull(home_address) && home_address.length() > 50) {
+            resume.setHome_address("");
+        }
+        //在京居住地址
+        String present_address = resume.getPresent_address();
+        if (CommUtil.isNotNull(present_address) && present_address.length() > 50) {
+            resume.setPresent_address("");
+        }
+        //兴趣爱好
+        String hobby_and_interest = resume.getHobby_and_interest();
+        if (CommUtil.isNotNull(hobby_and_interest) && hobby_and_interest.length() > 400) {
+            resume.setHobby_and_interest("");
+        }
+        //技能专长
+        String skills = resume.getSkills();
+        if (CommUtil.isNotNull(skills) && skills.length() > 400) {
+            resume.setSkills("");
+        }
+    }
+
+    @Override
+    public Map<String, Object> resume_count(String beginTime, String endTime,
+                                            List<String> yearMonthList) {
+        Map<String, Object> temp = new HashMap<String, Object>();
+        StringBuffer s = new StringBuffer();
+        s.append("select date_format(r.createtime,'%Y-%m') as month, count(r.id) as count  from tb_resume r");
+        s.append(" where r.disabled = 0");
+        s.append(" and date_format(r.createtime,'%Y-%m') >= date_format(str_to_date('")
+            .append(beginTime).append("','%Y-%m-%d'),'%Y-%m')");
+        s.append(" and date_format(r.createtime,'%Y-%m') <= date_format(str_to_date('")
+            .append(endTime).append("','%Y-%m-%d'),'%Y-%m')");
+        s.append(" group by date_format(r.createtime,'%Y-%m')");
+        List<Map<String, Object>> list = resumeDao.findListMapBySQL(s.toString(), null, 0, -1);
+        if (list == null || list.size() == 0) {
+            return temp;
+        }
+        for (int i = 0; i < list.size(); i++) {
+            Map<String, Object> map = list.get(i);
+            temp.put(CommUtil.null2String(map.get("month")).replace("-", "_"), map.get("count"));
+        }
+        Map<String, Object> result = new LinkedHashMap<String, Object>();
+        if (yearMonthList != null && yearMonthList.size() > 0) {
+            for (String yearMonth : yearMonthList) {
+                if (CommUtil.isNotNull(temp.get(yearMonth))) {
+                    result.put(yearMonth, temp.get(yearMonth));
+                } else {
+                    result.put(yearMonth, 0);
+                }
+            }
+        }
+        return result;
+    }
+}

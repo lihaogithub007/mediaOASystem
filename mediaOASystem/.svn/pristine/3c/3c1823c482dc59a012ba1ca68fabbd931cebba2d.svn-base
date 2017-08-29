@@ -1,0 +1,529 @@
+package com.yuyu.soft.admin.controller;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.yuyu.soft.base.controller.BaseController;
+import com.yuyu.soft.base.mv.JModelAndView;
+import com.yuyu.soft.entity.Attachments;
+import com.yuyu.soft.entity.Resume;
+import com.yuyu.soft.entity.ResumeEducation;
+import com.yuyu.soft.entity.ResumeFamilyMember;
+import com.yuyu.soft.entity.ResumeOthers;
+import com.yuyu.soft.entity.ResumeWork;
+import com.yuyu.soft.entity.User;
+import com.yuyu.soft.service.IAttachmentsService;
+import com.yuyu.soft.service.IDutyService;
+import com.yuyu.soft.service.IResumeEducationService;
+import com.yuyu.soft.service.IResumeFamilyMemberService;
+import com.yuyu.soft.service.IResumeOthersService;
+import com.yuyu.soft.service.IResumeService;
+import com.yuyu.soft.service.IResumeWorkService;
+import com.yuyu.soft.service.IUserService;
+import com.yuyu.soft.util.CacheUtils;
+import com.yuyu.soft.util.CommUtil;
+import com.yuyu.soft.util.Constants;
+import com.yuyu.soft.util.JsonUtil;
+import com.yuyu.soft.util.ResultMsg;
+import com.yuyu.soft.util.sms.MeilianSmsSender;
+
+/**
+ * 简历管理                      
+ * @Filename: UserResumeController.java
+ * @Version: 1.0
+ * @Author: 李明
+ * @Email: limn_xmj@163.com
+ *
+ */
+@Controller
+public class UserResumeController {
+
+    protected static final Log         log = LogFactory.getLog(UserResumeController.class);
+    @Resource
+    private IUserService               userService;
+    @Resource
+    private IResumeService             resumeService;
+    @Resource
+    private IResumeWorkService         resumeWorkService;
+    @Resource
+    private IResumeEducationService    resumeEducationService;
+    @Resource
+    private IResumeFamilyMemberService resumeFamilyMemberService;
+    @Resource
+    private IResumeOthersService       resumeOthersService;
+    @Resource
+    private IDutyService               dutyService;
+    @Resource
+    private IAttachmentsService        attachmentsService;
+
+    /**
+     * 手机号验证页面
+     */
+    @RequestMapping({ "/user/user_resume_mobile_validate.htm" })
+    public ModelAndView user_list(HttpServletRequest request, HttpServletResponse response) {
+        ModelAndView mv = new JModelAndView(
+            "admin/user/user_resume/user_resume_mobile_validate.html", request, response);
+        return mv;
+    }
+
+    /**
+     * 获取手机号验证码
+     */
+    @RequestMapping({ "/getUserResumeMobileCheckCode.htm" })
+    public void getUserResumeMobileCheckCode(HttpServletRequest request,
+                                             HttpServletResponse response, String mobile) {
+        ResultMsg rmg = CommUtil.setResultMsgData(null, true, "短信发送成功");
+        if (CommUtil.isBlank(mobile)) {
+            CommUtil.setResultMsgData(rmg, false, "手机号不能为空");
+        }
+        mobile = mobile.trim();
+        if (rmg.getResult() && !CommUtil.matcherMobile(mobile)) {
+            CommUtil.setResultMsgData(rmg, false, "手机号格式不正确");
+        }
+        if (rmg.getResult()) {
+            List<User> users = userService.queryUserByMobile(mobile);
+            if (users != null && users.size() > 0) {
+                CommUtil.setResultMsgData(rmg, false, "已存在员工使用该手机号，请更换手机号重试");
+            } else {
+                String code = CommUtil.randomString(4).toUpperCase();
+                String content = "您好，此短信为新媒体智能管理系统简历验证短信，验证码为：" + code + "，如非本人操作请忽略";
+                boolean ret = false;
+                try {
+                    ret = MeilianSmsSender.sendMsg(mobile, content);
+                    log.info(content);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                if (ret) {
+                    CacheUtils.put("user_resume_mobile_check_code", "user_resume_mobile_check_"
+                                                                    + mobile, code);
+                } else {
+                    CommUtil.setResultMsgData(rmg, false, "短信发送失败");
+                }
+            }
+        }
+
+        JsonUtil.writeMsg(response, JsonUtil.write2JsonStr(rmg));
+    }
+
+    /**
+     * 验证手机号、验证码
+     */
+    @RequestMapping({ "/user/user_resume_mobile_check.htm" })
+    public void user_resume_mobile_check(HttpServletRequest request, HttpServletResponse response,
+                                         String mobile, String code) {
+        ResultMsg rmg = CommUtil.setResultMsgData(null, true, "验证码验证成功");
+        if (CommUtil.isBlank(mobile)) {
+            CommUtil.setResultMsgData(rmg, false, "手机号不能为空");
+        }
+        mobile = mobile.trim();
+        if (rmg.getResult() && !CommUtil.matcherMobile(mobile)) {
+            CommUtil.setResultMsgData(rmg, false, "手机号格式不正确");
+        }
+        if (rmg.getResult() && CommUtil.isBlank(code)) {
+            CommUtil.setResultMsgData(rmg, false, "验证码不能为空");
+        }
+        if (rmg.getResult()) {
+            mobile = mobile.trim();
+            List<User> users = userService.queryUserByMobile(mobile);
+            if (users != null && users.size() > 0) {
+                CommUtil.setResultMsgData(rmg, false, "已存在员工使用该手机号，请更换手机号重试");
+            } else {
+                Object cache_code = CacheUtils.get("user_resume_mobile_check_code",
+                    "user_resume_mobile_check_" + mobile);
+
+                if (!CommUtil.isNotNull(cache_code)) {
+                    CommUtil.setResultMsgData(rmg, false, "非验证码手机或验证码已失效，请重新获取验证");
+                } else if (!code.trim().equalsIgnoreCase(cache_code.toString())) {
+                    CommUtil.setResultMsgData(rmg, false, "验证码不正确");
+                } else {
+                    Map<String, Object> map = new HashMap<String, Object>();
+                    map.put("mobile", mobile);
+                    map.put("code", code);
+                    map.put("old_url", "/user_resume_mobile_check.htm?mobile=" + mobile);
+                    rmg.setData(map);
+                }
+            }
+        }
+        JsonUtil.writeMsg(response, JsonUtil.write2JsonStr(rmg));
+    }
+
+    /**
+     * 简历编辑页面
+     */
+    @RequestMapping({ "/user/user_resume_edit.htm" })
+    public ModelAndView user_resume_edit(HttpServletRequest request, HttpServletResponse response,
+                                         String hid_mobile, String hid_code, String hid_url) {
+        if (CommUtil.isBlank(hid_mobile) || CommUtil.isBlank(hid_code) || CommUtil.isBlank(hid_url)
+            || hid_url.trim().indexOf("user_resume_mobile_check.htm?mobile=" + hid_mobile) < 0) {
+            return new JModelAndView("admin/user/user_resume/user_resume_mobile_validate.html",
+                request, response);
+        }
+        hid_mobile = hid_mobile.trim();
+        List<User> users = userService.queryUserByMobile(hid_mobile);
+        if (users != null && users.size() > 0) {
+            return CommUtil.fullErrorPage(CommUtil.getURL(request)
+                                          + "/user/user_resume_mobile_validate.htm",
+                "已存在员工使用该手机号，请更换手机号重试", request, response);
+        }
+
+        List<Resume> resumeList = resumeService.queryResumeByMobile(hid_mobile);
+        try {
+            if (resumeList.size() == 0) {
+                resumeService.add_save(hid_mobile);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        resumeList = resumeService.queryResumeByMobile(hid_mobile);
+        if (resumeList.size() == 0) {
+            return CommUtil.fullErrorPage(CommUtil.getURL(request)
+                                          + "/user/user_resume_mobile_validate.htm", "系统错误，请稍后重试",
+                request, response);
+        } else if (resumeList.size() == 1) {
+            Resume resume = resumeList.get(0);
+            if (2 == resume.getResume_status()) {
+                resume.setResume_status(1);
+                this.resumeService.updateResume(resume);
+            }
+        } else {
+            return CommUtil.fullErrorPage(CommUtil.getURL(request)
+                                          + "/user/user_resume_mobile_validate.htm",
+                "该手机号存在多条简历记录，请更换手机号后重试", request, response);
+        }
+        ModelAndView mv = new JModelAndView("admin/user/user_resume/user_resume_edit.html",
+            request, response);
+        Resume resume = resumeList.get(0);
+        mv.addObject("resume", resume);
+        mv.addObject("resumeWorkList", resumeWorkService.queryResumeWork(resume.getId()));//工作经历
+        mv.addObject("resumeEducationList",
+            resumeEducationService.queryResumeEducation(resume.getId()));//教育经历
+        mv.addObject("resumeFamilyMemberList",
+            resumeFamilyMemberService.queryResumeFamilyMember(resume.getId()));//家庭成员
+
+        mv.addObject("dutys", dutyService.queryAllDuty());//岗位
+        mv.addObject("sex_map", Constants.SEX_MAP);//性别
+        mv.addObject("political_status_map", Constants.POLITICAL_STATUS_MAP);//政治面貌
+        mv.addObject("marriage_status_map", Constants.MARRIAGE_STATUS_MAP);//婚姻状况
+        mv.addObject("family_relationship_map", Constants.FAMILY_RELATIONSHIP_MAP);//家庭成员与本人关系
+        mv.addObject("work_type_map", Constants.WORK_TYPE_MAP);//工作性质
+        mv.addObject("is_or_not_map", Constants.IS_OR_NOT_MAP);//是否
+        mv.addObject("have_or_not_map", Constants.HAVE_OR_NOT_MAP);//有无
+        mv.addObject("edu_type_map", Constants.EDU_TYPE_MAP);//学习性质
+        mv.addObject("dimission_reason_map", Constants.DIMISSION_REASON_MAP);//离职原因
+        mv.addObject("attachments", attachmentsService.getAttachmentsByIds(resume.getAttach_ids()));
+        return mv;
+    }
+
+    /**
+     * 简历基础信息
+     */
+    @RequestMapping({ "/resume/resume_base.htm" })
+    public ModelAndView resume_base(HttpServletRequest request, HttpServletResponse response,
+                                    Long resume_id, String action, Long duty_id) {
+        if (!verify_resume_id(resume_id)) {
+            return null;
+        }
+        Resume resume = resumeService.getResume(resume_id);
+        ModelAndView mv = null;
+        if (CommUtil.isBlank(action) || "cancel".equals(action) || "view".equals(action)) {
+            mv = new JModelAndView("admin/user/user_resume/user_resume_base_view.html", request,
+                response);
+        } else if ("modify".equals(action)) {
+            mv = new JModelAndView("admin/user/user_resume/user_resume_base_edit.html", request,
+                response);
+        } else if ("save".equals(action)) {
+            try {
+                resumeService.resume_save(request, resume.getId(), duty_id);
+            } catch (Exception e) {
+            }
+            mv = new JModelAndView("admin/user/user_resume/user_resume_base_view.html", request,
+                response);
+        }
+        mv.addObject("resume", resume);
+        mv.addObject("sex_map", Constants.SEX_MAP);//性别
+        mv.addObject("political_status_map", Constants.POLITICAL_STATUS_MAP);//政治面貌
+        mv.addObject("marriage_status_map", Constants.MARRIAGE_STATUS_MAP);//婚姻状况
+        mv.addObject("dutys", dutyService.queryAllDuty());//岗位
+        return mv;
+    }
+
+    /**
+     * 简历工作经历
+     */
+    @RequestMapping({ "/resume/resume_work.htm" })
+    public ModelAndView resume_work(HttpServletRequest request, HttpServletResponse response,
+                                    Long resume_id, String action, Long work_id) {
+        if (!verify_resume_id(resume_id)) {
+            return null;
+        }
+        Resume resume = resumeService.getResume(resume_id);
+        ModelAndView mv = null;
+        if (CommUtil.isBlank(action) || "cancel".equals(action) || "view".equals(action)) {
+            mv = new JModelAndView("admin/user/user_resume/user_resume_work_view.html", request,
+                response);
+        } else if ("new".equals(action)) {
+            mv = new JModelAndView("admin/user/user_resume/user_resume_work_edit.html", request,
+                response);
+        } else if ("modify".equals(action)) {
+            ResumeWork resumeWork = null;
+            if (work_id != null) {
+                resumeWork = resumeWorkService.getResumeWork(work_id);
+            }
+            mv = new JModelAndView("admin/user/user_resume/user_resume_work_edit.html", request,
+                response);
+            if (resumeWork != null && resumeWork.getId() != null) {
+                mv.addObject("resumeWork", resumeWork);
+            }
+        } else if ("delete".equals(action)) {
+            if (work_id != null) {
+                try {
+                    ResumeWork resumeWork = resumeWorkService.getResumeWork(work_id);
+                    resumeWorkService.delResumeWork(resumeWork);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            mv = new JModelAndView("admin/user/user_resume/user_resume_work_view.html", request,
+                response);
+        } else if ("save".equals(action)) {
+            try {
+                resumeWorkService.resume_work_save(request, resume.getId());
+            } catch (Exception e) {
+            }
+            mv = new JModelAndView("admin/user/user_resume/user_resume_work_view.html", request,
+                response);
+        }
+        mv.addObject("resume", resume);
+        mv.addObject("resumeWorkList", resumeWorkService.queryResumeWork(resume.getId()));//工作经历
+        mv.addObject("work_type_map", Constants.WORK_TYPE_MAP);//工作性质
+        return mv;
+    }
+
+    /**
+     * 简历教育经历
+     */
+    @RequestMapping({ "/resume/resume_education.htm" })
+    public ModelAndView resume_education(HttpServletRequest request, HttpServletResponse response,
+                                         Long resume_id, String action, Long education_id) {
+        if (!verify_resume_id(resume_id)) {
+            return null;
+        }
+        Resume resume = resumeService.getResume(resume_id);
+        ModelAndView mv = null;
+        if (CommUtil.isBlank(action) || "cancel".equals(action) || "view".equals(action)) {
+            mv = new JModelAndView("admin/user/user_resume/user_resume_education_view.html",
+                request, response);
+        } else if ("new".equals(action)) {
+            mv = new JModelAndView("admin/user/user_resume/user_resume_education_edit.html",
+                request, response);
+        } else if ("modify".equals(action)) {
+            ResumeEducation resumeEducation = null;
+            if (education_id != null) {
+                resumeEducation = resumeEducationService.getResumeEducation(education_id);
+            }
+            mv = new JModelAndView("admin/user/user_resume/user_resume_education_edit.html",
+                request, response);
+            if (resumeEducation != null && resumeEducation.getId() != null) {
+                mv.addObject("resumeEducation", resumeEducation);
+            }
+        } else if ("delete".equals(action)) {
+            if (education_id != null) {
+                try {
+                    ResumeEducation resumeEducation = resumeEducationService
+                        .getResumeEducation(education_id);
+                    resumeEducationService.delResumeEducation(resumeEducation);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            mv = new JModelAndView("admin/user/user_resume/user_resume_education_view.html",
+                request, response);
+        } else if ("save".equals(action)) {
+            try {
+                resumeEducationService.resume_education_save(request, resume.getId());
+            } catch (Exception e) {
+            }
+            mv = new JModelAndView("admin/user/user_resume/user_resume_education_view.html",
+                request, response);
+        }
+        mv.addObject("resume", resume);
+        mv.addObject("resumeEducationList",
+            resumeEducationService.queryResumeEducation(resume.getId()));//教育经历
+        mv.addObject("edu_type_map", Constants.EDU_TYPE_MAP);//学习性质
+        return mv;
+    }
+
+    /**
+     * 简历家庭成员
+     */
+    @RequestMapping({ "/resume/resume_family_member.htm" })
+    public ModelAndView resume_family_member(HttpServletRequest request,
+                                             HttpServletResponse response, Long resume_id,
+                                             String action, Long familymember_id) {
+        if (!verify_resume_id(resume_id)) {
+            return null;
+        }
+        Resume resume = resumeService.getResume(resume_id);
+        ModelAndView mv = null;
+        if (CommUtil.isBlank(action) || "cancel".equals(action) || "view".equals(action)) {
+            mv = new JModelAndView("admin/user/user_resume/user_resume_family_member_view.html",
+                request, response);
+        } else if ("new".equals(action)) {
+            mv = new JModelAndView("admin/user/user_resume/user_resume_family_member_edit.html",
+                request, response);
+        } else if ("modify".equals(action)) {
+            ResumeFamilyMember resumeFamilyMember = null;
+            if (familymember_id != null) {
+                resumeFamilyMember = resumeFamilyMemberService
+                    .getResumeFamilyMember(familymember_id);
+            }
+            mv = new JModelAndView("admin/user/user_resume/user_resume_family_member_edit.html",
+                request, response);
+            if (resumeFamilyMember != null && resumeFamilyMember.getId() != null) {
+                mv.addObject("resumeFamilyMember", resumeFamilyMember);
+            }
+        } else if ("delete".equals(action)) {
+            if (familymember_id != null) {
+                try {
+                    ResumeFamilyMember resumeFamilyMember = resumeFamilyMemberService
+                        .getResumeFamilyMember(familymember_id);
+                    resumeFamilyMemberService.delResumeFamilyMember(resumeFamilyMember);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            mv = new JModelAndView("admin/user/user_resume/user_resume_family_member_view.html",
+                request, response);
+        } else if ("save".equals(action)) {
+            try {
+                resumeFamilyMemberService.resume_family_member_save(request, resume.getId());
+            } catch (Exception e) {
+            }
+            mv = new JModelAndView("admin/user/user_resume/user_resume_family_member_view.html",
+                request, response);
+        }
+        mv.addObject("resume", resume);
+        mv.addObject("resumeFamilyMemberList",
+            resumeFamilyMemberService.queryResumeFamilyMember(resume.getId()));//家庭成员
+        mv.addObject("family_relationship_map", Constants.FAMILY_RELATIONSHIP_MAP);//家庭成员与本人关系
+        return mv;
+    }
+
+    /**
+     * 简历其他信息
+     */
+    @RequestMapping({ "/resume/resume_others.htm" })
+    public ModelAndView resume_others(HttpServletRequest request, HttpServletResponse response,
+                                      Long resume_id, String action, Long resumeothers_id) {
+        if (!verify_resume_id(resume_id)) {
+            return null;
+        }
+        Resume resume = resumeService.getResume(resume_id);
+        ModelAndView mv = null;
+        if (CommUtil.isBlank(action) || "cancel".equals(action) || "view".equals(action)) {
+            mv = new JModelAndView("admin/user/user_resume/user_resume_others_view.html", request,
+                response);
+        } else if ("new".equals(action)) {
+            mv = new JModelAndView("admin/user/user_resume/user_resume_others_edit.html", request,
+                response);
+        } else if ("modify".equals(action)) {
+            ResumeOthers resumeOthers = null;
+            if (resumeothers_id != null) {
+                resumeOthers = resumeOthersService.getResumeOthers(resumeothers_id);
+            }
+            mv = new JModelAndView("admin/user/user_resume/user_resume_others_edit.html", request,
+                response);
+            mv.addObject("resumeOthers", resumeOthers);
+        } else if ("save".equals(action)) {
+            try {
+                resumeOthersService.resume_others_save(request, resume.getId());
+            } catch (Exception e) {
+            }
+            mv = new JModelAndView("admin/user/user_resume/user_resume_others_view.html", request,
+                response);
+        }
+        mv.addObject("resume", resume);
+        mv.addObject("is_or_not_map", Constants.IS_OR_NOT_MAP);//是否
+        mv.addObject("have_or_not_map", Constants.HAVE_OR_NOT_MAP);//有无
+        mv.addObject("dimission_reason_map", Constants.DIMISSION_REASON_MAP);//离职原因
+        return mv;
+    }
+
+    /**
+     * 上传证照
+     */
+    @RequestMapping({ "/resume/resume_photo.htm" })
+    public ModelAndView resume_photo(HttpServletRequest request, HttpServletResponse response,
+                                     Long resume_id, String action, String attachments_ids) {
+        if (!verify_resume_id(resume_id)) {
+            return null;
+        }
+        Resume resume = resumeService.getResume(resume_id);
+        ModelAndView mv = null;
+        if (CommUtil.isBlank(action) || "cancel".equals(action) || "view".equals(action)) {
+            mv = new JModelAndView("admin/user/user_resume/user_resume_photo_view.html", request,
+                response);
+        } else if ("modify".equals(action)) {
+            mv = new JModelAndView("admin/user/user_resume/user_resume_photo_edit.html", request,
+                response);
+        } else if ("save".equals(action)) {
+            try {
+                ResultMsg rmg = attachmentsService.verify_attachment_ids(attachments_ids,
+                    "上传附件值异常", true);
+                if (rmg.getResult()) {
+                    resume.setAttach_ids(attachments_ids);
+                    resumeService.updateResume(resume);
+                }
+            } catch (Exception e) {
+            }
+            mv = new JModelAndView("admin/user/user_resume/user_resume_photo_view.html", request,
+                response);
+        }
+        mv.addObject("attachments", attachmentsService.getAttachmentsByIds(resume.getAttach_ids()));
+        mv.addObject("resume", resume);
+        return mv;
+    }
+
+    @RequestMapping({ "/admin/resume/userResumeUpload.htm" })
+    public void upload(HttpServletRequest request, HttpServletResponse response) {
+        List<Attachments> list = null;
+        try {
+            list = BaseController.uploadifyNoUser(request, response, "user_resume",
+                attachmentsService);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (list == null || list.size() == 0) {
+            return;
+        }
+        System.out.println(BaseController.write2JsonStr(request, list));
+        JsonUtil.writeMsg(response, BaseController.write2JsonStr(request, list));
+    }
+
+    /**
+     * 验证简历ID
+     */
+    private boolean verify_resume_id(Long resume_id) {
+        if (resume_id == null) {
+            return false;
+        }
+        Resume resume = resumeService.getResume(resume_id);
+        if (resume == null) {
+            return false;
+        }
+        return true;
+    }
+}

@@ -1,0 +1,399 @@
+package com.yuyu.soft.admin.controller;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Comment;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.yuyu.soft.base.annotation.SecurityMapping;
+import com.yuyu.soft.base.mv.JModelAndView;
+import com.yuyu.soft.entity.ForeignExpert;
+import com.yuyu.soft.service.IDutyService;
+import com.yuyu.soft.service.IForeignExpertService;
+import com.yuyu.soft.service.IUserService;
+import com.yuyu.soft.util.CommUtil;
+import com.yuyu.soft.util.Constants;
+import com.yuyu.soft.util.JsonUtil;
+import com.yuyu.soft.util.POIUtil;
+import com.yuyu.soft.util.PageUtil;
+import com.yuyu.soft.util.PagerInfo;
+import com.yuyu.soft.util.ResultMsg;
+import com.yuyu.soft.util.WebForm;
+
+@Controller
+public class ForeignExpertController {
+    protected static final Log    log = LogFactory.getLog(ForeignExpertController.class);
+    @Resource
+    private IUserService          userService;
+    @Resource
+    private IDutyService          dutyService;
+    @Resource
+    private IForeignExpertService foreignExpertService;
+
+    @SecurityMapping(res_name = "外籍专家信息名录列表", res_url = "/admin/user/foreign_expert_list.htm*", res_group = "外籍专家信息名录")
+    @RequestMapping({ "/admin/user/foreign_expert_list.htm" })
+    public ModelAndView foreign_expert_list(HttpServletRequest request,
+                                            HttpServletResponse response, String pageSize,
+                                            String currentPage, String chinese_name,
+                                            String english_name, String nationality,
+                                            String card_number, String mobile) {
+        ModelAndView mv = new JModelAndView("admin/user/foreign_expert_list.html", request,
+            response);
+
+        currentPage = PageUtil.initCurrentPage(currentPage);
+        PagerInfo pager = PageUtil.initPagerInfo(pageSize, currentPage);
+        Map<String, Object> paramsMap = new HashMap<String, Object>();
+
+        StringBuilder hql = new StringBuilder();
+        hql.append("from ForeignExpert t where t.disabled=false");
+        if (CommUtil.isNotNull(chinese_name)) {
+            hql.append(" and t.chinese_name like :chinese_name");
+            paramsMap.put("chinese_name", "%" + chinese_name.trim() + "%");
+        }
+        if (CommUtil.isNotNull(english_name)) {
+            hql.append(" and t.english_name like :english_name");
+            paramsMap.put("english_name", "%" + english_name.trim() + "%");
+        }
+        if (CommUtil.isNotNull(nationality)) {
+            hql.append(" and t.nationality like :nationality");
+            paramsMap.put("nationality", "%" + nationality.trim() + "%");
+        }
+        if (CommUtil.isNotNull(card_number)) {
+            hql.append(" and t.card_number like :card_number");
+            paramsMap.put("card_number", "%" + card_number.trim() + "%");
+        }
+        if (CommUtil.isNotNull(mobile)) {
+            hql.append(" and t.mobile like :mobile");
+            paramsMap.put("mobile", "%" + mobile.trim() + "%");
+        }
+        hql.append(" order by t.createtime desc");
+        List<ForeignExpert> list = foreignExpertService.queryForeignExpert(hql.toString(),
+            paramsMap, pager);
+        PageUtil.savePageInfo2ModelAndView(mv, list, pager);
+
+        mv.addObject("chinese_name", chinese_name);
+        mv.addObject("english_name", english_name);
+        mv.addObject("nationality", nationality);
+        mv.addObject("card_number", card_number);
+        mv.addObject("mobile", mobile);
+        mv.addObject("dutys", dutyService.queryAllDuty());
+        mv.addObject("sex_map", Constants.SEX_MAP);//性别
+        return mv;
+    }
+
+    //=============================================导出Excel区域开始======================================================//
+    @SecurityMapping(res_name = "导出Excel", res_url = "/admin/user/foreign_expert_exportExcel.htm*", res_group = "外籍专家")
+    @RequestMapping("/admin/user/foreign_expert_exportExcel.htm")
+    public synchronized void fixed_assets_exportExcel(HttpServletRequest request,
+                                                      HttpServletResponse response,
+                                                      String currentPage,
+                                                      String chinese_name,
+                                                      String english_name, String nationality,
+                                                      String card_number, String mobile) {
+
+        List<Object[]> list = null;
+        OutputStream out = null;
+        SXSSFWorkbook workbook = null;
+        SXSSFSheet sheet = null;
+
+        try {
+            workbook = new SXSSFWorkbook(100);
+            sheet = (SXSSFSheet) workbook.createSheet("外籍专家");
+
+            String titleName = "外籍专家表";
+            String[] titleNames = { "序号", "中文名", "英文名", "性别", "出生日期", "职位", 
+            		"国籍","护照号","护照有效期","居留到期时间","首次签约","合同终止时间",
+            		"专家证","合同号","目前年薪","工作证号","休假剩余当前合同","学历专业","来台前媒体领域工作年限",
+            		"月薪","手机","邮箱","地址" };
+            
+//            POIUtil.setColumnWidth(sheet, titleNames.length);//设置通用列宽
+            POIUtil.setColumnWidth(sheet, titleNames.length, (byte) 7);
+            sheet.setColumnWidth(2, 15 * 512);
+            sheet.setColumnWidth(17, 15 * 512);
+            sheet.setColumnWidth(18, 15 * 512);
+            sheet.setColumnWidth(21, 10 * 512);
+            sheet.setColumnWidth(22, 25 * 512);
+            
+            int all_count = foreignExpertService.getCountForExportExcel(chinese_name,english_name,
+					nationality	,card_number,mobile);
+
+            if (all_count == 0) {
+                fillSheet(sheet, titleName, titleNames, null, 2);
+            } else {
+                //计算分页数
+                log.info("总大小：" + all_count);
+                int pageSize = Constants.DEFAULT_PAGE_SIZE_FOR_EXPORT_EXCEL;
+                double temp_pages = (double) all_count / (double) pageSize;
+                int pages = (int) Math.ceil(temp_pages);
+                int beginIndex = 0;
+                int rowNum = 0;
+                for (int i = 0; i < pages; i++) {
+                    beginIndex = 0 + i * pageSize;
+                    log.info("【外籍专家导出-分页填充】第" + (i + 1) + "次填充开始====>" + CommUtil.getCurrentTime());
+
+                    list = foreignExpertService.getForeignExpertsForExportExcel(chinese_name,
+                    							english_name,nationality,card_number,mobile,
+                    							beginIndex, pageSize);
+                    
+                    for (Object[] obj : list) {
+                    	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");  
+                        Date date = sdf.parse(obj[3].toString().substring(0, 10));
+						obj[3] = CommUtil.parseShortDateTime(date).replace("-", ".");
+						Date date1 = sdf.parse(obj[9].toString().substring(0, 10));
+						obj[9] = CommUtil.parseShortDateTime(date1).replace("-", ".");
+						Date date2 = sdf.parse(obj[10].toString().substring(0, 10));
+						obj[10] = CommUtil.parseShortDateTime(date2).replace("-", ".");
+						Date date3 = sdf.parse(obj[7].toString().substring(0, 10));
+						obj[7] = CommUtil.parseShortDateTime(date3).replace("-", ".");
+						Date date4 = sdf.parse(obj[8].toString().substring(0, 10));
+						obj[8] = CommUtil.parseShortDateTime(date4).replace("-", ".");
+						obj[13] = obj[13].toString().substring(0,obj[13].toString().indexOf(".00"));
+					}
+
+                    rowNum = 2 + i * pageSize;
+                    fillSheet(sheet, titleName, titleNames, list, rowNum);
+                    log.info("【外籍专家导出-分页填充】第" + (i + 1) + "次填充结束====>" + CommUtil.getCurrentTime());
+                    list.clear();
+                }
+                list = null;
+            }
+
+            response.setContentType("application/vnd.ms-excel");
+            String fileName = "外籍专家" + new Date().getTime() + ".xlsx";
+            fileName = CommUtil.encodeExportFileName(request, fileName);
+            response.setHeader("Content-disposition", "attachment;filename=" + fileName);
+            out = response.getOutputStream();
+            workbook.write(out);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private void fillSheet(SXSSFSheet sheet, String titleName, String[] titleNames,
+                           List<Object[]> list, int rowNum) {
+        if (2 == rowNum) {
+            POIUtil.setTitle(sheet, titleName, 0, titleNames.length - 1);
+//            POIUtil.setTitles(sheet, titleNames, 1);
+            CellStyle titleCellStyle = POIUtil.getBaseCellStyle(sheet);
+            Font titleFont =  POIUtil.getBaseFont(sheet);
+            titleFont.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
+            titleFont.setFontHeightInPoints((short) 10);
+            titleCellStyle.setFont(titleFont);
+
+            Row titleRow = sheet.createRow(1);
+            titleRow.setHeightInPoints((float) (1.5 * sheet.getDefaultRowHeightInPoints()));//1.5行字的高度
+            Cell cell = null;
+            for (int i = 0; i < titleNames.length; i++) {
+                cell = titleRow.createCell(i);
+                cell.setCellStyle(titleCellStyle);
+                cell.setCellValue(titleNames[i]);
+            }
+        }
+        this.fillData(sheet, list, rowNum);
+    }
+
+    private void fillData(SXSSFSheet sheet, List<Object[]> list, int rowNum) {
+
+        if (list != null && list.size() > 0 && rowNum >= 2) {
+            CellStyle cellStyle = POIUtil.getBaseCellStyle(sheet);
+//            Font font = POIUtil.getBaseFont(sheet);
+            
+            Font font = sheet.getWorkbook().createFont();
+            font.setFontName("Times New Roman");
+            font.setBoldweight(XSSFFont.BOLDWEIGHT_NORMAL);
+            font.setBoldweight((short)10);
+            font.setFontHeightInPoints((short)10);
+            /*font.setColor(HSSFColor.RED.index);*/
+            
+            cellStyle.setFont(font);
+
+            for (Object[] objs : list) {
+                Cell cell = null;
+                Row row = sheet.createRow(rowNum);
+                int columnNum = 0;
+                // 序号
+                cell = row.createCell(columnNum++);
+                cell.setCellValue(new XSSFRichTextString(rowNum - 1 + ""));
+                cell.setCellStyle(cellStyle);
+                for (int index = 0; index < objs.length; index++) {
+                    cell = row.createCell(columnNum++);
+                    cell.setCellStyle(cellStyle);
+                    cell.setCellValue(new XSSFRichTextString(CommUtil.null2String(objs[index])));
+                }
+                if (rowNum % 100 == 0) {
+                    try {
+                        sheet.flushRows();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                rowNum++;
+            }
+        }
+    }
+
+    //=============================================导出Excel区域结束======================================================//
+    @SecurityMapping(res_name = "查看", res_url = "/admin/user/foreign_expert_view.htm*", res_group = "外籍专家信息名录")
+    @RequestMapping({ "/admin/user/foreign_expert_view.htm" })
+    public ModelAndView foreign_expert_view(HttpServletRequest request,
+                                            HttpServletResponse response, String currentPage,
+                                            Long id) {
+
+        String target_url = CommUtil.getURL(request)
+                            + "/admin/user/foreign_expert_list.htm?currentPage=" + currentPage;
+        if (id == null) {
+            return CommUtil.errorPage(target_url, "外籍专家信息名录标识为空", request, response);
+        }
+        ForeignExpert foreignExpert = foreignExpertService.getForeignExpert(id);
+        if (foreignExpert == null) {
+            return CommUtil.errorPage(target_url, "找不到外籍专家信息名录记录", request, response);
+        }
+        ModelAndView mv = new JModelAndView("admin/user/foreign_expert_view.html", request,
+            response);
+
+        mv.addObject("obj", foreignExpert);
+        mv.addObject("currentPage", currentPage);
+        mv.addObject("dutys", dutyService.queryAllDuty());
+        mv.addObject("sex_map", Constants.SEX_MAP);//性别
+        return mv;
+    }
+
+    @SecurityMapping(res_name = "添加", res_url = "/admin/user/foreign_expert_add.htm*", res_group = "外籍专家信息名录")
+    @RequestMapping({ "/admin/user/foreign_expert_add.htm" })
+    public ModelAndView foreign_expert_add(HttpServletRequest request,
+                                           HttpServletResponse response, String pageSize,
+                                           String currentPage) {
+        ModelAndView mv = new JModelAndView("admin/user/foreign_expert_add.html", request, response);
+        mv.addObject("currentPage", currentPage);
+        mv.addObject("dutys", dutyService.queryAllDuty());
+        mv.addObject("sex_map", Constants.SEX_MAP);//性别
+        return mv;
+    }
+
+    @RequestMapping({ "/admin/user/foreign_expert_add_save.htm" })
+    public void foreign_expert_add_save(HttpServletRequest request, HttpServletResponse response,
+                                        String currentPage, Long duty_id) {
+
+        ResultMsg rmg = CommUtil.setResultMsgData(null, true, "外籍专家信息名录保存成功");
+        WebForm wf = new WebForm();
+        ForeignExpert foreignExpert = (ForeignExpert) wf.toPo(request, ForeignExpert.class);
+        try {
+            rmg = foreignExpertService.add_save(foreignExpert, duty_id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            CommUtil.setResultMsgData(rmg, false, "外籍专家信息名录保存失败");
+        }
+        rmg.setData(CommUtil.getURL(request) + "/admin/user/foreign_expert_list.htm?currentPage="
+                    + currentPage);
+        JsonUtil.writeMsg(response, JsonUtil.write2JsonStr(rmg));
+    }
+
+    @SecurityMapping(res_name = "编辑", res_url = "/admin/user/foreign_expert_edit.htm*", res_group = "外籍专家信息名录")
+    @RequestMapping({ "/admin/user/foreign_expert_edit.htm" })
+    public ModelAndView foreign_expert_edit(HttpServletRequest request,
+                                            HttpServletResponse response, String pageSize,
+                                            String currentPage, Long id) {
+
+        String target_url = CommUtil.getURL(request)
+                            + "/admin/user/foreign_expert_list.htm?currentPage=" + currentPage;
+        if (id == null) {
+            return CommUtil.errorPage(target_url, "外籍专家信息名录标识为空", request, response);
+        }
+        ForeignExpert foreignExpert = foreignExpertService.getForeignExpert(id);
+        if (foreignExpert == null) {
+            return CommUtil.errorPage(target_url, "找不到外籍专家信息名录记录", request, response);
+        }
+        ModelAndView mv = new JModelAndView("admin/user/foreign_expert_edit.html", request,
+            response);
+        mv.addObject("obj", foreignExpert);
+        mv.addObject("currentPage", currentPage);
+        mv.addObject("dutys", dutyService.queryAllDuty());
+        mv.addObject("sex_map", Constants.SEX_MAP);//性别
+        return mv;
+    }
+
+    @RequestMapping({ "/admin/user/foreign_expert_edit_save.htm" })
+    public void foreign_expert_edit_save(HttpServletRequest request, HttpServletResponse response,
+                                         Long id, String currentPage, Long duty_id) {
+
+        ResultMsg rmg = CommUtil.setResultMsgData(null, true, "外籍专家信息名录编辑保存成功");
+        if (id == null) {
+            CommUtil.setResultMsgData(rmg, false, "外籍专家信息名录标识为空");
+        }
+        if (rmg.getResult()) {
+            ForeignExpert dbFE = foreignExpertService.getForeignExpert(id);
+            if (dbFE == null) {
+                CommUtil.setResultMsgData(rmg, false, "找不到外籍专家信息名录记录");
+            } else {
+                WebForm wf = new WebForm();
+                ForeignExpert foreignExpert = (ForeignExpert) wf.toPo(request, dbFE);
+                try {
+                    rmg = foreignExpertService.edit_save(foreignExpert, duty_id);
+                } catch (Exception e) {
+                    CommUtil.setResultMsgData(rmg, false, "外籍专家信息名录编辑保存失败");
+                }
+            }
+        }
+        rmg.setData(CommUtil.getURL(request) + "/admin/user/foreign_expert_list.htm?currentPage="
+                    + currentPage);
+        JsonUtil.writeMsg(response, JsonUtil.write2JsonStr(rmg));
+    }
+
+    @SecurityMapping(res_name = "删除", res_url = "/admin/user/foreign_expert_delete.htm*", res_group = "外籍专家信息名录")
+    @RequestMapping({ "/admin/user/foreign_expert_delete.htm" })
+    public ModelAndView foreign_expert_delete(HttpServletRequest request,
+                                              HttpServletResponse response, Long id,
+                                              String currentPage) {
+        String target_url = CommUtil.getURL(request)
+                            + "/admin/user/foreign_expert_list.htm?currentPage=" + currentPage;
+        if (id == null) {
+            return CommUtil.errorPage(target_url, "外籍专家信息名录标识为空", request, response);
+        }
+        ForeignExpert foreignExpert = foreignExpertService.getForeignExpert(id);
+        if (foreignExpert == null) {
+            return CommUtil.errorPage(target_url, "找不到外籍专家信息名录记录", request, response);
+        }
+        try {
+            foreignExpertService.delForeignExpert(foreignExpert);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return CommUtil.errorPage(target_url, "外籍专家信息名录删除失败", request, response);
+        }
+        return CommUtil.successPage(target_url, "外籍专家信息名录删除成功", request, response);
+    }
+}

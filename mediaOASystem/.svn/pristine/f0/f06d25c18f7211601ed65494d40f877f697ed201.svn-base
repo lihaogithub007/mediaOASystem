@@ -1,0 +1,11 @@
+#短信接口地址
+sms_url = http://m.5c.com.cn/api/send/index.php
+#短信接口密钥
+sms_secret = 94ba4726f2980ba89bebb01f088aa92c
+#短信接口用户名
+sms_username = zsqw
+#短信接口密码
+sms_password = asdf1234
+#短信功能测试模式（true不发短）上线置为false  
+sms_debug = true
+#sms_debug = false

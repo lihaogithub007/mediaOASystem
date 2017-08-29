@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<!--[if IE 8]> <html class="ie8"> <![endif]-->
+<!--[if IE 9]> <html class="ie9"> <![endif]-->
+<!--[if !IE]><!--> <html> <!--<![endif]-->
+<head>
+<meta charset="utf-8" />
+<title>新媒体智能管理系统</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+<meta content="" name="description" />
+<meta content="" name="author" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="renderer" content="webkit|ie-comp|ie-stand" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/font-awesome/css/font-awesome.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style_responsive.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style_default.css" rel="stylesheet" id="style_color" />
+<link href="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/fancybox/source/jquery.fancybox.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/uniform/css/uniform.default.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/css/custom/custom.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/css/custom/resume_print.css" rel="stylesheet" type="text/css" />
+</head>
+<body class="fixed-top">
+	<div id="header" class="navbar navbar-inverse navbar-fixed-top">
+		$!httpInclude.include("/common/_header.htm") 
+	</div>
+	<div id="container" class="row-fluid">
+		<div id="sidebar" class="nav-collapse collapse">
+			$!httpInclude.include("/common/_sidebar.htm?op=workforce_management_manage") 
+		</div>
+		<div id="main-content">
+			<div class="container-fluid">
+				<div class="row-fluid">
+					<div class="span12">
+						<h3 class="page-title">排班打印预览</h3>
+						<ul class="breadcrumb">
+							<li><a href="$!webPath/index.htm"><i class="icon-home"></i></a><span class="divider">&nbsp;</span></li>
+					        <li><a href="javascript:void(0);">考勤管理</a> <span class="divider">&nbsp;</span></li>
+							<li><a href="$!webPath/admin/work_attendance/workforce_management_print.htm?user_name=$!user_name&year=$!year">排班打印预览</a><span class="divider-last">&nbsp;</span></li>
+						</ul>
+					</div>
+				</div>
+				<div class="row-fluid">
+	                <div class="span12">
+	                    <div class="widget">
+	                    	<div id="print_btn">
+	                    		<a href="javascript:void(0);" onclick="printdiv('print_area_id')"><img src="$!webPath/resources/img/custom/print.png" align="absmiddle"/>&nbsp;打印</a>
+	                    	</div>
+	                    	<div id="print_area_id">
+	                    		<div class="print_area_main">
+		                    		<div class="print_title">排班统计</div>
+		                    		<table class="print_table">
+		                    			<tr>												
+		                    				<td style="width:5%;">序号</th>
+											<td style="width:5%;">姓名</th>
+											<td style="width:5%;">1月</th>
+											<td style="width:5%;">2月</th>
+											<td style="width:5%;">3月</th>
+											<td style="width:5%;">4月</th>
+											<td style="width:5%;">5月</th>
+											<td style="width:5%;">6月</th>
+											<td style="width:5%;">7月</th>
+											<td style="width:5%;">8月</th>
+											<td style="width:5%;">9月</th>
+											<td style="width:5%;">10月</th>
+											<td style="width:5%;">11月</th>
+											<td style="width:5%;">12月</th>
+		                    			</tr>
+		                    			#if($!objs && $!objs.size()>0)
+		                					#foreach($obj in $!objs)
+			                    			<tr>				
+			                    				<td>$!{velocityCount}</td>
+			                                    <td>$!obj.user_name</td>
+			                                    <td>$!obj.Jan</td>
+			                                    <td>$!obj.Feb</td>
+												<td>$!obj.Mar</td>
+												<td>$!obj.Apr</td>
+												<td>$!obj.May</td>
+												<td>$!obj.Jun</td>
+												<td>$!obj.Jul</td>
+												<td>$!obj.Aug</td>
+												<td>$!obj.Sep</td>
+												<td>$!obj.Oct</td>
+												<td>$!obj.Nov</td>
+												<td>$!obj.Dece</td>
+			                    			</tr>
+			                    			#end
+					                	#end
+		                    		</table>
+		                    		<div class="print_footer"></div>
+		                    	</div>
+	                    	</div>
+	                    </div>
+	                </div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="footer">
+		$!httpInclude.include("/common/_footer.htm")	
+	</div>
+	<script src="$!webPath/resources/js/jquery-1.8.3.min.js"></script>
+    <script src="$!webPath/resources/assets/bootstrap/js/bootstrap.min.js"></script>   
+    <script src="$!webPath/resources/js/jquery.blockui.js"></script>
+    <!-- ie8 fixes -->
+    <!--[if lt IE 9]>
+    <script src="$!webPath/resources/js/excanvas.js"></script>
+    <script src="$!webPath/resources/js/respond.js"></script>
+    <![endif]-->   
+    <script src="$!webPath/resources/assets/uniform/jquery.uniform.min.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.jquery.js" type="text/javascript"></script>
+    <script src="$!webPath/resources/js/scripts.js"></script>
+    <script src="$!webPath/resources/js/custom/page.js"></script>
+    <script>
+	jQuery(document).ready(function() { 
+		App.init();
+	});
+	function printdiv(printId){  
+		var headstr = "<html><head><title>排班统计打印</title><link href='$!webPath/resources/css/custom/resume_print.css' rel='stylesheet' type='text/css'/></head><body>";  
+		var footstr = "</body>";  
+		var newstr = document.getElementById(printId).innerHTML;  
+		var oldstr = document.body.innerHTML;  
+		document.body.innerHTML = headstr+newstr+footstr;  
+		window.print();  
+		document.body.innerHTML = oldstr;  
+		return false;  
+	}  
+	</script>
+</body>
+</html>

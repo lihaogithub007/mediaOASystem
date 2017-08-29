@@ -1,0 +1,222 @@
+package com.yuyu.soft.entity;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.yuyu.soft.entity.common.CommonEntity;
+
+/**
+ * 事项申请表
+ *                       
+ * @Filename: EventApplyForm.java
+ * @Version: 1.0
+ * @Author: 李明
+ * @Email: limn_xmj@163.com
+ *
+ */
+@Entity
+@Table(name = "tb_event_apply_form")
+public class EventApplyForm extends CommonEntity {
+
+    /**
+     *Comment for <code>serialVersionUID</code>
+     */
+    private static final long serialVersionUID = 1L;
+
+    private String            project_name;          //项目名称  
+    private String            project_code;          //编号 
+    private Date              apply_date;            //申请日期
+    @Column(precision = 12, scale = 2)
+    private BigDecimal        budget_amount;         //预算金额
+    private String            apply_user_ids;        //事项申请人(多个用户用逗号分隔)
+
+    @Transient
+    private String            apply_user_names;      //事项申请人
+
+    private String            apply_department_ids;  //申请科组(多个科组用逗号分隔)
+
+    @Transient
+    private String            apply_department_names; //申请科组(显示用)
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "leader_user_id")
+    @JsonIgnore
+    private User              leader_user;           //负责人ID
+
+    private String            agent_user_name;       //经办人姓名
+    private Long              cost_company_id;       //费用支出公司(1.中视前卫、2.国际视通、3.成都索贝)
+    private String            cost_contract;         //费用所属合同
+
+    @Column(precision = 12, scale = 2)
+    private BigDecimal        cost_contract_amount;  //所属合同金额
+    private String            attach_ids;            //上传附件(多个附件用逗号分隔)
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "create_user_id")
+    @JsonIgnore
+    private User              create_user;           //创建者
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "update_user_id")
+    @JsonIgnore
+    private User              update_user;           //修改者
+
+    private Date              update_time;           //修改时间
+    
+    private String 			  apply_event;		     //申请事项
+    
+
+    public String getApply_event() {
+		return apply_event;
+	}
+
+	public void setApply_event(String apply_event) {
+		this.apply_event = apply_event;
+	}
+
+	public String getProject_name() {
+        return project_name;
+    }
+
+    public void setProject_name(String project_name) {
+        this.project_name = project_name;
+    }
+
+    public String getProject_code() {
+        return project_code;
+    }
+
+    public void setProject_code(String project_code) {
+        this.project_code = project_code;
+    }
+
+    public Date getApply_date() {
+        return apply_date;
+    }
+
+    public void setApply_date(Date apply_date) {
+        this.apply_date = apply_date;
+    }
+
+    public BigDecimal getBudget_amount() {
+        return budget_amount;
+    }
+
+    public void setBudget_amount(BigDecimal budget_amount) {
+        this.budget_amount = budget_amount;
+    }
+
+    public String getApply_user_ids() {
+        return apply_user_ids;
+    }
+
+    public void setApply_user_ids(String apply_user_ids) {
+        this.apply_user_ids = apply_user_ids;
+    }
+
+    public String getApply_user_names() {
+        return apply_user_names;
+    }
+
+    public void setApply_user_names(String apply_user_names) {
+        this.apply_user_names = apply_user_names;
+    }
+
+    public String getApply_department_ids() {
+        return apply_department_ids;
+    }
+
+    public void setApply_department_ids(String apply_department_ids) {
+        this.apply_department_ids = apply_department_ids;
+    }
+
+    public String getApply_department_names() {
+        return apply_department_names;
+    }
+
+    public void setApply_department_names(String apply_department_names) {
+        this.apply_department_names = apply_department_names;
+    }
+
+    public User getLeader_user() {
+        return leader_user;
+    }
+
+    public void setLeader_user(User leader_user) {
+        this.leader_user = leader_user;
+    }
+
+    public String getAgent_user_name() {
+        return agent_user_name;
+    }
+
+    public void setAgent_user_name(String agent_user_name) {
+        this.agent_user_name = agent_user_name;
+    }
+
+    public Long getCost_company_id() {
+        return cost_company_id;
+    }
+
+    public void setCost_company_id(Long cost_company_id) {
+        this.cost_company_id = cost_company_id;
+    }
+
+    public String getCost_contract() {
+        return cost_contract;
+    }
+
+    public void setCost_contract(String cost_contract) {
+        this.cost_contract = cost_contract;
+    }
+
+    public BigDecimal getCost_contract_amount() {
+        return cost_contract_amount;
+    }
+
+    public void setCost_contract_amount(BigDecimal cost_contract_amount) {
+        this.cost_contract_amount = cost_contract_amount;
+    }
+
+    public String getAttach_ids() {
+        return attach_ids;
+    }
+
+    public void setAttach_ids(String attach_ids) {
+        this.attach_ids = attach_ids;
+    }
+
+    public User getCreate_user() {
+        return create_user;
+    }
+
+    public void setCreate_user(User create_user) {
+        this.create_user = create_user;
+    }
+
+    public User getUpdate_user() {
+        return update_user;
+    }
+
+    public void setUpdate_user(User update_user) {
+        this.update_user = update_user;
+    }
+
+    public Date getUpdate_time() {
+        return update_time;
+    }
+
+    public void setUpdate_time(Date update_time) {
+        this.update_time = update_time;
+    }
+
+}

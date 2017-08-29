@@ -1,0 +1,48 @@
+package com.yuyu.soft.service;
+
+import java.util.List;
+import java.util.Map;
+
+import com.yuyu.soft.entity.WorkloadStatistics;
+import com.yuyu.soft.util.PagerInfo;
+import com.yuyu.soft.util.ResultMsg;
+
+/**
+ * 
+ * 工作量统计
+ *                       
+ * @Filename: IWorkloadStatisticsService.java
+ * @Version: 1.0
+ * @Author: 李明
+ * @Email: limn_xmj@163.com
+ *
+ */
+public interface IWorkloadStatisticsService {
+
+    List<WorkloadStatistics> queryWorkloadStatistics(String hql, Map<String, Object> paramsMap,
+                                                     PagerInfo pager);
+
+    List<Map<String, Object>> queryWorkloadStatisticsMap(String sql, Map<String, Object> paramsMap,
+                                                         PagerInfo pager);
+
+    int getCountForExportExcel(String name, String beginTime, String endTime);
+
+    List<Object[]> getWorkloadStatisticsForExportExcel(String name, String beginTime,
+                                                       String endTime, int beginIndex, int pageSize);
+
+    WorkloadStatistics getWorkloadStatistics(Long id);
+
+    void addWorkloadStatistics(WorkloadStatistics workloadStatistics);
+
+    void updateWorkloadStatistics(WorkloadStatistics workloadStatistics);
+
+    void delWorkloadStatistics(WorkloadStatistics workloadStatistics);
+
+    void batchDelWorkloadStatistics(List<WorkloadStatistics> list);
+
+    /**
+     * 导入数据保存
+     */
+    ResultMsg workload_statistics_import_save(String filePath, String log_date);
+
+}

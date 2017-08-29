@@ -1,0 +1,196 @@
+package com.yuyu.soft.service.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.yuyu.soft.dao.IBaseDao;
+import com.yuyu.soft.entity.FixedAssets;
+import com.yuyu.soft.entity.InsideIncomeDispatches;
+import com.yuyu.soft.entity.ProjectCooperation;
+import com.yuyu.soft.service.IProjectCooperationService;
+import com.yuyu.soft.util.CommUtil;
+import com.yuyu.soft.util.PagerInfo;
+import com.yuyu.soft.util.ResultMsg;
+@Service("projectCooperationService")
+public class ProjectCooperationServiceImpl implements IProjectCooperationService {
+
+	@Resource
+    private IBaseDao<ProjectCooperation> projectCooperationDao;
+	
+	
+	
+	@Override
+	public List<ProjectCooperation> queryProjectCooperationList(String hql, Map<String, Object> paramsMap,
+			PagerInfo pager) {
+		if (pager != null) {
+            pager.setRowsCount(projectCooperationDao.count("select count(t) " + hql, paramsMap));
+            return projectCooperationDao.find(hql, paramsMap, pager.getStart(), pager.getPageSize());
+        } else {
+            return projectCooperationDao.find(hql, paramsMap);
+        }
+	}
+
+
+
+	@Override
+	public ProjectCooperation getProjectCooperation(Long id) {
+		return projectCooperationDao.get(ProjectCooperation.class, id);
+	}
+	
+	/**
+	 * 删除协同记录
+	 */
+	public void deleteProjectCooperation(ProjectCooperation projectCooperation){
+		projectCooperation = getProjectCooperation(projectCooperation.getId());
+		projectCooperation.setDisabled(true);
+        updateProjectCooperation(projectCooperation);
+	}
+	
+	
+	public void updateProjectCooperation(ProjectCooperation projectCooperation) {
+		this.projectCooperationDao.update(projectCooperation);
+	}
+
+	/**
+	 * 添加协同记录
+	 */
+	public void addProjectCooperation(ProjectCooperation projectCooperation){
+		this.projectCooperationDao.save(projectCooperation);
+	}
+	
+	
+	
+	
+	/**
+	 * 添加协同记录
+	 */
+	public ResultMsg add_save(ProjectCooperation projectCooperation){
+		ResultMsg rmg = save_check(projectCooperation);
+	        if (!rmg.getResult()) {
+	            return rmg;
+	        }
+	        projectCooperation.setDisabled(false);
+	        projectCooperation.setCreatetime(new Date());
+	        addProjectCooperation(projectCooperation);
+	        return CommUtil.setResultMsgData(rmg, true, "协同记录保存成功");
+	}
+	
+	/**
+	 * 编辑协同记录保存
+	 */
+	public ResultMsg edit_save(ProjectCooperation projectCooperation){
+		ResultMsg rmg = save_check(projectCooperation);
+	        if (!rmg.getResult()) {
+	            return rmg;
+	        }
+	        updateProjectCooperation(projectCooperation);
+	        return CommUtil.setResultMsgData(rmg, true, "协同记录编辑保存成功");
+	}
+	
+	private ResultMsg save_check(ProjectCooperation projectCooperation) {
+		if (projectCooperation == null) {
+			return CommUtil.setResultMsgData(null, false, "协同记录对象为空");
+		}
+		if (projectCooperation.getProject_date() == null ) {
+			return CommUtil.setResultMsgData(null, false, "日期不能为空");
+		} 
+		if (CommUtil.isBlank(projectCooperation.getProject_name())) {
+			return CommUtil.setResultMsgData(null, false, "协同记录名称不能为空");
+		} else if (projectCooperation.getProject_name().length() > 50) {
+			return CommUtil.setResultMsgData(null, false, "协同记录名称最多50字符");
+		}
+		if (CommUtil.isBlank(projectCooperation.getInitiator_name())) {
+			return CommUtil.setResultMsgData(null, false, "发起人不能为空");
+		} else if (projectCooperation.getInitiator_name().length() > 50) {
+			return CommUtil.setResultMsgData(null, false, "发起人最多50字符");
+		}
+		if (CommUtil.isBlank(projectCooperation.getCooperation_name())) {
+			return CommUtil.setResultMsgData(null, false, "合作方不能为空");
+		} else if (projectCooperation.getCooperation_name().length() > 50) {
+			return CommUtil.setResultMsgData(null, false, "合作方最多50字符");
+		}
+		if (CommUtil.isBlank(projectCooperation.getResult())) {
+			return CommUtil.setResultMsgData(null, false, "结果不能为空");
+		} else if (projectCooperation.getResult().length() > 50) {
+			return CommUtil.setResultMsgData(null, false, "结果最多50字符");
+		}
+		return CommUtil.setResultMsgData(null, true, "协同记录对象校验成功");
+	}
+	
+	/**
+	 * 查询协同记录数量(sql)
+     * 用于导出Excel
+	 */
+	@Override
+	public int getCountForExportExcel(String project_name, String initiator_name, String project_date) {
+		String sql = getCountSQL() + getCommonSQL(project_name, initiator_name, project_date);
+        return projectCooperationDao.countBySql(sql, null);
+	}
+
+	/**
+	 * 查询协同记录(sql)
+	 * 用于导出Excel
+	 */
+	public List<Object[]> getProjectCooperationsForExportExcel(String project_name, String initiator_name, String project_date,
+			int beginIndex, int pageSize) {
+		String sql = getQueryListSQL()
+                + getCommonSQL(project_name, initiator_name, project_date);
+
+		List<Object[]> list = (ArrayList<Object[]>) projectCooperationDao.findBySql(sql, null, beginIndex,
+       pageSize);
+
+   return list;
+	}
+    
+	
+	
+	private String getQueryListSQL() {
+		 StringBuffer s = new StringBuffer();
+	        return "select project_date,project_name,initiator_name,cooperation_name,result,remark ";
+	}
+
+
+
+	private String getCountSQL() {
+		return "select count(id)";
+	}
+
+
+	private String getCommonSQL(String project_name, String initiator_name, String project_date) {
+		StringBuffer s = new StringBuffer();
+        s.append(" from tb_project_cooperation");
+        s.append(" where disabled = 0");
+        if (CommUtil.isNotNull(project_name)) {
+            s.append(" and project_name like '%").append(project_name.trim()).append("%'");
+        }
+        if (CommUtil.isNotNull(initiator_name)) {
+            s.append(" and initiator_name like '%").append(initiator_name.trim()).append("%'");
+        }
+        if (CommUtil.isNotNull(project_date)) {
+            s.append(" and project_date =  str_to_date('")
+                .append(project_date).append("','%Y-%m-%d')");
+        }
+        return s.toString();
+	}
+
+
+
+
+
+
+
+
+
+    
+	
+	
+	
+	
+	
+}

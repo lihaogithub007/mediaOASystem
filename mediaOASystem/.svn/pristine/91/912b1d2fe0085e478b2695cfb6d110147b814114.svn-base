@@ -1,0 +1,151 @@
+package com.yuyu.soft.base.filter;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.math.BigInteger;
+import java.util.List;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.yuyu.soft.base.controller.BaseController;
+import com.yuyu.soft.entity.Res;
+import com.yuyu.soft.entity.User;
+import com.yuyu.soft.service.IResService;
+import com.yuyu.soft.service.IUserResService;
+import com.yuyu.soft.util.CommUtil;
+import com.yuyu.soft.util.JsonUtil;
+import com.yuyu.soft.util.ResultMsg;
+
+/**
+ *                       
+ * @Filename: SessionFilter.java
+ * @Version: 1.0
+ * @Author: 范光洲
+ * @Email: goodfgz@163.com
+ *
+ */
+public class SessionFilter extends OncePerRequestFilter {
+
+    private ApplicationContext applicationContext;
+    private IUserResService    userResService;
+    private IResService        resService;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
+
+        // 不过滤的uri(包括登录、退出、人事档案、简历相关页面)
+        String[] notFilter = new String[] { "login.htm", "doLogin.htm", "logout.htm",
+                "full_screen_success.htm", "full_screen_error.htm", "_footer.htm", "copyright.htm",
+                "success.htm", "error.htm", "verify_user_mobile.htm",
+                "ajaxQueryDutyUnderDepartment.htm", "user_file_mobile_validate.htm",
+                "getUserFileMobileCheckCode.htm", "user_file_mobile_check.htm",
+                "user_file_edit.htm", "user_resume_mobile_validate.htm",
+                "getUserResumeMobileCheckCode.htm", "user_resume_mobile_check.htm",
+                "user_resume_edit.htm", "user_file_base.htm", "user_file_work.htm",
+                "user_file_education.htm", "user_file_schoolaward.htm",
+                "user_file_family_member.htm", "user_file_contract.htm",
+                "user_file_contract_renewal.htm", "resume_base.htm", "resume_work.htm",
+                "resume_education.htm", "resume_family_member.htm", "resume_others.htm",
+                "user_file_photo.htm", "_include_upload_photo.htm", "userFileUpload.htm",
+                "resume_photo.htm", "userResumeUpload.htm" };
+
+        String uri = request.getRequestURI();
+
+        boolean doFilter = true;
+        for (String s : notFilter) {
+            if (uri.indexOf(s) != -1) {
+                doFilter = false;
+                break;
+            }
+        }
+        if (doFilter) {
+            String requestType = request.getHeader("x-requested-with");
+            if ("".equals(CommUtil.null2String(requestType))) {//判断是否为传统请求
+
+                //判断是否登录
+                User user = BaseController.getCurrentUser(request);
+                if (null == user) {
+                    response.setContentType("text/html");
+                    response.setCharacterEncoding("utf-8");
+                    PrintWriter out = response.getWriter();
+                    StringBuilder builder = new StringBuilder();
+                    builder.append("<script type=\"text/javascript\" charset=\"UTF-8\">");
+                    builder.append("alert(\"请重新登录！\");");
+                    builder.append("window.top.location.href='").append(CommUtil.getURL(request))
+                        .append("/login.htm';");
+                    builder.append("</script>");
+                    out.print(builder.toString());
+                    out.close();
+                } else {
+                    if (verify_res_authority(request, response, uri, user)) {
+                        filterChain.doFilter(request, response);
+                    } else {
+                        request.setAttribute("error", "您没有此权限，不可以进行此操作!");
+                        request.getRequestDispatcher("/common/full_screen_error.htm").forward(
+                            request, response);
+                    }
+                }
+
+            } else {
+                boolean filter_chain = true;
+                if (request.getHeader("x-requested-with") != null
+                    && request.getHeader("x-requested-with").equalsIgnoreCase("XMLHttpRequest")) {
+                    User user = BaseController.getCurrentUser(request);
+                    if (null == user) {
+                        filter_chain = false;
+                        ResultMsg rmg = CommUtil.setResultMsgData(null, false, "timeout");
+                        rmg.setData(CommUtil.getURL(request) + "/login.htm");
+                        JsonUtil.writeMsg(response, JsonUtil.write2JsonStr(rmg));
+                        return;
+                    } else {
+                        if (!verify_res_authority(request, response, uri, user)) {
+                            filter_chain = false;
+                            ResultMsg rmg = CommUtil.setResultMsgData(null, false,
+                                "您没有此权限，不可以进行此操作!");
+                            JsonUtil.writeMsg(response, JsonUtil.write2JsonStr(rmg));
+                            return;
+                        }
+                    }
+                }
+                if (filter_chain) {
+                    filterChain.doFilter(request, response);
+                }
+            }
+        } else {
+            filterChain.doFilter(request, response);
+        }
+    }
+
+    /*
+     * 验证用户权限
+     * 1.查询url是否在资源表里
+     * 2.如果在资源表，验证用户是否有此权限
+     */
+    private boolean verify_res_authority(HttpServletRequest request, HttpServletResponse response,
+                                         String url, User user) {
+        ServletContext sc = request.getSession().getServletContext();
+        applicationContext = WebApplicationContextUtils.getWebApplicationContext(sc);
+        resService = (IResService) applicationContext.getBean("resService");
+        List<Res> resList = resService.queryByUrl(url + "*");
+        if (resList == null || resList.size() == 0) {
+            return true;
+        }
+        Long res_id = resList.get(0).getId();
+        userResService = (IUserResService) applicationContext.getBean("userResService");
+        List<Long> userResIdList = userResService.queryUserResIds(user.getId());
+        if (userResIdList == null || userResIdList.size() == 0
+            || !userResIdList.contains(new BigInteger(res_id.toString()))) {
+            return false;
+        }
+        return true;
+    }
+}

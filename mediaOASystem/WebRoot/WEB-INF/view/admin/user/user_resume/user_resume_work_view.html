@@ -1,0 +1,34 @@
+#if($!resumeWorkList && $!resumeWorkList.size()>0)
+	#foreach($obj in $!resumeWorkList)
+		<div class="bd" id="work_view_$!obj.id">
+            <div class="con edit">
+                <div class="sp">
+                    <span>$!CommUtil.parseDateTime("yyyy/MM/dd",$!obj.work_time_begin)-$!CommUtil.parseDateTime("yyyy/MM/dd",$!obj.work_time_end)</span>
+                    <strong class="w360 at" title="$obj.work_comp_name">$!CommUtil.substring($!obj.work_comp_name,25)</strong>
+                    <strong class="fbox"><span class="zhi at">$!work_type_map.get("$!obj.work_type")</span><em></em></strong>
+                </div>
+                <div class="e clear_left">
+                    <label>岗位</label><i>：</i>
+                    <div>&nbsp;$!obj.work_duty_name</div>
+                </div>
+                <div class="e clear_left">
+                    <label>月收入</label><i>：</i>
+                    <div>&nbsp;$!{obj.month_salary}&nbsp;元&nbsp;(税前)</div>
+                </div>
+                <div class="e e2 clear_left">
+                    <label>证明人</label><i>：</i>
+                    <div>&nbsp;$!{obj.voucher_name}</div>
+                </div>
+                <div class="e e2">
+                    <label>证明电话</label><i>：</i>
+                    <div>&nbsp;$!{obj.voucher_mobile}</div>
+                </div>
+                <div class="clearfix"></div>
+                <span class="ed_icon"><em class="edi icons" id="work_edit_$!obj.id" onclick="editButtonClick(this)"></em>
+                <em class="del icons" id="work_delete_$!obj.id" onclick="deleteButtonClick(this)"></em></span>
+            </div>
+        </div>
+	#end
+#else
+	<div class="none icons" id="work_empty">没有工作经历！</div>
+#end

@@ -1,0 +1,78 @@
+package com.yuyu.soft.service;
+
+import java.util.List;
+import java.util.Map;
+
+import com.yuyu.soft.entity.AttendanceRecord;
+import com.yuyu.soft.entity.User;
+import com.yuyu.soft.entity.VacationApplyDetails;
+import com.yuyu.soft.util.PagerInfo;
+import com.yuyu.soft.util.ResultMsg;
+
+/**
+ * 考勤记录
+ *                       
+ * @Filename: IAttendanceRecordService.java
+ * @Version: 1.0
+ * @Author: 李明
+ * @Email: limn_xmj@163.com
+ *
+ */
+public interface IAttendanceRecordService {
+
+    /**
+     * 查询某月考勤记录
+     * 如果user_id 为null, 查询某月所有用户考勤记录
+     * 如果user_id 不为null, 查询该用户考勤记录
+     */
+    List<AttendanceRecord> queryAttendanceRecord(Long user_id, String attendance_record_month);
+
+    List<AttendanceRecord> queryAttendanceRecord(String hql, Map<String, Object> paramsMap,
+                                                 PagerInfo pager);
+
+    AttendanceRecord getAttendanceRecord(Long id);
+
+    void addAttendanceRecord(AttendanceRecord attendanceRecord);
+
+    void updateAttendanceRecord(AttendanceRecord attendanceRecord);
+
+    void delAttendanceRecord(AttendanceRecord attendanceRecord);
+
+    void realDelAttendanceRecord(AttendanceRecord attendanceRecord);
+
+    /**
+     * 获取累计年假信息
+     */
+    String get_total_annual_leave_days_msg(Long user_id, String vacation_begin_date,
+                                           String vacation_end_date);
+
+    /**
+     * 新增考勤记录保存
+     */
+    void add_save(User user, String attendance_record_month);
+
+    /**
+     * 编辑考勤记录保存
+     */
+    ResultMsg edit_save(AttendanceRecord attendanceRecord);
+
+    /**
+     * 更新考勤记录请假天数
+     */
+    void update_leave_days(VacationApplyDetails vad, String type);
+
+    /**
+     * 查询考勤统计数量(sql)
+     * 用于导出Excel
+     */
+    int getCountForExportExcel(Long department_id, String true_name, String attendance_record_month);
+
+    /**
+     * 查询考勤统计
+     * 用于导出Excel
+     */
+    List<Object[]> getAttendanceRecordsForExportExcel(Long department_id, String true_name,
+                                                      String attendance_record_month,
+                                                      int beginIndex, int pageSize);
+
+}

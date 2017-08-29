@@ -1,0 +1,30 @@
+#if($!userEducationList && $!userEducationList.size()>0)
+	#foreach($obj in $!userEducationList)
+		<div class="bd" id="education_view_$!obj.id">
+         <div class="con edit ebox">
+             <div class="sp">
+                 <span>$!CommUtil.parseDateTime("yyyy/MM/dd",$!obj.admission_date)-$!CommUtil.parseDateTime("yyyy/MM/dd",$!obj.graduation_date)</span>
+                 <strong class="w360 at" title="$obj.edu_school_name">$!CommUtil.substring($!obj.edu_school_name,25)</strong>
+                 <strong class="fbox"><span class="zhi at">$!edu_degree_map.get("$!obj.edu_degree")</span><em></em></strong>
+             </div>
+             <div class="e">
+                 <label>专业</label><i>：</i>
+                 <div>&nbsp;$!obj.edu_major</div>
+             </div>
+             <div class="e">
+                 <label>学位</label><i>：</i>
+                 <div>&nbsp;$!obj.edu_offering</div>
+             </div>
+             <div class="e">
+                 <label>地点</label><i>：</i>
+                 <div>&nbsp;$!obj.edu_place</div>
+             </div>
+             <div class="clearfix"></div>
+             <span class="ed_icon"><em class="edi icons" id="education_edit_$!obj.id" onclick="editButtonClick(this)"></em>
+             <em class="del icons" id="education_delete_$!obj.id" onclick="deleteButtonClick(this)"></em></span>	
+         </div>
+     </div>
+	#end
+#else
+	<div class="none icons" id="education_empty">完善教育经历！</div>
+#end

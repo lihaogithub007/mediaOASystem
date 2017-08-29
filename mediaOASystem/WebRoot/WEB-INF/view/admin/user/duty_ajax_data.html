@@ -1,0 +1,16 @@
+#if($dutys)
+#foreach($duty in $dutys)
+<tr name="tr_duty_$!duty.department.id">
+	<td style="padding-left:50px;">
+       	<input type="text" value="$!duty.duty_name" attrName="$!duty.duty_name"  
+       	  class="input-xlarge popovers" data-trigger="hover" data-content="岗位可编辑，最多50汉字"
+       		onblur="ajax_update('$!webPath/admin/user/duty_ajax_edit_save.htm', this, '$!duty.id', 'duty')"/>
+	</td>
+    <td>
+		<a href="$!webPath/admin/user/duty_delete.htm?id=$!duty.id&currentPage=$!currentPage" 
+			onclick="if(confirm('请确认该岗位下没有用户，否则不能删除')==false) return false;" style="font-size:14px;">删除</a>&nbsp;
+		<a href="$!webPath/admin/user/duty_res.htm?id=$!duty.id&currentPage=$!currentPage" style="font-size:14px;">权限编辑</a>
+	</td>
+</tr>
+#end
+#end

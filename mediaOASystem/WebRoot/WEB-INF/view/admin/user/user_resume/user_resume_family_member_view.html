@@ -1,0 +1,37 @@
+#if($!resumeFamilyMemberList && $!resumeFamilyMemberList.size()>0)
+	#foreach($obj in $!resumeFamilyMemberList)
+		<div class="bd" id="familymember_view_$!obj.id">
+            <div class="con edit">
+                <div class="e e2 clear_left">
+	                <label>姓名</label><i>：</i>
+	                <div>&nbsp;$!obj.family_member_name</div>
+	            </div>
+                <div class="e e2">
+	                <label>关系</label><i>：</i>
+	                <div>&nbsp;$!family_relationship_map.get("$!obj.family_relationship")</div>
+	            </div>
+	            <div class="e e2 clear_left">
+	                <label>工作单位</label><i>：</i>
+	                <div>&nbsp;$!obj.family_member_unit</div>
+	            </div>
+	            <div class="e e2">
+	                <label>职务</label><i>：</i>
+	                <div>&nbsp;$!obj.family_member_duty</div>
+	            </div>
+	            <div class="e e2 clear_left">
+	                <label>所在地址</label><i>：</i>
+	                <div>&nbsp;$!obj.family_member_work_place</div>
+	            </div>
+	            <div class="e e2">
+	                <label>联系电话</label><i>：</i>
+	                <div>&nbsp;$!obj.family_member_mobile</div>
+	            </div>
+                <div class="clearfix"></div>
+                <span class="ed_icon"><em class="edi icons" id="familymember_edit_$!obj.id" onclick="editButtonClick(this)"></em>
+                <em class="del icons" id="familymember_delete_$!obj.id" onclick="deleteButtonClick(this)"></em></span>
+            </div>
+        </div>
+	#end
+#else
+	<div class="none icons" id="familymember_empty">没有家庭成员记录！</div>
+#end

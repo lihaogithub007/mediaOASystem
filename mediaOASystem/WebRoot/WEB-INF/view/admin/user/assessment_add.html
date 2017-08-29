@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<!--[if IE 8]> <html class="ie8"> <![endif]-->
+<!--[if IE 9]> <html class="ie9"> <![endif]-->
+<!--[if !IE]><!--> <html> <!--<![endif]-->
+<head>
+<meta charset="utf-8" />
+<title>新媒体智能管理系统</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+<meta content="" name="description" />
+<meta content="" name="author" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="renderer" content="webkit|ie-comp|ie-stand" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap-fileupload.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/font-awesome/css/font-awesome.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style_responsive.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style_default.css" rel="stylesheet" id="style_color" />
+<link href="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/fancybox/source/jquery.fancybox.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/toastr/toastr.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/uniform/css/uniform.default.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/My97DatePicker/skin/WdatePicker.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/css/custom/custom.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+#myModal{
+	width:1000px;
+	margin-left:-500px;
+}
+</style>
+</head>
+<body class="fixed-top">
+	<div id="header" class="navbar navbar-inverse navbar-fixed-top">
+		$!httpInclude.include("/common/_header.htm") 
+	</div>
+	<div id="container" class="row-fluid">
+		<div id="sidebar" class="nav-collapse collapse">
+			$!httpInclude.include("/common/_sidebar.htm?op=department_awards") 
+		</div>
+		<div id="main-content">
+			<div class="container-fluid">
+				<div class="row-fluid">
+					<div class="span12">
+						<h3 class="page-title">评优添加</h3>
+						<ul class="breadcrumb">
+							<li><a href="$!webPath/index.htm"><i class="icon-home"></i></a><span class="divider">&nbsp;</span></li>
+					        <li><a href="javascript:void(0);">行政办公</a><span class="divider">&nbsp;</span></li>
+							<li><a href="$!webPath/admin/user/assessment_add.htm?currentPage=$!currentPage">评优添加</a><span class="divider-last">&nbsp;</span></li>
+						</ul>
+					</div>
+				</div>
+				<div class="row-fluid">
+					<form name="theForm" id="theForm" action="$!webPath/admin/user/assessment_add_save.htm" method="post" class="form-horizontal">
+		            	<div class="span12">
+							<div class="widget">
+		                    	<div class="widget-title">
+		                        	<h4><i class="icon-reorder"></i>评优添加</h4>
+		                     	</div>
+                     			<div class="widget-body form">
+                     				<div class="control-group">
+		                            	<label class="control-label"><font class="red_font">*</font>部门科组</label>
+		                              	<div class="controls">
+			                            	<select data-placeholder="选择部门科组" class="span6 chosen" tabindex="-1" name="department_id" id="department_id">
+			                            		<option value="">选择部门科组</option>
+												#foreach($obj in $!departments)
+						                        <option value="$!obj.id">$!obj.department_name</option>
+						                        #end
+											</select>
+		                              	</div>
+		                           	</div>
+                     				<div class="control-group">
+		                            	<label class="control-label">用户</label>
+		                              	<div class="controls">
+			                            	<select data-placeholder="选择用户" class="span6 chosen" tabindex="-1" multiple="multiple" name="user_ids" id="user_ids">
+												#foreach($obj in $!users)
+						                        <option value="$!obj.id">$!obj.true_name</option>
+						                        #end
+											</select>
+		                              	</div>
+		                           	</div>
+		                           	<div class="control-group">
+		                        		<label class="control-label"><font class="red_font">*</font>奖项名称</label>
+	                                    <div class="controls">
+	                                    	 <input type="text" name="award_name" id="award_name" placeholder="奖项名称" class="span6 popovers" maxlength="50"
+	                                        	data-trigger="hover" data-content="输入奖项名称，最多50字符"/>
+	                                    </div>
+		                           	</div>
+                     				<div class="control-group">
+		                        		<label class="control-label"><font class="red_font">*</font>获奖时间</label>
+	                                    <div class="controls">
+	                                    	 <input type="text" name="award_date" placeholder="获奖时间" class="span6 popovers" 
+	                                    	 	data-trigger="hover" data-content="请点击选择获奖时间" readonly="readonly"  onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'})"/>
+	                                        <span class="help-inline"></span>
+	                                    </div>
+		                           	</div>
+		                           	<div class="control-group">
+		                        		<label class="control-label"><font class="red_font">*</font>获奖作品</label>
+	                                    <div class="controls">
+	                                    	 <input type="text" name="award_works" id="award_works" placeholder="获奖作品" class="span6 popovers" maxlength="50"
+	                                        	data-trigger="hover" data-content="输入获奖作品，最多50字符"/>
+	                                    </div>
+		                           	</div>
+		                           	<div class="control-group">
+		                        		<label class="control-label"><font class="red_font">*</font>奖项等级</label>
+	                                    <div class="controls">
+	                                    	 <input type="text" name="award_level" id="award_level" placeholder="奖项等级" class="span6 popovers" maxlength="50"
+	                                        	data-trigger="hover" data-content="输入奖项等级，最多50字符"/>
+	                                    </div>
+		                           	</div>
+		                           	<div class="control-group">
+		                        		<label class="control-label"><font class="red_font">*</font>颁发单位</label>
+	                                    <div class="controls">
+	                                    	 <input type="text" name="award_unit" id="award_unit" placeholder="颁发单位" class="span6 popovers" maxlength="50"
+	                                        	data-trigger="hover" data-content="输入颁发单位，最多50字符"/>
+	                                    </div>
+		                           	</div>
+                           			<div class="form-actions">
+                           				<input type="button" id="btn_submit" class="btn btn-primary" value="保存"/>
+                           				<a href="$!webPath/admin/user/assessment_list.htm?currentPage=$!currentPage" class="btn">返回</a>
+                           			</div>
+	                     		</div>
+	                  		</div>
+		                </div>
+		                <input type="hidden" name="currentPage" id="currentPage" value="$!currentPage"/>
+				  	</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="footer">
+		$!httpInclude.include("/common/_footer.htm")	
+	</div>
+	<script src="$!webPath/resources/js/jquery-1.8.3.min.js"></script>
+    <script src="$!webPath/resources/assets/bootstrap/js/bootstrap.min.js"></script>   
+    <script src="$!webPath/resources/js/jquery.blockui.js"></script>
+    <!-- ie8 fixes -->
+    <!--[if lt IE 9]>
+    <script src="$!webPath/resources/js/excanvas.js"></script>
+    <script src="$!webPath/resources/js/respond.js"></script>
+    <![endif]-->   
+    <script src="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.jquery.js" type="text/javascript"></script>
+    <script src="$!webPath/resources/assets/uniform/jquery.uniform.min.js" type="text/javascript"></script>
+    <script src="$!webPath/resources/js/jquery.validate.min.js" type="text/javascript" ></script>
+	<script src="$!webPath/resources/js/jquery.validate.ext.js" type="text/javascript" ></script>
+	<script src="$!webPath/resources/js/jquery.form.min.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/assets/My97DatePicker/WdatePicker.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/assets/toastr/toastr.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/assets/data-tables/jquery.dataTables.js"></script>
+    <script src="$!webPath/resources/assets/data-tables/DT_bootstrap.js"></script>
+    <script src="$!webPath/resources/js/scripts.js"></script>
+    <script src="$!webPath/resources/js/custom/common.js"></script>
+    <script>
+	jQuery(document).ready(function() {   
+		App.init();
+		initToastr();
+		jqueryValidate();
+		bindEvent();
+		bindChangeEvent();
+	});
+	function jqueryValidate(){
+		jQuery("#theForm").validate({
+			errorPlacement : function(error, element) { 
+				$(error).appendTo($(element).parent()); 
+			},
+			rules:{
+				award_date:{required:true},
+				award_name:{required:true},
+				award_works:{required:true},
+				department_id:{required:true},
+				award_level:{required:true},
+				award_unit:{required:true},
+	       	},
+			messages:{
+				award_date:{required:"获奖时间不能为空"},
+				award_name:{required:"奖项名称不能为空"},
+				award_works:{required:"获奖作品不能为空"},
+				department_id:{required:"请选择部门科组"},
+				award_level:{required:"奖项等级不能为空"},
+				award_unit:{required:"颁发单位不能为空"},
+			}
+		}); 
+		var validator = $("#theForm").data("validator");
+        validator.settings.ignore = ":hidden:not(select)";
+	}
+	function bindEvent(){
+		jQuery("#btn_submit").bind("click", function(){
+			if (jQuery("#theForm").valid()) {
+				jQuery("#loadingBar").show();
+				ajaxFormSubmit('theForm','defaultAjaxSaveCallBack');
+			}
+		});
+	}
+	function unBindEvent(){
+		jQuery("#btn_submit").unbind();
+	}
+	function bindChangeEvent(){
+        jQuery("#department_id").change(function(){
+            jQuery.ajax({
+                type : "post",
+                url : "$!webPath/admin/user/ajaxQueryUserByDepartment.htm",
+                data : {//设置数据源
+                    department_id : jQuery(this).val()
+                },
+                dataType : "json",//设置需要返回的数据类型
+                success : function(data) {
+                    if(data && data != null && data.result){
+                        console.log(data.data);
+                        jQuery("#user_ids").empty();  
+                        jQuery.each(data.data, function(index, item){
+                            var option = jQuery("<option>").val(item.id).text(item.true_name);
+                            jQuery("#user_ids").append(option);
+                        });
+                        jQuery("#user_ids").trigger("chosen:updated");
+                    }
+                },
+                error : function() {
+                    alert("系统异常，请稍后重试！");
+                }
+            });
+        });
+    }
+	</script>
+</body>
+</html>

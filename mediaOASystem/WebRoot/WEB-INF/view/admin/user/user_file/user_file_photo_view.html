@@ -1,0 +1,73 @@
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap-fileupload.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/font-awesome/css/font-awesome.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style_responsive.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style_default.css" rel="stylesheet" id="style_color" />
+<link href="$!webPath/resources/assets/fancybox/source/jquery.fancybox.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/uniform/css/uniform.default.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/css/custom/custom.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/fileupload/css/blueimp-gallery.min.css" rel="stylesheet" >
+<link href="$!webPath/resources/assets/fileupload/css/jquery.fileupload.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/fileupload/css/jquery.fileupload-ui.css" rel="stylesheet" type="text/css" />
+<div class="bd" id="$!{photo_column}_view_$!{photo_column}">
+	<div class="con edit">
+    	#if($!attachments && $!attachments.size()>0)
+    		<div style="width:80%;text-align:left;">
+      		#foreach($attach in $!attachments)
+			<span class="span2">
+		   		#if($!CommUtil.isImage("$!attach.mime_type"))
+		        	<a class="fancybox-button-view" data-rel="fancybox-button" title="$!attach.original_file_name" href="$!webPath/$!attach.save_path/$!attach.save_file_name">
+					<div class="zoom">
+						<img src="$!webPath/$!attach.save_path/$!attach.save_file_name">
+							<div class="zoom-icon"></div>
+						</div>
+					</a>
+				#end    
+		    </span>
+			#end
+			</div>
+		#else
+		<div class="none icons" id="$!{photo_column}_empty">
+    		#if("idphoto"=="$!{photo_column}") 没有身份证照
+    		#elseif("degreephoto"=="$!{photo_column}") 没有学历证明
+    		#elseif("bluetwoinchphoto"=="$!{photo_column}") 没有蓝底小二寸证件照
+    		#elseif("whitetwoinchphoto"=="$!{photo_column}") 没有白色小二寸证件照
+    		#elseif("othersphoto"=="$!{photo_column}") 没有其他证件照
+    		#else &nbsp;
+    		#end
+    	</div>
+		#end
+        <div class="clearfix"></div>
+        <span class="ed_icon"><em class="edi icons" id="$!{photo_column}_edit_$!{photo_column}" onclick="editButtonClick(this)"></em>
+    </div>
+</div>
+<script src="$!webPath/resources/js/jquery-1.8.3.min.js"></script>
+<script src="$!webPath/resources/assets/bootstrap/js/bootstrap.min.js"></script>   
+<script src="$!webPath/resources/assets/fancybox/source/jquery.fancybox.pack.js"></script>  
+<script src="$!webPath/resources/js/jquery.blockui.js"></script>
+<!-- ie8 fixes -->
+<!--[if lt IE 9]>
+<script src="$!webPath/resources/js/excanvas.js"></script>
+<script src="$!webPath/resources/js/respond.js"></script>
+<![endif]-->   
+<script src="$!webPath/resources/assets/uniform/jquery.uniform.min.js" type="text/javascript"></script>
+<script src="$!webPath/resources/js/scripts.js"></script>
+<script src="$!webPath/resources/js/custom/common.js"></script>
+<script type="text/javascript">
+jQuery(document).ready(function(){
+	jQuery(".fancybox-button-view").fancybox({
+        groupAttr: 'data-rel',
+        prevEffect: 'none',
+        nextEffect: 'none',
+        closeBtn: true,
+        live : false,
+        helpers: {
+            title: {
+                type: 'inside'
+            }
+        }
+    });
+});
+</script>

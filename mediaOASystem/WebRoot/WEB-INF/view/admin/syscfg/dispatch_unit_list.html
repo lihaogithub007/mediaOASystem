@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<!--[if IE 8]> <html class="ie8"> <![endif]-->
+<!--[if IE 9]> <html class="ie9"> <![endif]-->
+<!--[if !IE]><!--> <html> <!--<![endif]-->
+<head>
+<meta charset="utf-8" />
+<title>新媒体智能管理系统</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+<meta content="" name="description" />
+<meta content="" name="author" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="renderer" content="webkit|ie-comp|ie-stand" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/font-awesome/css/font-awesome.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style_responsive.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style_default.css" rel="stylesheet" id="style_color" />
+<link href="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/fancybox/source/jquery.fancybox.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/toastr/toastr.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/uniform/css/uniform.default.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/css/custom/custom.css" rel="stylesheet" type="text/css" />
+</head>
+<body class="fixed-top">
+	<div id="header" class="navbar navbar-inverse navbar-fixed-top">
+		$!httpInclude.include("/common/_header.htm") 
+	</div>
+	<div id="container" class="row-fluid">
+		<div id="sidebar" class="nav-collapse collapse">
+			$!httpInclude.include("/common/_sidebar.htm?op=dispatch_unit") 
+		</div>
+		<div id="main-content">
+			<div class="container-fluid">
+				<div class="row-fluid">
+					<div class="span12">
+						<h3 class="page-title">发文单位列表</h3>
+						<ul class="breadcrumb">
+							<li><a href="$!webPath/index.htm"><i class="icon-home"></i></a><span class="divider">&nbsp;</span></li>
+					        <li><a href="javascript:void(0);">系统设置</a> <span class="divider">&nbsp;</span></li>
+							<li><a href="$!webPath/admin/syscfg/dispatch_unit_list.htm">发文单位列表</a><span class="divider-last">&nbsp;</span></li>
+						</ul>
+					</div>
+				</div>
+				<div class="row-fluid">
+	                <div class="span12">
+	                    <div class="widget">
+	                        <div class="widget-title">
+	                            <h4><i class="icon-reorder"></i>发文单位列表</h4>
+	                        </div>
+	                        <div class="widget-body">
+	                        	<form name="queryForm" id="queryForm" action="$!webPath/admin/syscfg/dispatch_unit_list.htm" method="post">
+		                        	<div class="row-fluid">
+										<div class="span12">
+											 <div class="pull-left">
+												<div class="ipt_container">
+													<input type="text" name="dispatch_unit_name" id="dispatch_unit_name" value="$!{dispatch_unit_name}" class="search-ipt" placeholder="发文单位名称">
+												</div>
+                          						<input type="submit" class="btn btn-primary" value="搜索">
+                          						<a href="$!webPath/admin/syscfg/dispatch_unit_add.htm?currentPage=$!currentPage" class="btn btn-primary">添加发文单位</a>
+												<div class="clearfix space7"></div>
+											</div> 				
+									  </div>
+									</div>
+								</form>
+								<form name="listForm" id="listForm" action="$!webPath/admin/syscfg/dispatch_unit_list.htm" method="post">
+		                        	#if(0!=$!{rows})
+		                            <table class="table table-bordered table-hover">
+		                                <thead>
+			                                <tr>
+			                               		<th style="width:20%;">序号</th>
+			                                    <th style="width:64%;">发文单位名称</th>
+			                                    <th style="width:16%;min-width:60px;">操作</th>
+			                                </tr>
+		                                </thead>
+		                                <tbody>
+		                                	#foreach($obj in $list)
+			                                <tr>
+			                                   <!--  <td>$!{velocityCount}</td> -->
+			                                    <td>$!{velocityCount}</td>
+			                                    <td>$!{obj.dispatch_unit_name}</td>
+			                                    <td>
+			                                        <a href="$!webPath/admin/syscfg/dispatch_unit_edit.htm?id=$!{obj.id}&dispatch_unit_name=$!{obj.dispatch_unit_name}&currentPage=$!currentPage">编辑</a>&nbsp;
+			                                    	<a href="$!webPath/admin/syscfg/dispatch_unit_delete.htm?id=$!{obj.id}&currentPage=$!currentPage"  
+			                                    		onclick="return confirm('确认删除吗?')">删除</a>
+			                                    </td>
+			                                </tr>
+			                                #end
+		                                </tbody>
+		                            </table>
+		                            <div class="clearfix space5"></div>
+		                            <div class="row-fluid">
+									    <div class="span6">
+									        <div class="dataTables_info" id="sample_1_info">总条数$!{rows}条</div>
+									    </div>
+									    <div class="span6">
+									        <div class="dataTables_paginate paging_bootstrap pagination">
+									        	$!{gotoPageFormHTML}
+									        </div>
+									    </div>
+									</div>
+									#else
+									<hr class="clearfix" style="margin:10px 0px;">
+									<span>没有发文单位记录</span>
+									#end
+									<input type="hidden" name="currentPage" id="currentPage" value="$!currentPage"/>
+									<input type="hidden" name="dispatch_unit_name" value="$!dispatch_unit_name"/>
+							  	</form>
+	                        </div>
+	                    </div>
+	                </div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="footer">
+		$!httpInclude.include("/common/_footer.htm")	
+	</div>
+	<script src="$!webPath/resources/js/jquery-1.8.3.min.js"></script>
+    <script src="$!webPath/resources/assets/bootstrap/js/bootstrap.min.js"></script>   
+    <script src="$!webPath/resources/js/jquery.blockui.js"></script>
+    <!-- ie8 fixes -->
+    <!--[if lt IE 9]>
+    <script src="$!webPath/resources/js/excanvas.js"></script>
+    <script src="$!webPath/resources/js/respond.js"></script>
+    <![endif]-->   
+    <script src="$!webPath/resources/assets/uniform/jquery.uniform.min.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.jquery.js" type="text/javascript"></script>
+    <script src="$!webPath/resources/assets/toastr/toastr.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/js/scripts.js"></script>
+    <script src="$!webPath/resources/js/custom/page.js"></script>
+    <script src="$!webPath/resources/js/custom/common.js"></script>
+    <script>
+
+    /* var handleChosenSelect = function () {
+        if (!jQuery().chosen) {
+            return;
+        }
+        $(".chosen").chosen({
+            allow_single_deselect: true,
+            search_contains:true,
+           	no_results_text: "没有找到"
+        });
+    }
+    
+	jQuery(document).ready(function() {   
+		jQuery("#department_id").val("$!{department_id}");
+		jQuery("#department_id").trigger("chosen:updated");
+		jQuery("#duty_id").val("$!{duty_id}"); 
+		jQuery("#duty_id").trigger("chosen:updated");
+		App.init();
+		handleChosenSelect(); 
+		jQuery("#department_id").change(function(){
+			jQuery.ajax({
+				type : "post",
+				url : "$!webPath/admin/duty/ajaxQueryDutyUnderDepartment.htm",
+				data : {//设置数据源
+					department_id : jQuery(this).val()
+				},
+				dataType : "json",//设置需要返回的数据类型
+				success : function(data) {
+					if(data && data != null && data.result){
+						console.log(data.data);
+						jQuery("#duty_id").empty();  
+						jQuery("#duty_id").append("<option value=''>全部岗位</option>");
+						jQuery.each(data.data, function(index, item){
+							var option = jQuery("<option>").val(item.id).text(item.duty_name);
+							jQuery("#duty_id").append(option);
+						});
+						jQuery("#duty_id").trigger("chosen:updated");
+					}
+				},
+				error : function() {
+					alert("系统异常，请稍后重试！");
+				}
+			});
+		}); 
+
+		
+	}); */
+	jQuery(document).ready(function() {   
+		App.init();
+		initToastr();
+	});
+	</script>
+</body>
+</html>

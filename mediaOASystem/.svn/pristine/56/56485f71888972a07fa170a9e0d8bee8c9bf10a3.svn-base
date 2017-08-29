@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<!--[if IE 8]> <html class="ie8"> <![endif]-->
+<!--[if IE 9]> <html class="ie9"> <![endif]-->
+<!--[if !IE]><!--> <html> <!--<![endif]-->
+<head>
+<meta charset="utf-8" />
+<title>新媒体智能管理系统</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+<meta content="" name="description" />
+<meta content="" name="author" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="renderer" content="webkit|ie-comp|ie-stand" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/font-awesome/css/font-awesome.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style_responsive.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style_default.css" rel="stylesheet" id="style_color" />
+<link href="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/fancybox/source/jquery.fancybox.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/toastr/toastr.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/uniform/css/uniform.default.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/My97DatePicker/skin/WdatePicker.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/css/custom/custom.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+td.pointer_td{
+	cursor:pointer;
+}
+#myModal{
+	width:1000px;
+	margin-left:-500px;
+}
+</style>
+</style>
+</head>
+<body class="fixed-top">
+    <div id="header" class="navbar navbar-inverse navbar-fixed-top">
+        $!httpInclude.include("/common/_header.htm") 
+    </div>
+    <div id="container" class="row-fluid">
+        <div id="sidebar" class="nav-collapse collapse">
+            $!httpInclude.include("/common/_sidebar.htm?op=overtime_record_manage") 
+        </div>
+        <div id="main-content">
+            <div class="container-fluid">
+                <div class="row-fluid">
+                    <div class="span12">
+                        <h3 class="page-title">加班记录列表</h3>
+                        <ul class="breadcrumb">
+                            <li><a href="$!webPath/index.htm"><i class="icon-home"></i></a><span class="divider">&nbsp;</span></li>
+                            <li><a href="javascript:void(0);">考勤管理</a> <span class="divider">&nbsp;</span></li>
+                            <li><a href="$!webPath/admin/work_attendance/overtime_record_list.htm">加班记录列表</a><span class="divider-last">&nbsp;</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row-fluid">
+                    <div class="span12">
+                        <div class="widget">
+                            <div class="widget-title">
+                                <h4><i class="icon-reorder"></i>加班记录列表</h4>
+                            </div>
+                            <div class="widget-body" style="overflow-x:scroll;margin-right:15px;">
+                                <form name="queryForm" id="queryForm" action="$!webPath/admin/work_attendance/overtime_record_list.htm" method="post">
+                                    <div class="row-fluid">
+                                        <div class="span12">
+                                            <div class="pull-left">
+                                                <div class="ipt_container">
+                                                    <input type="text" name="true_name" id="true_name" value="$!true_name" class="search-ipt" placeholder="姓名"/>
+                                                </div>
+                                                <div class="ipt_container">
+                                                    <input type="text" name="overtime_record_month" id="overtime_record_month" value="$!overtime_record_month" class="search-ipt" 
+                                                    	placeholder="请选择年月" onfocus="WdatePicker({dateFmt:'yyyy-MM'})" readonly="readonly">
+                                                </div>
+                                                <input type="submit" class="btn btn-primary" value="搜索">
+                                                <div class="clearfix space7"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                                <form name="listForm" id="listForm" action="$!webPath/admin/work_attendance/overtime_record_list.htm" method="post">
+                                    #if(0!=$!{rows})
+                                    <table class="table table-bordered table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th style="width:5%;">序号</th>
+                                                <th style="width:5%;min-width:50px;">姓名</th>
+                                                <th style="width:5%;min-width:50px;">总计</th>
+                                                #foreach($month in $!thList)
+											       <th style="width:5%;">$month</th>
+											     #end 
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            #foreach($obj in $list)
+			                                <tr>
+			                                    <td>$!{velocityCount}</td>
+			                                    <td title="$!{obj.name}">$!CommUtil.substring($!{obj.true_name}, 5)</td>
+			                                    <td class="totalTime">$!{obj.totalTime}</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-01" attr_id="$!obj.id">$!obj.day1</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-02" attr_id="$!obj.id">$!obj.day2</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-03" attr_id="$!obj.id">$!obj.day3</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-04" attr_id="$!obj.id">$!obj.day4</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-05" attr_id="$!obj.id">$!obj.day5</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-06" attr_id="$!obj.id">$!obj.day6</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-07" attr_id="$!obj.id">$!obj.day7</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-08" attr_id="$!obj.id">$!obj.day8</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-09" attr_id="$!obj.id">$!obj.day9</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-10" attr_id="$!obj.id">$!obj.day10</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-11" attr_id="$!obj.id">$!obj.day11</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-12" attr_id="$!obj.id">$!obj.day12</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-13" attr_id="$!obj.id">$!obj.day13</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-14" attr_id="$!obj.id">$!obj.day14</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-15" attr_id="$!obj.id">$!obj.day15</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-16" attr_id="$!obj.id">$!obj.day16</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-17" attr_id="$!obj.id">$!obj.day17</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-18" attr_id="$!obj.id">$!obj.day18</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-19" attr_id="$!obj.id">$!obj.day19</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-20" attr_id="$!obj.id">$!obj.day20</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-21" attr_id="$!obj.id">$!obj.day21</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-22" attr_id="$!obj.id">$!obj.day22</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-23" attr_id="$!obj.id">$!obj.day23</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-24" attr_id="$!obj.id">$!obj.day24</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-25" attr_id="$!obj.id">$!obj.day25</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-26" attr_id="$!obj.id">$!obj.day26</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-27" attr_id="$!obj.id">$!obj.day27</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-28" attr_id="$!obj.id">$!obj.day28</td>
+			                                    #if(29==$!days)
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-29" attr_id="$!obj.id">$!obj.day29</td>
+			                                    #elseif(30==$!days)
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-29" attr_id="$!obj.id">$!obj.day29</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-30" attr_id="$!obj.id">$!obj.day30</td>
+			                                    #elseif(31==$!days)
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-29" attr_id="$!obj.id">$!obj.day29</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-30" attr_id="$!obj.id">$!obj.day30</td>
+			                                    <td class="pointer_td" attr_date="$!{overtime_record_month}-31" attr_id="$!obj.id">$!obj.day31</td>
+			                                    #end
+			                                </tr>
+			                                #end
+                                        </tbody>
+                                    </table>
+                                    <div class="clearfix space5"></div>
+		                            <div class="row-fluid">
+									    <div class="span6">
+									        <div class="dataTables_info" id="sample_1_info">总条数$!{rows}条</div>
+									    </div>
+									    <div class="span6">
+									        <div class="dataTables_paginate paging_bootstrap pagination">
+									        	$!{gotoPageFormHTML}
+									        </div>
+									    </div>
+									</div>
+									#else
+									<hr class="clearfix" style="margin:10px 0px;">
+									<span>没有加班记录</span>
+									#end
+                                    <input type="hidden" name="currentPage" id="currentPage" value="$!currentPage"/>
+                                    <input type="hidden" name="true_name" value="$!true_name"/>
+                                    <input type="hidden" name="overtime_record_month" value="$!overtime_record_month"/>
+                                </form>
+                                <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel1" aria-hidden="true"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="footer">
+        $!httpInclude.include("/common/_footer.htm")    
+    </div>
+    <script src="$!webPath/resources/js/jquery-1.8.3.min.js"></script>
+    <script src="$!webPath/resources/assets/bootstrap/js/bootstrap.min.js"></script>   
+    <script src="$!webPath/resources/js/jquery.blockui.js"></script>
+    <!-- ie8 fixes -->
+    <!--[if lt IE 9]>
+    <script src="$!webPath/resources/js/excanvas.js"></script>
+    <script src="$!webPath/resources/js/respond.js"></script>
+    <![endif]-->   
+    <script src="$!webPath/resources/assets/uniform/jquery.uniform.min.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.jquery.js" type="text/javascript"></script>
+    <script src="$!webPath/resources/assets/My97DatePicker/WdatePicker.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/assets/toastr/toastr.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/js/scripts.js"></script>
+    <script src="$!webPath/resources/js/custom/page.js"></script>
+    <script src="$!webPath/resources/js/custom/common.js"></script>
+    <script>
+    jQuery(document).ready(function() {   
+        App.init();
+        initToastr();
+        bindTdEvent();
+    });
+    function bindTdEvent(){
+    	jQuery("td.pointer_td").bind("click", function(){
+    		var user_id = jQuery(this).attr("attr_id");
+    		var date = jQuery(this).attr("attr_date");
+    		if(isEmpty(user_id)){
+    			alert("用户标识为空");
+    			return false;
+    		}
+    		if(isEmpty(date)){
+    			alert("日期为空");
+    			return false;
+    		}
+    		jQuery.ajax({
+				type:"post",
+				async:false, 
+			    url:"$!webPath/admin/work_attendance/overtime_record_edit_dialog.htm",
+			    data:{
+			    	"user_id":user_id,
+			    	"date":date,
+			    },
+				success:function(data){
+					if(data){
+						jQuery("#myModal").html(data);
+		        		jQuery("#myModal").width(1000);
+		        		jQuery("#myModal").modal("show");	
+					}else{
+						toastr.error("操作失败");	
+					}
+              	},
+              	error:function(data){
+              		alert("信息提交错误");
+              	}
+	  		});
+    		
+    	});
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+@charset "utf-8";
+#box div,#box ul,#box li,#box h4,#box p{margin:0;padding:0;}
+#box {font:12px/1.8 arial;color:#fff;}
+/* box */
+#box{position:relative;width:1000px;height:292px;margin:0px auto 0; padding-top:80px;}
+#box p{ font-size:50px; text-align:center; color:#fff; padding-bottom:80px;}
+#box ul{position:relative;width:754px;height:292px;}
+#box li{position:absolute;list-style:none; border-radius:3px;-webkit-border-radius:3px;-o-border-radius:3px;-ms-border-radius:3px;
+box-shadow: -1px 0px 5px rgba(129,129,129,0),
+ 1px 0px 5px rgba(129,129,129,0),
+ 0px -1px 3px rgba(129,129,129,0.4),
+ 0px 1px 5px rgba(129,129,129,0);
+width:0;height:0;top:146px;left:377px;z-index:0;cursor:pointer;overflow:hidden;}
+#box li img{width:100%;height:100%;vertical-align:top;
+
+}
+#box .prev, #box .next{position:absolute;top:333px;width:20px;height:64px;overflow:hidden;text-indent:-999px;cursor:pointer;background:url(../img/index/btn.png) no-repeat;}
+
+#box .prev:hover{background:url(../img/index/btnhover.png) no-repeat; }
+#box .next:hover{background:url(../img/index/btnhover.png) no-repeat;background-position:-39px 0;}
+#box .prev{left:-54px; border:none;}
+#box .next{right:-40px;background-position:-39px 0;border:none;}

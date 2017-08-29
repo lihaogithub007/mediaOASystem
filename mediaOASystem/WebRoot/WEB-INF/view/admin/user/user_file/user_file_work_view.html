@@ -1,0 +1,26 @@
+#if($!userWorkList && $!userWorkList.size()>0)
+	#foreach($obj in $!userWorkList)
+		<div class="bd" id="work_view_$!obj.id">
+         <div class="con edit ebox">
+             <div class="sp">
+                 <span>$!CommUtil.parseDateTime("yyyy/MM/dd",$!obj.work_time_begin)-$!CommUtil.parseDateTime("yyyy/MM/dd",$!obj.work_time_end)</span>
+                 <strong class="w360 at" title="$obj.work_comp_name">$!obj.work_comp_name</strong>
+                 <strong class="fbox"><span class="zhi at">$!work_type_map.get("$!obj.work_type")</span><em></em></strong>
+             </div>
+             <div class="e">
+                 <label>岗位</label><i>：</i>
+                 <div>&nbsp;$!obj.work_duty_name</div>
+             </div>
+             <div class="e">
+                 <label>工作地点</label><i>：</i>
+                 <div>&nbsp;$!obj.work_place</div>
+             </div>
+             <div class="clearfix"></div>
+             <span class="ed_icon"><em class="edi icons" id="work_edit_$!obj.id" onclick="editButtonClick(this)"></em>
+             <em class="del icons" id="work_delete_$!obj.id" onclick="deleteButtonClick(this)"></em></span>
+         </div>
+     </div>
+	#end
+#else
+	<div class="none icons" id="work_empty">完善工作经历！</div>
+#end

@@ -1,0 +1,182 @@
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="$!webPath/resources/css/style.css" rel="stylesheet"/>
+<link href="$!webPath/resources/assets/toastr/toastr.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/css/custom/resume.css" rel="stylesheet" type="text/css" />
+<form name="othersForm" id="othersForm" action="" method="post" class="form-horizontal">
+<div class="bd com" id="resumeothers_modify_$!resumeOthers.id">
+    <div class="con">
+        <div class="c_big">
+            <label>何时何地受到何种奖励：</label>
+            <div class="h30">
+                <div class="sh">
+                	<input type="text" name="reward_name" id="reward_name" value="$!resume.resumeOthers.reward_name" class="ef input-xxlarge" maxlength="50"/>
+                </div>
+                <div class="err"></div>
+            </div>
+        </div>
+        <div class="c_big">
+            <label>何时何地受到何种处分：</label>
+            <div class="h30">
+                <div class="sh">
+                	<input type="text" name="punishment_name" id="punishment_name" value="$!resume.resumeOthers.punishment_name" class="ef input-xxlarge" maxlength="50"/>
+                </div>
+                <div class="err"></div>
+            </div>
+        </div>
+        <div class="c_big">
+            <label>离职原因：</label>
+            <div class="h30">
+                <div class="sh">
+                	<select data-placeholder="离职原因" class="ef input-xlarge chosen" name="dimission_reason" id="dimission_reason">
+						<option value="">离职原因</option>
+						#foreach($key in ${dimission_reason_map.keySet()})
+		                <option value="$key">${dimission_reason_map.get($key)}</option>
+		                #end
+					</select>
+                </div>
+                <div class="err"></div>
+            </div>
+        </div>
+        <div class="c_big">
+            <label>与原单位劳动合同情况：</label>
+            <div class="h30">
+                <div class="sh">
+                	<input type="text" name="contract_status_with_old_unit" id="contract_status_with_old_unit" value="$!resume.resumeOthers.contract_status_with_old_unit" class="ef input-xxlarge" maxlength="50"/>
+                </div>
+                <div class="err"></div>
+            </div>
+        </div>
+        <div class="c_big">
+            <label>有无竞业条例：</label>
+            <div class="h30">
+                <div class="sh">
+                	<select data-placeholder="有无竞业条例" class="ef input-xlarge chosen" name="has_non_competition" id="has_non_competition">
+						<option value="">有无竞业条例</option>
+						#foreach($key in ${have_or_not_map.keySet()})
+		                <option value="$key">${have_or_not_map.get($key)}</option>
+		                #end
+					</select>
+                </div>
+                <div class="err"></div>
+            </div>
+        </div>
+        <div class="c_big">
+            <label>应聘原因：</label>
+            <div class="h30">
+                <div class="sh">
+                	<input type="text" name="apply_reason" id="apply_reason" value="$!resume.resumeOthers.apply_reason" class="ef input-xxlarge" maxlength="50"/>
+                </div>
+                <div class="err"></div>
+            </div>
+        </div>
+        <div class="c_big">
+            <label>有无亲属在本单位任职：</label>
+            <div class="h30">
+                <div class="sh">
+                	<select data-placeholder="有无亲属在本单位任职" class="ef input-xxlarge chosen" name="has_relatives_in_unit" id="has_relatives_in_unit">
+						<option value="">有无亲属在本单位任职</option>
+						#foreach($key in ${have_or_not_map.keySet()})
+		                <option value="$key">${have_or_not_map.get($key)}</option>
+		                #end
+					</select>
+                </div>
+                <div class="err"></div>
+            </div>
+        </div>
+        <div class="c_big">
+            <label>有无其他意向岗位：</label>
+            <div class="h30">
+                <div class="sh">
+                	<select data-placeholder="有无其他意向岗位" class="ef input-xxlarge chosen" name="accept_other_positions" id="accept_other_positions">
+						<option value="">有无其他意向岗位</option>
+						#foreach($key in ${have_or_not_map.keySet()})
+		                <option value="$key">${have_or_not_map.get($key)}</option>
+		                #end
+					</select>
+                </div>
+                <div class="f12">&nbsp;如未能被申请岗位录用，有无其他意向岗位</div>
+                <div class="err"></div>
+            </div>
+        </div>
+        <div class="c_big">
+            <label>是否接受单位调剂：</label>
+            <div class="h30">
+                <div class="sh">
+                	<select data-placeholder="是否接受单位调剂" class="ef input-xxlarge chosen" name="accept_unit_adjustment" id="accept_unit_adjustment">
+						<option value="">是否接受单位调剂</option>
+						#foreach($key in ${is_or_not_map.keySet()})
+		                <option value="$key">${is_or_not_map.get($key)}</option>
+		                #end
+					</select>
+                </div>
+                <div class="err"></div>
+            </div>
+        </div>
+        <div class="c_big">
+            <label>个人评价：</label>
+            <div class="h30">
+                <div class="sh">
+                	<input type="text" name="self_evaluation" id="self_evaluation" value="$!resume.resumeOthers.self_evaluation" class="ef input-xxlarge" maxlength="50"/>
+                </div>
+                <div class="err"></div>
+            </div>
+        </div>
+        <div class="c_big">
+            <label>其他补充说明或其它期望：</label>
+            <div class="h30">
+                <div class="sh">
+                	<input type="text" name="supplement_instruction" id="supplement_instruction" value="$!resume.resumeOthers.supplement_instruction" class="ef input-xxlarge" maxlength="50"/>
+                </div>
+                <div class="err"></div>
+            </div>
+        </div>
+    </div>
+    <div class="btnbox">
+	    <span class="p_but" id="resumeothers_save_$!resumeOthers.id" onclick="saveButtonClick(this,'othersForm')">保存</span>
+	    <span class="p_but gray" id="resumeothers_cancel_$!resumeOthers.id" onclick="cancelButtonClick(this)">取消</span>
+	</div>
+</div>
+<input type="hidden" name="resume_others_id" value="$!resumeOthers.id"/>
+</form>
+<script src="$!webPath/resources/js/jquery-1.8.3.min.js"></script>
+<script src="$!webPath/resources/assets/bootstrap/js/bootstrap.min.js"></script>
+<script src="$!webPath/resources/assets/toastr/toastr.js" type="text/javascript" ></script>
+<script src="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.jquery.js" type="text/javascript"></script>
+<script src="$!webPath/resources/js/jquery.validate.min.js" type="text/javascript" ></script>
+<script src="$!webPath/resources/js/jquery.validate.ext.js" type="text/javascript" ></script>
+<script src="$!webPath/resources/js/jquery.form.min.js" type="text/javascript" ></script>
+<script>
+$(document).ready(function() {
+	$("#dimission_reason").val("$!resume.resumeOthers.dimission_reason"); 
+	$("#dimission_reason").trigger("chosen:updated");
+	$("#has_non_competition").val("$!resume.resumeOthers.has_non_competition"); 
+	$("#has_non_competition").trigger("chosen:updated");
+	$("#has_relatives_in_unit").val("$!resume.resumeOthers.has_relatives_in_unit"); 
+	$("#has_relatives_in_unit").trigger("chosen:updated");
+	$("#accept_other_positions").val("$!resume.resumeOthers.accept_other_positions"); 
+	$("#accept_other_positions").trigger("chosen:updated");
+	$("#accept_unit_adjustment").val("$!resume.resumeOthers.accept_unit_adjustment"); 
+	$("#accept_unit_adjustment").trigger("chosen:updated");
+	App.init();
+	jqueryValidate();
+	$("div.chosen-container.chosen-container-single").css("width","284");
+});
+function jqueryValidate(){
+	jQuery("#othersForm").validate({
+		errorElement : "span",
+		errorPlacement : function(error, element) { 
+			$(error).appendTo($(element).parent().siblings("div.err"));
+		},
+		onfocusout : function(element) {
+	        $(element).valid();
+	    },
+		rules:{     
+       	},
+		messages:{
+		}
+	}); 
+	var validator = $("#othersForm").data("validator");
+    validator.settings.ignore = ":hidden:not(select)";
+}
+</script>

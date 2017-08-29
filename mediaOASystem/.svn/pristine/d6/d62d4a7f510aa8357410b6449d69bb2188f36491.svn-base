@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd" >
+<log4j:configuration threshold="debug">
+	<appender name="con" class="org.apache.log4j.ConsoleAppender">
+		<param name="threshold" value="debug"></param>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern"
+				value='[yuyusoft][%t] %-5p %c - %m%n %d' />
+		</layout>
+	</appender>
+	<appender name="file"
+		class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="Threshold" value="debug"></param>
+		<param name="File" value="../logs/life_log.log "></param>
+		<param name="MaxFileSize" value="1MB" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value='[yuyusoft][%t] %-5p %c - %m%n' />
+		</layout>
+		
+		<!--滤镜设置输出的级别-->
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="levelMin" value="info" />
+			<param name="levelMax" value="info" />
+			<param name="AcceptOnMatch" value="true" />
+		</filter>
+	</appender>
+
+	<root>
+		<level value="info"></level>
+		<appender-ref ref="con"></appender-ref>
+		<appender-ref ref="file" />
+	</root>
+	<!-- debug < infor < warn < error -->
+</log4j:configuration>

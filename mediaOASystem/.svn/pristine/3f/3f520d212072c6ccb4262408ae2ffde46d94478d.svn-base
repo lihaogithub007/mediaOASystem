@@ -1,0 +1,824 @@
+package com.yuyu.soft.service.impl;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.sun.star.uno.RuntimeException;
+import com.yuyu.soft.dao.IBaseDao;
+import com.yuyu.soft.entity.AttendanceRecord;
+import com.yuyu.soft.entity.User;
+import com.yuyu.soft.entity.VacationApplyDetails;
+import com.yuyu.soft.service.IAttendanceRecordService;
+import com.yuyu.soft.service.IUserService;
+import com.yuyu.soft.util.CommUtil;
+import com.yuyu.soft.util.PagerInfo;
+import com.yuyu.soft.util.ResultMsg;
+
+@Service("attendanceRecordService")
+public class AttendanceRecordServiceImpl implements IAttendanceRecordService {
+
+    @Resource
+    private IBaseDao<AttendanceRecord> attendanceRecordDao;
+    @Resource
+    private IUserService               userService;
+
+    @Override
+    public List<AttendanceRecord> queryAttendanceRecord(Long user_id, String attendance_record_month) {
+        StringBuilder s = new StringBuilder();
+        s.append("from AttendanceRecord t where t.disabled = false");
+        if (CommUtil.isNotNull(user_id)) {
+            s.append(" and t.user.id = ").append(user_id);
+        }
+        if (CommUtil.isBlank(attendance_record_month)) {
+            s.append(" and date_format(t.attendance_record_month,'%Y-%m') = date_format(now(),'%Y-%m')");
+        } else {
+            s.append(" and date_format(t.attendance_record_month,'%Y-%m') = date_format('")
+                .append(attendance_record_month.trim()).append("','%Y-%m')");
+        }
+        s.append(" order by t.createtime asc");
+        List<AttendanceRecord> attendanceRecords = attendanceRecordDao.find(s.toString());
+        if ((attendanceRecords == null) || (attendanceRecords.size() == 0)) {
+            return new ArrayList<AttendanceRecord>();
+        }
+        return attendanceRecords;
+    }
+
+    @Override
+    public List<AttendanceRecord> queryAttendanceRecord(String hql, Map<String, Object> paramsMap,
+                                                        PagerInfo pager) {
+        if (pager != null) {
+            pager.setRowsCount(attendanceRecordDao.count("select count(t) " + hql, paramsMap));
+            return attendanceRecordDao.find(hql, paramsMap, pager.getStart(), pager.getPageSize());
+        } else {
+            return attendanceRecordDao.find(hql, paramsMap);
+        }
+
+    }
+
+    @Override
+    public AttendanceRecord getAttendanceRecord(Long id) {
+        return attendanceRecordDao.get(AttendanceRecord.class, id);
+    }
+
+    @Override
+    public void addAttendanceRecord(AttendanceRecord attendanceRecord) {
+        this.attendanceRecordDao.save(attendanceRecord);
+    }
+
+    @Override
+    public void updateAttendanceRecord(AttendanceRecord attendanceRecord) {
+        this.attendanceRecordDao.update(attendanceRecord);
+    }
+
+    @Override
+    public void delAttendanceRecord(AttendanceRecord attendanceRecord) {
+        attendanceRecord = getAttendanceRecord(attendanceRecord.getId());
+        attendanceRecord.setDisabled(true);
+        updateAttendanceRecord(attendanceRecord);
+    }
+
+    @Override
+    public void realDelAttendanceRecord(AttendanceRecord attendanceRecord) {
+        try {
+            this.attendanceRecordDao.delete(attendanceRecord);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public String get_total_annual_leave_days_msg(Long user_id, String vacation_begin_date,
+                                                  String vacation_end_date) {
+        if (user_id == null) {
+            return "";
+        }
+        User user = userService.getUser(user_id);
+        if (user == null || user.getId() == null || user.getDisabled()
+            || user.getUser_status() == 4) {
+            return "";
+        }
+        int begin_year = 0;
+        int end_year = 0;
+        int year = CommUtil.getThisYear();
+        if (CommUtil.isNotNull(vacation_begin_date)) {
+            begin_year = CommUtil.getYear(vacation_begin_date, "yyyy-MM-dd");
+        }
+        if (CommUtil.isNotNull(vacation_end_date)) {
+            end_year = CommUtil.getYear(vacation_end_date, "yyyy-MM-dd");
+        }
+        String data = "";
+        if (begin_year == 0 && end_year != 0) {
+            BigDecimal days = get_total_annual_leave_days(user.getId(), end_year + "-01-01");
+            data += end_year + "年:" + days + "天";
+        } else if (begin_year != 0 && end_year == 0) {
+            BigDecimal days = get_total_annual_leave_days(user.getId(), begin_year + "-01-01");
+            data += begin_year + "年:" + days + "天";
+        } else if (begin_year != 0 && end_year != 0 && begin_year < end_year) {
+            for (int i = begin_year; i <= end_year; i++) {
+                BigDecimal days = get_total_annual_leave_days(user.getId(), i + "-01-01");
+                if (i != begin_year) {
+                    data += ", ";
+                }
+                data += i + "年:" + days + "天";
+            }
+        } else {
+            BigDecimal days = get_total_annual_leave_days(user.getId(), year + "-01-01");
+            data += year + "年:" + days + "天";
+        }
+        return data;
+    }
+
+    /**
+     * 获取某人某年累计年假
+     */
+    private BigDecimal get_total_annual_leave_days(Long user_id, String attendance_record_month) {
+        StringBuffer s = new StringBuffer();
+        s.append("select COALESCE(this_month_annual_leave_days,0) from tb_attendance_record t");
+        s.append(" where t.disabled = 0");
+        s.append(" and t.user_id = ").append(user_id);
+        s.append(" and DATE_FORMAT(t.attendance_record_month,'%Y') = DATE_FORMAT('")
+            .append(attendance_record_month).append("','%Y')");
+
+        List<BigDecimal> tempList = attendanceRecordDao.executeNativeQuery(s.toString(), null, 0,
+            -1);
+        if (tempList != null && tempList.size() == 1) {
+            return tempList.get(0);
+        }
+        return BigDecimal.ZERO;
+    }
+
+    @Override
+    public void add_save(User user, String attendance_record_month) {
+        if (user == null || user.getId() == null || CommUtil.isBlank(attendance_record_month)) {
+            throw new RuntimeException("用户为空或考勤月份为空");
+        }
+        Date attendance_record_date = CommUtil.formatDate(attendance_record_month);
+        if (attendance_record_date == null) {
+            throw new RuntimeException("日期格式不正确");
+        }
+        if (queryAttendanceRecord(user.getId(), attendance_record_month).isEmpty()) {
+            AttendanceRecord attendanceRecord = new AttendanceRecord();
+            attendanceRecord.setCreatetime(new Date());
+            attendanceRecord.setDisabled(false);
+            attendanceRecord.setUser(userService.getUser(user.getId()));
+            attendanceRecord.setAttendance_record_month(attendance_record_date);
+            attendanceRecord.setNeed_attendance_days(null);
+            attendanceRecord.setReal_attendance_days(null);
+            attendanceRecord.setOfficial_business_days(null);
+            attendanceRecord.setNot_clock_in_times(null);
+            attendanceRecord.setLate_early_times(null);
+            attendanceRecord.setWorkday_overtime_hours(null);
+            attendanceRecord.setOffday_overtime_hours(null);
+            attendanceRecord.setHoliday_overtime_hours(null);
+            attendanceRecord.setThis_month_shift_hours(null);
+            attendanceRecord.setLast_month_shift_remain_hours(null);
+            attendanceRecord.setThis_month_shift_remain_hours(null);
+            attendanceRecord.setAbsent_days(null);
+            attendanceRecord.setSick_leave_days(null);
+            attendanceRecord.setCasual_leave_days(null);
+            attendanceRecord.setMarriage_leave_days(null);
+            attendanceRecord.setFuneral_leave_days(null);
+            attendanceRecord.setThis_month_annual_leave_days(null);
+            attendanceRecord.setTotal_annual_leave_days(null);
+            attendanceRecord.setAntenatal_examination_days(null);
+            attendanceRecord.setMaternity_leave_days(null);
+            attendanceRecord.setLegal_holiday_days(null);
+            attendanceRecord.setRemark("");
+            addAttendanceRecord(attendanceRecord);
+        }
+    }
+
+    @Override
+    public ResultMsg edit_save(AttendanceRecord attendanceRecord) {
+        ResultMsg rmg = edit_save_check(attendanceRecord);
+        if (!rmg.getResult()) {
+            return rmg;
+        }
+        updateAttendanceRecord(attendanceRecord);
+        attendanceRecord = getAttendanceRecord(attendanceRecord.getId());
+
+        BigDecimal total_annual_leave_days = calc_total_annual_leave_days(attendanceRecord);
+        if (total_annual_leave_days.compareTo(BigDecimal.ZERO) >= 0) {
+            attendanceRecord.setTotal_annual_leave_days(total_annual_leave_days);
+            updateAttendanceRecord(attendanceRecord);
+        }
+        return CommUtil.setResultMsgData(rmg, true, "考勤记录编辑保存成功");
+    }
+
+    //计算累计年假
+    public BigDecimal calc_total_annual_leave_days(AttendanceRecord attendanceRecord) {
+        if (attendanceRecord == null || attendanceRecord.getId() == null
+            || attendanceRecord.getUser() == null || attendanceRecord.getUser().getId() == null
+            || attendanceRecord.getAttendance_record_month() == null) {
+            return BigDecimal.ZERO;
+        }
+        Date attendance_record_month = attendanceRecord.getAttendance_record_month();
+
+        StringBuffer s = new StringBuffer();
+        s.append("select COALESCE(this_month_annual_leave_days,0) from tb_attendance_record t");
+        s.append(" where t.disabled = 0");
+        s.append(" and t.user_id = ").append(attendanceRecord.getUser().getId());
+        s.append(" and DATE_FORMAT(t.attendance_record_month,'%Y') = DATE_FORMAT('")
+            .append(attendance_record_month).append("','%Y')");
+
+        List<BigDecimal> tempList = attendanceRecordDao.executeNativeQuery(s.toString(), null, 0,
+            -1);
+        if (tempList != null && tempList.size() == 1) {
+            return tempList.get(0);
+        }
+        return BigDecimal.ZERO;
+    }
+
+    private ResultMsg edit_save_check(AttendanceRecord attendanceRecord) {
+        if (attendanceRecord == null || attendanceRecord.getId() == null) {
+            return CommUtil.setResultMsgData(null, false, "考勤记录对象为空");
+        }
+        Integer need_attendance_days = attendanceRecord.getNeed_attendance_days();
+        if (need_attendance_days != null && (need_attendance_days > 99 || need_attendance_days < 0)) {
+            return CommUtil.setResultMsgData(null, false, "应出勤天数不符规定");
+        }
+        BigDecimal official_business_days = attendanceRecord.getOfficial_business_days();
+        if (!is_effect_decimal_days(official_business_days)) {
+            return CommUtil.setResultMsgData(null, false, "公出天数不符规定");
+        }
+        Integer not_clock_in_times = attendanceRecord.getNot_clock_in_times();
+        if (not_clock_in_times != null && (not_clock_in_times > 31 || not_clock_in_times < 0)) {
+            return CommUtil.setResultMsgData(null, false, "未打卡次数不符规定");
+        }
+        Integer late_early_times = attendanceRecord.getLate_early_times();
+        if (late_early_times != null && (late_early_times > 62 || late_early_times < 0)) {
+            return CommUtil.setResultMsgData(null, false, "迟到早退次数不符规定");
+        }
+        BigDecimal absent_days = attendanceRecord.getAbsent_days();
+        if (!is_effect_decimal_days(absent_days)) {
+            return CommUtil.setResultMsgData(null, false, "旷工天数不符规定");
+        }
+        BigDecimal sick_leave_days = attendanceRecord.getSick_leave_days();
+        if (!is_effect_decimal_days(sick_leave_days)) {
+            return CommUtil.setResultMsgData(null, false, "病假天数不符规定");
+        }
+        BigDecimal casual_leave_days = attendanceRecord.getCasual_leave_days();
+        if (!is_effect_decimal_days(casual_leave_days)) {
+            return CommUtil.setResultMsgData(null, false, "事假天数不符规定");
+        }
+        BigDecimal marriage_leave_days = attendanceRecord.getMarriage_leave_days();
+        if (!is_effect_decimal_days(marriage_leave_days)) {
+            return CommUtil.setResultMsgData(null, false, "婚假天数不符规定");
+        }
+        BigDecimal funeral_leave_days = attendanceRecord.getFuneral_leave_days();
+        if (!is_effect_decimal_days(funeral_leave_days)) {
+            return CommUtil.setResultMsgData(null, false, "丧假天数不符规定");
+        }
+        BigDecimal this_month_annual_leave_days = attendanceRecord
+            .getThis_month_annual_leave_days();
+        if (!is_effect_decimal_days(this_month_annual_leave_days)) {
+            return CommUtil.setResultMsgData(null, false, "本月年假天数不符规定");
+        }
+        BigDecimal antenatal_examination_days = attendanceRecord.getAntenatal_examination_days();
+        if (!is_effect_decimal_days(antenatal_examination_days)) {
+            return CommUtil.setResultMsgData(null, false, "产检天数不符规定");
+        }
+        BigDecimal maternity_leave_days = attendanceRecord.getMaternity_leave_days();
+        if (!is_effect_decimal_days(maternity_leave_days)) {
+            return CommUtil.setResultMsgData(null, false, "产假天数不符规定");
+        }
+
+        BigDecimal total_leave_days = BigDecimal.ZERO;//合计请假天数
+        total_leave_days = calc_total_leave_days(total_leave_days, sick_leave_days);
+        total_leave_days = calc_total_leave_days(total_leave_days, casual_leave_days);
+        total_leave_days = calc_total_leave_days(total_leave_days, marriage_leave_days);
+        total_leave_days = calc_total_leave_days(total_leave_days, funeral_leave_days);
+        total_leave_days = calc_total_leave_days(total_leave_days, this_month_annual_leave_days);
+        total_leave_days = calc_total_leave_days(total_leave_days, antenatal_examination_days);
+        total_leave_days = calc_total_leave_days(total_leave_days, maternity_leave_days);
+
+        BigDecimal legal_holiday_days = total_leave_days;
+        if (!is_effect_decimal_days(legal_holiday_days)) {
+            return CommUtil.setResultMsgData(null, false, "公休日天数不符规定");
+        }
+        attendanceRecord.setLegal_holiday_days(legal_holiday_days);
+
+        String remark = attendanceRecord.getRemark();
+        if (CommUtil.isNotNull(remark) && remark.length() > 255) {
+            attendanceRecord.setRemark(remark.substring(0, 255));
+        }
+
+        //实出勤天数
+        BigDecimal real_attendance_days = need_attendance_days == null ? BigDecimal.ZERO : CommUtil
+            .null2BigDecimal(need_attendance_days);
+        real_attendance_days = real_attendance_days.subtract(legal_holiday_days);
+        if (absent_days != null) {
+            real_attendance_days = real_attendance_days.subtract(absent_days);
+        }
+        if (real_attendance_days.compareTo(BigDecimal.ZERO) < 0) {
+            //return CommUtil.setResultMsgData(null, false, "应出勤天数小于合计请假天数与旷工天数和，请确认后重新保存");
+            real_attendance_days = BigDecimal.ZERO;
+        }
+        attendanceRecord.setReal_attendance_days(real_attendance_days);
+
+        return CommUtil.setResultMsgData(null, true, "校验成功");
+    }
+
+    //是否>=0 <=31
+    private Boolean is_effect_decimal_days(BigDecimal days) {
+        if (days == null
+            || (days.compareTo(BigDecimal.ZERO) >= 0 && days.compareTo(new BigDecimal(31)) <= 0)) {
+            return true;
+        }
+        return false;
+    }
+
+    private BigDecimal calc_total_leave_days(BigDecimal total_leave_days, BigDecimal leave_days) {
+        if (total_leave_days == null) {
+            total_leave_days = BigDecimal.ZERO;
+        }
+        if (leave_days == null) {
+            return total_leave_days;
+        }
+        return total_leave_days.add(leave_days);
+    }
+
+    @Override
+    public void update_leave_days(VacationApplyDetails vad, String type) {
+        if (vad == null || vad.getId() == null || vad.getUser() == null
+            || vad.getUser().getId() == null) {
+            return;
+        }
+        Long user_id = vad.getUser().getId();
+        Integer leave_type = vad.getLeave_type();
+        Date begin_time = vad.getBegin_time();
+        Date end_time = vad.getEnd_time();
+        int begin_year = CommUtil.getYear(begin_time);
+        int end_year = CommUtil.getYear(end_time);
+        int begin_month = CommUtil.getMonth(begin_time);
+        int end_month = CommUtil.getMonth(end_time);
+        BigDecimal dates = vad.getDates();
+
+        if (begin_year == 0 || end_year == 0 || begin_month == 0 || end_month == 0) {
+            return;
+        }
+        if (begin_year == end_year) {
+            if (begin_month == end_month) {
+                AttendanceRecord attendanceRecord = getAttendanceRecord(begin_year, begin_month,
+                    user_id);
+                if ("subtract".equalsIgnoreCase(type)) {
+                    subtract_leave_days(attendanceRecord, dates, leave_type);
+                } else if ("add".equalsIgnoreCase(type)) {
+                    add_leave_days(attendanceRecord, dates, leave_type);
+                }
+            } else {
+                for (int i = begin_month; i <= end_month; i++) {
+                    AttendanceRecord attendanceRecord = getAttendanceRecord(begin_year, i, user_id);
+                    BigDecimal leave_days = null;
+                    if (i == begin_month) {
+                        leave_days = calc_leave_days(begin_year, i, dates, begin_time);
+                        dates = dates.subtract(leave_days);
+                    } else if (i == end_month) {
+                        leave_days = dates;
+                        if (leave_days.compareTo(BigDecimal.ZERO) <= 0) {
+                            leave_days = BigDecimal.ZERO;
+                        }
+                    } else {
+                        leave_days = calc_leave_days(begin_year, i, dates, null);
+                        dates = dates.subtract(leave_days);
+                    }
+                    if ("subtract".equalsIgnoreCase(type)) {
+                        subtract_leave_days(attendanceRecord, leave_days, leave_type);
+                    } else if ("add".equalsIgnoreCase(type)) {
+                        add_leave_days(attendanceRecord, leave_days, leave_type);
+                    }
+                }
+            }
+
+        } else if (end_year - begin_year == 1) {
+            for (int i = begin_year; i <= 12; i++) {
+                AttendanceRecord attendanceRecord = getAttendanceRecord(begin_year, i, user_id);
+                BigDecimal leave_days = null;
+                if (i == begin_month) {
+                    leave_days = calc_leave_days(begin_year, i, dates, begin_time);
+                    dates = dates.subtract(leave_days);
+                } else {
+                    leave_days = calc_leave_days(begin_year, i, dates, null);
+                    dates = dates.subtract(leave_days);
+                }
+                if ("subtract".equalsIgnoreCase(type)) {
+                    subtract_leave_days(attendanceRecord, leave_days, leave_type);
+                } else if ("add".equalsIgnoreCase(type)) {
+                    add_leave_days(attendanceRecord, leave_days, leave_type);
+                }
+            }
+            for (int i = 1; i <= end_year; i++) {
+                AttendanceRecord attendanceRecord = getAttendanceRecord(begin_year, i, user_id);
+                BigDecimal leave_days = null;
+                if (i == end_month) {
+                    leave_days = dates;
+                    if (leave_days.compareTo(BigDecimal.ZERO) <= 0) {
+                        leave_days = BigDecimal.ZERO;
+                    }
+                } else {
+                    leave_days = calc_leave_days(end_year, i, dates, null);
+                    dates = dates.subtract(leave_days);
+                }
+                if ("subtract".equalsIgnoreCase(type)) {
+                    subtract_leave_days(attendanceRecord, leave_days, leave_type);
+                } else if ("add".equalsIgnoreCase(type)) {
+                    add_leave_days(attendanceRecord, leave_days, leave_type);
+                }
+            }
+        } else {
+            throw new RuntimeException("请假时间太长，超出限制");
+        }
+
+    }
+
+    //获取某年某月某人考勤记录
+    private AttendanceRecord getAttendanceRecord(int year, int month, Long user_id) {
+        if (month <= 0 || month > 12 || user_id == null) {
+            throw new RuntimeException("请假申请时间异常或申请人为空");
+        }
+        List<AttendanceRecord> list = null;
+        String attendance_record_month = "";
+        if (month < 10) {
+            attendance_record_month = year + "-0" + month + "-01";
+        } else {
+            attendance_record_month = year + "-" + month + "-01";
+        }
+        list = queryAttendanceRecord(user_id, attendance_record_month);
+
+        if (list == null || list.isEmpty()) {
+            Date attendance_record_date = CommUtil.formatDate(attendance_record_month);
+            if (attendance_record_date == null) {
+                throw new RuntimeException("日期格式不正确");
+            }
+            AttendanceRecord attendanceRecord = new AttendanceRecord();
+            attendanceRecord.setCreatetime(new Date());
+            attendanceRecord.setDisabled(false);
+            attendanceRecord.setUser(userService.getUser(user_id));
+            attendanceRecord.setAttendance_record_month(attendance_record_date);
+            attendanceRecord.setNeed_attendance_days(null);
+            attendanceRecord.setReal_attendance_days(null);
+            attendanceRecord.setOfficial_business_days(null);
+            attendanceRecord.setNot_clock_in_times(null);
+            attendanceRecord.setLate_early_times(null);
+            attendanceRecord.setWorkday_overtime_hours(null);
+            attendanceRecord.setOffday_overtime_hours(null);
+            attendanceRecord.setHoliday_overtime_hours(null);
+            attendanceRecord.setThis_month_shift_hours(null);
+            attendanceRecord.setLast_month_shift_remain_hours(null);
+            attendanceRecord.setThis_month_shift_remain_hours(null);
+            attendanceRecord.setAbsent_days(null);
+            attendanceRecord.setSick_leave_days(null);
+            attendanceRecord.setCasual_leave_days(null);
+            attendanceRecord.setMarriage_leave_days(null);
+            attendanceRecord.setFuneral_leave_days(null);
+            attendanceRecord.setThis_month_annual_leave_days(null);
+            attendanceRecord.setTotal_annual_leave_days(null);
+            attendanceRecord.setAntenatal_examination_days(null);
+            attendanceRecord.setMaternity_leave_days(null);
+            attendanceRecord.setLegal_holiday_days(null);
+            attendanceRecord.setRemark("");
+            addAttendanceRecord(attendanceRecord);
+            return getAttendanceRecord(attendanceRecord.getId());
+        } else if (list.size() == 1) {
+            return list.get(0);
+        } else {
+            throw new RuntimeException("考勤记录数据重复：用户ID==>" + user_id + ",时间==>"
+                                       + attendance_record_month);
+        }
+    }
+
+    //计算考勤日期
+    private BigDecimal calc_leave_days(int year, int month, BigDecimal dates, Date date) {
+
+        if (dates.compareTo(BigDecimal.ZERO) <= 0) {
+            return BigDecimal.ZERO;
+        }
+        int days = 0;
+        if (date != null) {
+            days = CommUtil.getDaysOfMonthFromDate(date);
+        } else {
+            if (month <= 0 || month > 12) {
+                throw new RuntimeException("请假申请时间异常");
+            }
+            String attendance_record_month = "";
+            if (month < 10) {
+                attendance_record_month = year + "-0" + month + "-01";
+            } else {
+                attendance_record_month = year + "-" + month + "-01";
+            }
+            days = CommUtil.getDaysOfMonth(attendance_record_month);
+        }
+        if (days == 0) {
+            return null;
+        }
+        BigDecimal decimal_days = new BigDecimal(days);
+        if (decimal_days.compareTo(dates) >= 0) {
+            return dates;
+        } else {
+            return decimal_days;
+        }
+    }
+
+    //增加假期天数
+    private void add_leave_days(AttendanceRecord attendanceRecord, BigDecimal leave_days,
+                                Integer leave_type) {
+        if (leave_type == null) {
+            throw new RuntimeException("请假类型为空");
+        }
+        BigDecimal real_attendance_days = attendanceRecord.getReal_attendance_days();
+        if (real_attendance_days == null) {
+            real_attendance_days = BigDecimal.ZERO;
+        }
+        BigDecimal legal_holiday_days = attendanceRecord.getLegal_holiday_days();
+        if (legal_holiday_days == null) {
+            legal_holiday_days = BigDecimal.ZERO;
+        }
+        if (leave_type == 1) {//年假
+            BigDecimal this_month_annual_leave_days = attendanceRecord
+                .getThis_month_annual_leave_days();
+            if (this_month_annual_leave_days == null) {
+                this_month_annual_leave_days = leave_days;
+            } else {
+                this_month_annual_leave_days = this_month_annual_leave_days.add(leave_days);
+            }
+            attendanceRecord.setThis_month_annual_leave_days(this_month_annual_leave_days);//本月年假
+            updateAttendanceRecord(attendanceRecord);
+        } else if (leave_type == 2) {//病假
+            BigDecimal sick_leave_days = attendanceRecord.getSick_leave_days();
+            if (sick_leave_days == null) {
+                sick_leave_days = leave_days;
+            } else {
+                sick_leave_days = sick_leave_days.add(leave_days);
+            }
+            attendanceRecord.setSick_leave_days(sick_leave_days);
+            updateAttendanceRecord(attendanceRecord);
+        } else if (leave_type == 3) {//事假
+            BigDecimal casual_leave_days = attendanceRecord.getCasual_leave_days();
+            if (casual_leave_days == null) {
+                casual_leave_days = leave_days;
+            } else {
+                casual_leave_days = casual_leave_days.add(leave_days);
+            }
+            attendanceRecord.setCasual_leave_days(casual_leave_days);
+            updateAttendanceRecord(attendanceRecord);
+        } else if (leave_type == 4) {//产检
+            BigDecimal antenatal_examination_days = attendanceRecord
+                .getAntenatal_examination_days();
+            if (antenatal_examination_days == null) {
+                antenatal_examination_days = leave_days;
+            } else {
+                antenatal_examination_days = antenatal_examination_days.add(leave_days);
+            }
+            attendanceRecord.setAntenatal_examination_days(antenatal_examination_days);
+            updateAttendanceRecord(attendanceRecord);
+        } else if (leave_type == 5) {//产假
+            BigDecimal maternity_leave_days = attendanceRecord.getMaternity_leave_days();
+            if (maternity_leave_days == null) {
+                maternity_leave_days = leave_days;
+            } else {
+                maternity_leave_days = maternity_leave_days.add(leave_days);
+            }
+            attendanceRecord.setMaternity_leave_days(maternity_leave_days);
+            updateAttendanceRecord(attendanceRecord);
+        } else if (leave_type == 6) {//婚假
+            BigDecimal marriage_leave_days = attendanceRecord.getMarriage_leave_days();
+            if (marriage_leave_days == null) {
+                marriage_leave_days = leave_days;
+            } else {
+                marriage_leave_days = marriage_leave_days.add(leave_days);
+            }
+            attendanceRecord.setMarriage_leave_days(marriage_leave_days);
+            updateAttendanceRecord(attendanceRecord);
+        } else if (leave_type == 7) {//丧假
+            BigDecimal funeral_leave_days = attendanceRecord.getFuneral_leave_days();
+            if (funeral_leave_days == null) {
+                funeral_leave_days = leave_days;
+            } else {
+                funeral_leave_days = funeral_leave_days.add(leave_days);
+            }
+            attendanceRecord.setFuneral_leave_days(funeral_leave_days);
+            updateAttendanceRecord(attendanceRecord);
+        }
+        attendanceRecord = getAttendanceRecord(attendanceRecord.getId());
+        ResultMsg rmg = edit_save(attendanceRecord);
+        if (!rmg.getResult()) {
+            throw new RuntimeException(rmg.getMsg());
+        }
+    }
+
+    //计算合计请假天数
+    private BigDecimal subtract_total_leave_days(BigDecimal legal_holiday_days,
+                                                 BigDecimal leave_days) {
+        if (legal_holiday_days == null) {
+            legal_holiday_days = BigDecimal.ZERO;
+        }
+        if (leave_days == null) {
+            return legal_holiday_days;
+        }
+        legal_holiday_days = legal_holiday_days.subtract(leave_days);
+        if (legal_holiday_days.compareTo(BigDecimal.ZERO) <= 0) {
+            return BigDecimal.ZERO;
+        }
+        return legal_holiday_days;
+    }
+
+    //计算实出勤天数（减）
+    private BigDecimal subtract_real_attendance_days(BigDecimal real_attendance_days,
+                                                     BigDecimal leave_days) {
+        real_attendance_days = real_attendance_days.subtract(leave_days);
+        if (real_attendance_days.compareTo(BigDecimal.ZERO) <= 0) {
+            return BigDecimal.ZERO;
+        }
+        return real_attendance_days;
+    }
+
+    //减少假期天数
+    private void subtract_leave_days(AttendanceRecord attendanceRecord, BigDecimal leave_days,
+                                     Integer leave_type) {
+        if (leave_type == null) {
+            throw new RuntimeException("请假类型为空");
+        }
+        BigDecimal real_attendance_days = attendanceRecord.getReal_attendance_days();
+        if (real_attendance_days == null) {
+            real_attendance_days = BigDecimal.ZERO;
+        }
+        BigDecimal legal_holiday_days = attendanceRecord.getLegal_holiday_days();
+        if (legal_holiday_days == null) {
+            legal_holiday_days = BigDecimal.ZERO;
+        }
+        if (leave_type == 1) {//年假
+            BigDecimal this_month_annual_leave_days = attendanceRecord
+                .getThis_month_annual_leave_days();
+            if (this_month_annual_leave_days == null) {
+                this_month_annual_leave_days = BigDecimal.ZERO;
+            }
+            attendanceRecord.setThis_month_annual_leave_days(subtract_leave_days(
+                this_month_annual_leave_days, leave_days));//本月年假
+            updateAttendanceRecord(attendanceRecord);
+        } else if (leave_type == 2) {//病假
+            BigDecimal sick_leave_days = attendanceRecord.getSick_leave_days();
+            if (sick_leave_days == null) {
+                sick_leave_days = BigDecimal.ZERO;
+            }
+            attendanceRecord.setSick_leave_days(subtract_leave_days(sick_leave_days, leave_days));
+            updateAttendanceRecord(attendanceRecord);
+        } else if (leave_type == 3) {//事假
+            BigDecimal casual_leave_days = attendanceRecord.getCasual_leave_days();
+            if (casual_leave_days == null) {
+                casual_leave_days = BigDecimal.ZERO;
+            }
+            attendanceRecord
+                .setCasual_leave_days(subtract_leave_days(casual_leave_days, leave_days));
+            updateAttendanceRecord(attendanceRecord);
+        } else if (leave_type == 4) {//产检
+
+            BigDecimal antenatal_examination_days = attendanceRecord
+                .getAntenatal_examination_days();
+            if (antenatal_examination_days == null) {
+                antenatal_examination_days = BigDecimal.ZERO;
+            }
+            attendanceRecord.setAntenatal_examination_days(subtract_leave_days(
+                antenatal_examination_days, leave_days));
+            updateAttendanceRecord(attendanceRecord);
+        } else if (leave_type == 5) {//产假
+            BigDecimal maternity_leave_days = attendanceRecord.getMaternity_leave_days();
+            if (maternity_leave_days == null) {
+                maternity_leave_days = BigDecimal.ZERO;
+            }
+            attendanceRecord.setMaternity_leave_days(subtract_leave_days(maternity_leave_days,
+                leave_days));
+            updateAttendanceRecord(attendanceRecord);
+        } else if (leave_type == 6) {//婚假
+            BigDecimal marriage_leave_days = attendanceRecord.getMarriage_leave_days();
+            if (marriage_leave_days == null) {
+                marriage_leave_days = BigDecimal.ZERO;
+            }
+            attendanceRecord.setMarriage_leave_days(subtract_leave_days(marriage_leave_days,
+                leave_days));
+            updateAttendanceRecord(attendanceRecord);
+        } else if (leave_type == 7) {//丧假
+            BigDecimal funeral_leave_days = attendanceRecord.getFuneral_leave_days();
+            if (funeral_leave_days == null) {
+                funeral_leave_days = BigDecimal.ZERO;
+            }
+            attendanceRecord.setFuneral_leave_days(subtract_leave_days(funeral_leave_days,
+                leave_days));
+            updateAttendanceRecord(attendanceRecord);
+        }
+        attendanceRecord = getAttendanceRecord(attendanceRecord.getId());
+        ResultMsg rmg = edit_save(attendanceRecord);
+        if (!rmg.getResult()) {
+            throw new RuntimeException(rmg.getMsg());
+        }
+    }
+
+    public BigDecimal subtract_leave_days(BigDecimal old_leave_days, BigDecimal leave_days) {
+        BigDecimal result = old_leave_days.subtract(leave_days);
+        if (result.compareTo(BigDecimal.ZERO) <= 0) {
+            return BigDecimal.ZERO;
+        }
+        return result;
+    }
+
+    //计算实出勤天数（加）
+    private BigDecimal add_real_attendance_days(BigDecimal real_attendance_days,
+                                                BigDecimal leave_days) {
+        real_attendance_days = real_attendance_days.add(leave_days);
+        if (real_attendance_days.compareTo(BigDecimal.ZERO) <= 0) {
+            return BigDecimal.ZERO;
+        }
+        return real_attendance_days;
+    }
+
+    /**
+     * 查询考勤统计数量(sql)
+     * 用于导出Excel
+     */
+    public int getCountForExportExcel(Long department_id, String true_name,
+                                      String attendance_record_month) {
+        String sql = getCountSQL()
+                     + getCommonSQL(department_id, true_name, attendance_record_month);
+        return attendanceRecordDao.countBySql(sql, null);
+    }
+
+    /**
+     * 查询考勤统计
+     * 用于导出Excel
+     */
+    public List<Object[]> getAttendanceRecordsForExportExcel(Long department_id, String true_name,
+                                                             String attendance_record_month,
+                                                             int beginIndex, int pageSize) {
+        String sql = getQueryListSQL()
+                     + getCommonSQL(department_id, true_name, attendance_record_month);
+
+        List<Object[]> list = (ArrayList<Object[]>) attendanceRecordDao.findBySql(sql, null,
+            beginIndex, pageSize);
+
+        return list;
+    }
+
+    private String getQueryListSQL() {
+        StringBuffer s = new StringBuffer();
+        s.append("select");
+        s.append(" ar.createtime, ");
+        s.append(" u.true_name, ");
+        s.append(" ar.employee_number, ");
+        s.append(" ar.need_attendance_days, ");
+        s.append(" ar.real_attendance_days, ");
+        s.append(" ar.official_business_days, ");
+        s.append(" ar.not_clock_in_times, ");
+        s.append(" ar.late_early_times, ");
+        s.append(" ar.workday_overtime_hours, ");
+        s.append(" ar.offday_overtime_hours, ");
+        s.append(" ar.holiday_overtime_hours, ");
+        s.append(" ar.this_month_shift_hours, ");
+        s.append(" ar.last_month_shift_remain_hours, ");
+        s.append(" ar.this_month_shift_remain_hours, ");
+        s.append(" ar.absent_days, ");
+        s.append(" ar.sick_leave_days, ");
+        s.append(" ar.casual_leave_days, ");
+        s.append(" ar.marriage_leave_days, ");
+        s.append(" ar.funeral_leave_days, ");
+        s.append(" ar.this_month_annual_leave_days, ");
+        s.append(" ar.total_annual_leave_days, ");
+        s.append(" ar.antenatal_examination_days, ");
+        s.append(" ar.maternity_leave_days, ");
+        s.append(" ar.legal_holiday_days, ");
+        s.append(" ar.remark, ");
+        s.append(" u.remark  r");
+        return s.toString();
+    }
+
+    private String getCommonSQL(Long department_id, String true_name, String attendance_record_month) {
+        StringBuffer s = new StringBuffer();
+        s.append(" from tb_attendance_record ar");
+        s.append(" left join tb_user u");
+        s.append(" on ar.user_id = u.id");
+        s.append(" left join tb_department d");
+        s.append(" on u.department_id = d.id");
+        s.append(" where ar.disabled = 0");
+        if (CommUtil.isNotNull(department_id)) {
+            s.append(" and d.id = ").append(department_id);
+        }
+        if (CommUtil.isNotNull(true_name)) {
+            s.append(" and u.true_name like '%").append(true_name).append("%'");
+        }
+        if (CommUtil.isNotNull(attendance_record_month)) {
+            s.append(" and  DATE_FORMAT(ar.attendance_record_month,'%Y-%m')= '")
+                .append(attendance_record_month).append("' ");
+        }
+        return s.toString();
+    }
+
+    public String getCountSQL() {
+        return "select count(ar.id) ";
+    }
+
+}

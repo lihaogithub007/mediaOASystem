@@ -1,0 +1,302 @@
+package com.yuyu.soft.admin.controller;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.yuyu.soft.base.annotation.SecurityMapping;
+import com.yuyu.soft.base.mv.JModelAndView;
+import com.yuyu.soft.entity.Resume;
+import com.yuyu.soft.service.IAttachmentsService;
+import com.yuyu.soft.service.IDutyService;
+import com.yuyu.soft.service.IResumeEducationService;
+import com.yuyu.soft.service.IResumeFamilyMemberService;
+import com.yuyu.soft.service.IResumeOthersService;
+import com.yuyu.soft.service.IResumeService;
+import com.yuyu.soft.service.IResumeWorkService;
+import com.yuyu.soft.service.IUserService;
+import com.yuyu.soft.util.CommUtil;
+import com.yuyu.soft.util.Constants;
+import com.yuyu.soft.util.POIUtil;
+import com.yuyu.soft.util.PageUtil;
+import com.yuyu.soft.util.PagerInfo;
+
+/**
+ * 管理员简历管理                      
+ * @Filename: AdminResumeController.java
+ * @Version: 1.0
+ * @Author: 李明
+ * @Email: limn_xmj@163.com
+ *
+ */
+@Controller
+public class AdminResumeController {
+
+    protected static final Log         log = LogFactory.getLog(AdminResumeController.class);
+    @Resource
+    private IUserService               userService;
+    @Resource
+    private IResumeService             resumeService;
+    @Resource
+    private IResumeWorkService         resumeWorkService;
+    @Resource
+    private IResumeEducationService    resumeEducationService;
+    @Resource
+    private IResumeFamilyMemberService resumeFamilyMemberService;
+    @Resource
+    private IResumeOthersService       resumeOthersService;
+    @Resource
+    private IDutyService               dutyService;
+    @Resource
+    private IAttachmentsService        attachmentsService;
+
+    @SecurityMapping(res_name = "简历列表", res_url = "/admin/user/resume_list.htm*", res_group = "简历管理")
+    @RequestMapping({ "/admin/user/resume_list.htm" })
+    public ModelAndView resume_list(HttpServletRequest request, HttpServletResponse response,
+                                    String pageSize, String currentPage, String name,
+                                    String highest_education, String apply_job_name,
+                                    String work_years, Integer resume_status) {
+        ModelAndView mv = new JModelAndView("admin/user/resume_list.html", request, response);
+
+        currentPage = PageUtil.initCurrentPage(currentPage);
+        PagerInfo pager = PageUtil.initPagerInfo(pageSize, currentPage);
+        Map<String, Object> paramsMap = new HashMap<String, Object>();
+
+        StringBuilder hql = new StringBuilder();
+        hql.append("from Resume t where t.disabled = false");
+
+        if (CommUtil.isNotNull(name)) {
+            hql.append(" and t.name like :name");
+            paramsMap.put("name", "%" + name.trim() + "%");
+        }
+        if (CommUtil.isNotNull(highest_education)) {
+            hql.append(" and t.highest_education like :highest_education");
+            paramsMap.put("highest_education", "%" + highest_education.trim() + "%");
+        }
+        if (CommUtil.isNotNull(apply_job_name)) {
+            hql.append(" and t.duty.duty_name like :apply_job_name");
+            paramsMap.put("apply_job_name", "%" + apply_job_name.trim() + "%");
+        }
+        if (CommUtil.isNotNull(work_years) && CommUtil.null2Integer(work_years) != null) {
+            hql.append(" and t.work_years = :work_years");
+            paramsMap.put("work_years", CommUtil.null2Integer(work_years));
+        }
+        if (CommUtil.isNotNull(work_years)) {
+            hql.append(" and t.resume_status = :resume_status");
+            paramsMap.put("resume_status", resume_status);
+        }
+        hql.append(" order by t.createtime desc");
+
+        List<Resume> list = resumeService.queryResume(hql.toString(), paramsMap, pager);
+        PageUtil.savePageInfo2ModelAndView(mv, list, pager);
+
+        mv.addObject("name", name);
+        mv.addObject("highest_education", highest_education);
+        mv.addObject("apply_job_name", apply_job_name);
+        mv.addObject("work_years", work_years);
+        mv.addObject("resume_status", resume_status);
+        mv.addObject("sex_map", Constants.SEX_MAP);//性别
+        mv.addObject("political_status_map", Constants.POLITICAL_STATUS_MAP);//政治面貌
+        mv.addObject("marriage_status_map", Constants.MARRIAGE_STATUS_MAP);//婚姻状况
+        mv.addObject("family_relationship_map", Constants.FAMILY_RELATIONSHIP_MAP);//家庭成员与本人关系
+        mv.addObject("work_type_map", Constants.WORK_TYPE_MAP);//工作性质
+        mv.addObject("is_or_not_map", Constants.IS_OR_NOT_MAP);//是否
+        mv.addObject("have_or_not_map", Constants.HAVE_OR_NOT_MAP);//有无
+        mv.addObject("resume_status_map", Constants.RESUME_STATUS_MAP);//简历状态
+        mv.addObject("edu_type_map", Constants.EDU_TYPE_MAP);//学习性质
+        mv.addObject("dimission_reason_map", Constants.DIMISSION_REASON_MAP);//离职原因
+        return mv;
+    }
+
+    //=============================================导出Excel区域开始======================================================//
+    @SecurityMapping(res_name = "导出Excel", res_url = "/admin/user/resume_exportExcel.htm*", res_group = "简历管理")
+    @RequestMapping("/admin/user/resume_exportExcel.htm")
+    public synchronized void resume_exportExcel(HttpServletRequest request,
+                                                HttpServletResponse response, String currentPage,
+                                                String name, String highest_education,
+                                                String apply_job_name, String work_years,
+                                                Integer resume_status) {
+
+        List<Object[]> list = null;
+        OutputStream out = null;
+        SXSSFWorkbook workbook = null;
+        SXSSFSheet sheet = null;
+
+        try {
+            workbook = new SXSSFWorkbook(100);
+            sheet = (SXSSFSheet) workbook.createSheet("简历");
+
+            String titleName = "简历统计表";
+            String[] titleNames = { "序号", "姓名", "手机号", "性别", "国籍", "出生日期", "应聘岗位", "工作年限",
+                    "同行工作年限", "最高学历", "专业", "目前薪资(元)", "期望薪资(元)", "简历状态" };
+            POIUtil.setColumnWidth(sheet, titleNames.length);//设置通用列宽
+
+            int all_count = resumeService.getCountForExportExcel(name, highest_education,
+                apply_job_name, work_years, resume_status);
+
+            if (all_count == 0) {
+                fillSheet(sheet, titleName, titleNames, null, 2);
+            } else {
+                //计算分页数
+                log.info("总大小：" + all_count);
+                int pageSize = Constants.DEFAULT_PAGE_SIZE_FOR_EXPORT_EXCEL;
+                double temp_pages = (double) all_count / (double) pageSize;
+                int pages = (int) Math.ceil(temp_pages);
+                int beginIndex = 0;
+                int rowNum = 0;
+                for (int i = 0; i < pages; i++) {
+                    beginIndex = 0 + i * pageSize;
+                    log.info("【简历导出-分页填充】第" + (i + 1) + "次填充开始====>" + CommUtil.getCurrentTime());
+
+                    list = resumeService.getResumesForExportExcel(name, highest_education,
+                        apply_job_name, work_years, resume_status, beginIndex, pageSize);
+                    rowNum = 2 + i * pageSize;
+                    fillSheet(sheet, titleName, titleNames, list, rowNum);
+                    log.info("【简历导出-分页填充】第" + (i + 1) + "次填充结束====>" + CommUtil.getCurrentTime());
+                    list.clear();
+                }
+                list = null;
+            }
+
+            response.setContentType("application/vnd.ms-excel");
+            String fileName = "简历" + new Date().getTime() + ".xlsx";
+            fileName = CommUtil.encodeExportFileName(request, fileName);
+            response.setHeader("Content-disposition", "attachment;filename=" + fileName);
+            out = response.getOutputStream();
+            workbook.write(out);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private void fillSheet(SXSSFSheet sheet, String titleName, String[] titleNames,
+                           List<Object[]> list, int rowNum) {
+        if (2 == rowNum) {
+            POIUtil.setTitle(sheet, titleName, 0, titleNames.length - 1);
+            POIUtil.setTitles(sheet, titleNames, 1);
+        }
+        this.fillData(sheet, list, rowNum);
+    }
+
+    private void fillData(SXSSFSheet sheet, List<Object[]> list, int rowNum) {
+
+        if (list != null && list.size() > 0 && rowNum >= 2) {
+            CellStyle cellStyle = POIUtil.getBaseCellStyle(sheet);
+            Font font = POIUtil.getBaseFont(sheet);
+            cellStyle.setFont(font);
+
+            for (Object[] objs : list) {
+                Cell cell = null;
+                Row row = sheet.createRow(rowNum);
+                int columnNum = 0;
+                // 序号
+                cell = row.createCell(columnNum++);
+                cell.setCellValue(new XSSFRichTextString(rowNum - 1 + ""));
+                cell.setCellStyle(cellStyle);
+                for (int index = 0; index < objs.length; index++) {
+                    cell = row.createCell(columnNum++);
+                    cell.setCellStyle(cellStyle);
+                    cell.setCellValue(new XSSFRichTextString(CommUtil.null2String(objs[index])));
+                }
+                if (rowNum % 100 == 0) {
+                    try {
+                        sheet.flushRows();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                rowNum++;
+            }
+        }
+    }
+
+    //=============================================导出Excel区域结束======================================================//
+    @SecurityMapping(res_name = "查看", res_url = "/admin/user/resume_view.htm*", res_group = "简历管理")
+    @RequestMapping({ "/admin/user/resume_view.htm" })
+    public ModelAndView resume_view(HttpServletRequest request, HttpServletResponse response,
+                                    String currentPage, Long id) {
+
+        String target_url = CommUtil.getURL(request) + "/admin/user/resume_list.htm?currentPage="
+                            + currentPage;
+        if (id == null) {
+            return CommUtil.errorPage(target_url, "简历标识为空", request, response);
+        }
+        Resume resume = resumeService.getResume(id);
+        if (resume == null) {
+            return CommUtil.errorPage(target_url, "找不到简历记录", request, response);
+        }
+        ModelAndView mv = new JModelAndView("admin/user/resume_view.html", request, response);
+
+        mv.addObject("resume", resume);
+        mv.addObject("resumeWorkList", resumeWorkService.queryResumeWork(resume.getId()));//工作经历
+        mv.addObject("resumeEducationList",
+            resumeEducationService.queryResumeEducation(resume.getId()));//教育经历
+        mv.addObject("resumeFamilyMemberList",
+            resumeFamilyMemberService.queryResumeFamilyMember(resume.getId()));//家庭成员
+
+        mv.addObject("dutys", dutyService.queryAllDuty());//岗位
+        mv.addObject("sex_map", Constants.SEX_MAP);//性别
+        mv.addObject("political_status_map", Constants.POLITICAL_STATUS_MAP);//政治面貌
+        mv.addObject("marriage_status_map", Constants.MARRIAGE_STATUS_MAP);//婚姻状况
+        mv.addObject("family_relationship_map", Constants.FAMILY_RELATIONSHIP_MAP);//家庭成员与本人关系
+        mv.addObject("work_type_map", Constants.WORK_TYPE_MAP);//工作性质
+        mv.addObject("is_or_not_map", Constants.IS_OR_NOT_MAP);//是否
+        mv.addObject("have_or_not_map", Constants.HAVE_OR_NOT_MAP);//有无
+        mv.addObject("edu_type_map", Constants.EDU_TYPE_MAP);//学习性质
+        mv.addObject("dimission_reason_map", Constants.DIMISSION_REASON_MAP);//离职原因
+        mv.addObject("currentPage", currentPage);
+        mv.addObject("attachments", attachmentsService.getAttachmentsByIds(resume.getAttach_ids()));
+        return mv;
+    }
+
+    @SecurityMapping(res_name = "删除", res_url = "/admin/user/resume_delete.htm*", res_group = "简历管理")
+    @RequestMapping({ "/admin/user/resume_delete.htm" })
+    public ModelAndView resume_delete(HttpServletRequest request, HttpServletResponse response,
+                                      Long id, String currentPage) {
+        String target_url = CommUtil.getURL(request) + "/admin/user/resume_list.htm?currentPage="
+                            + currentPage;
+        if (id == null) {
+            return CommUtil.errorPage(target_url, "简历标识为空", request, response);
+        }
+        Resume resume = resumeService.getResume(id);
+        if (resume == null) {
+            return CommUtil.errorPage(target_url, "找不到简历记录", request, response);
+        }
+        try {
+            resumeService.delResume(resume);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return CommUtil.errorPage(target_url, "简历删除失败", request, response);
+        }
+        return CommUtil.successPage(target_url, "简历删除成功", request, response);
+    }
+}

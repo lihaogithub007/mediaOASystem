@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<!--[if IE 8]> <html class="ie8"> <![endif]-->
+<!--[if IE 9]> <html class="ie9"> <![endif]-->
+<!--[if !IE]><!--> <html> <!--<![endif]-->
+<head>
+<meta charset="utf-8" />
+<title>新媒体智能管理系统</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+<meta content="" name="description" />
+<meta content="" name="author" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="renderer" content="webkit|ie-comp|ie-stand" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap-fileupload.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/font-awesome/css/font-awesome.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style_responsive.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style_default.css" rel="stylesheet" id="style_color" />
+<link href="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/fancybox/source/jquery.fancybox.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/toastr/toastr.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/uniform/css/uniform.default.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/My97DatePicker/skin/WdatePicker.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/css/custom/custom.css" rel="stylesheet" type="text/css" />
+</head>
+<body class="fixed-top">
+	<div id="header" class="navbar navbar-inverse navbar-fixed-top">
+		$!httpInclude.include("/common/_header.htm") 
+	</div>
+	<div id="container" class="row-fluid">
+		<div id="sidebar" class="nav-collapse collapse">
+			$!httpInclude.include("/common/_sidebar.htm?op=attendance_record_manage") 
+		</div>
+		<div id="main-content">
+			<div class="container-fluid">
+				<div class="row-fluid">
+					<div class="span12">
+						<h3 class="page-title">考勤编辑</h3>
+						<ul class="breadcrumb">
+							<li><a href="$!webPath/index.htm"><i class="icon-home"></i></a><span class="divider">&nbsp;</span></li>
+					        <li><a href="javascript:void(0);">考勤管理</a><span class="divider">&nbsp;</span></li>
+							<li><a href="$!webPath/admin/work_attendance/attendance_record_edit.htm?id=$!obj.id&currentPage=$!currentPage">考勤编辑</a><span class="divider-last">&nbsp;</span></li>
+						</ul>
+					</div>
+				</div>
+				<div class="row-fluid">
+					<form name="theForm" id="theForm" action="$!webPath/admin/work_attendance/attendance_record_edit_save.htm" method="post" class="form-horizontal">
+		            	<div class="span12">
+							<div class="widget">
+		                    	<div class="widget-title">
+		                        	<h4><i class="icon-reorder"></i>考勤编辑</h4>
+		                     	</div>
+                     			<div class="widget-body form">
+		                        	<div class="control-group">
+		                        		<label class="control-label">部门</label>
+	                                    <div class="controls">$!obj.user.department.department_name</span></div>
+		                           	</div>
+		                        	<div class="control-group">
+		                        		<label class="control-label">姓名</label>
+	                                    <div class="controls"><span class="text">$!obj.user.true_name</span></div>
+		                           	</div>
+		                        	<div class="control-group">
+		                        		<label class="control-label">员工编号</label>
+	                                    <div class="controls">
+	                                        <input type="text" name="employee_number" value="$!obj.employee_number" placeholder="员工编号" class="input-xlarge popovers" maxlength="4"
+	                                        	data-trigger="hover" data-content="输入员工编号，最大输入4位数字"/>
+	                                        <span class="help-inline"></span>
+	                                    </div>
+		                           	</div>
+		                        	<div class="control-group">
+		                        		<label class="control-label">应出勤(天)</label>
+	                                    <div class="controls">
+	                                        <input type="text" name="need_attendance_days" value="$!obj.need_attendance_days" placeholder="应出勤(天)" class="input-xlarge popovers" maxlength="2"
+	                                        	data-trigger="hover" data-content="输入应出勤(天)，正整数"/>
+	                                        <span class="help-inline"></span>
+	                                    </div>
+		                           	</div>
+		                        	<div class="control-group">
+		                        		<label class="control-label">公出(天)</label>
+	                                    <div class="controls">
+	                                        <input type="text" name="official_business_days" value="$!obj.official_business_days" placeholder="公出(天)" class="input-xlarge popovers" maxlength="4"
+	                                        	data-trigger="hover" data-content="输入公出天数，0~31之间整数或1位小数"/>
+	                                        <span class="help-inline"></span>
+	                                    </div>
+		                           	</div>
+		                        	<div class="control-group">
+		                        		<label class="control-label">未打卡(次)</label>
+	                                    <div class="controls">
+	                                        <input type="text" name="not_clock_in_times" value="$!obj.not_clock_in_times" placeholder="未打卡(次)" class="input-xlarge popovers" maxlength="2"
+	                                        	data-trigger="hover" data-content="输入未打卡次数，0~31之间整数"/>
+	                                        <span class="help-inline"></span>
+	                                    </div>
+		                           	</div>
+		                        	<div class="control-group">
+		                        		<label class="control-label">迟到早退(次)</label>
+	                                    <div class="controls">
+	                                        <input type="text" name="late_early_times" value="$!obj.late_early_times" placeholder="迟到早退(次)" class="input-xlarge popovers" maxlength="2"
+	                                        	data-trigger="hover" data-content="输入迟到早退次数，0~62之间整数"/>
+	                                        <span class="help-inline"></span>
+	                                    </div>
+		                           	</div>
+		                        	<div class="control-group">
+		                        		<label class="control-label">旷工(天)</label>
+	                                    <div class="controls">
+	                                        <input type="text" name="absent_days" value="$!obj.absent_days" placeholder="旷工(天)" class="input-xlarge popovers" maxlength="4"
+	                                        	data-trigger="hover" data-content="输入旷工天数，0~31之间整数或1位小数"/>
+	                                        <span class="help-inline"></span>
+	                                    </div>
+		                           	</div>
+		                        	<div class="control-group">
+		                        		<label class="control-label">病假(天)</label>
+	                                    <div class="controls">
+	                                        <input type="text" name="sick_leave_days" id="sick_leave_days" value="$!obj.sick_leave_days" placeholder="病假(天)" class="input-xlarge popovers" maxlength="4"
+	                                        	data-trigger="hover" data-content="输入病假天数，0~31之间整数或1位小数"/>
+	                                        <span class="help-inline"></span>
+	                                    </div>
+		                           	</div>
+		                        	<div class="control-group">
+		                        		<label class="control-label">事假(天)</label>
+	                                    <div class="controls">
+	                                        <input type="text" name="casual_leave_days" id="casual_leave_days" value="$!obj.casual_leave_days" placeholder="事假(天)" class="input-xlarge popovers" maxlength="4"
+	                                        	data-trigger="hover" data-content="输入事假天数，0~31之间整数或1位小数"/>
+	                                        <span class="help-inline"></span>
+	                                    </div>
+		                           	</div>
+		                        	<div class="control-group">
+		                        		<label class="control-label">婚假(天)</label>
+	                                    <div class="controls">
+	                                        <input type="text" name="marriage_leave_days" id="marriage_leave_days" value="$!obj.marriage_leave_days" placeholder="婚假(天)" class="input-xlarge popovers" maxlength="4"
+	                                        	data-trigger="hover" data-content="输入婚假天数，0~31之间整数或1位小数"/>
+	                                        <span class="help-inline"></span>
+	                                    </div>
+		                           	</div>
+		                        	<div class="control-group">
+		                        		<label class="control-label">丧假(天)</label>
+	                                    <div class="controls">
+	                                        <input type="text" name="funeral_leave_days" id="funeral_leave_days" value="$!obj.funeral_leave_days" placeholder="丧假(天)" class="input-xlarge popovers" maxlength="4"
+	                                        	data-trigger="hover" data-content="输入丧假天数，0~31之间整数或1位小数"/>
+	                                        <span class="help-inline"></span>
+	                                    </div>
+		                           	</div>
+		                        	<div class="control-group">
+		                        		<label class="control-label">本月年假(天)</label>
+	                                    <div class="controls">
+	                                        <input type="text" name="this_month_annual_leave_days" id="this_month_annual_leave_days" value="$!obj.this_month_annual_leave_days" placeholder="本月年假(天)" class="input-xlarge popovers" maxlength="4"
+	                                        	data-trigger="hover" data-content="输入本月年假天数，0~31之间整数或1位小数"/>
+	                                        <span class="help-inline"></span>
+	                                    </div>
+		                           	</div>
+		                        	<div class="control-group">
+		                        		<label class="control-label">产检(天)</label>
+	                                    <div class="controls">
+	                                        <input type="text" name="antenatal_examination_days" id="antenatal_examination_days" value="$!obj.antenatal_examination_days" placeholder="产检(天)" class="input-xlarge popovers" maxlength="4"
+	                                        	data-trigger="hover" data-content="输入产检天数，0~31之间整数或1位小数"/>
+	                                        <span class="help-inline"></span>
+	                                    </div>
+		                           	</div>
+		                        	<div class="control-group">
+		                        		<label class="control-label">产假(天)</label>
+	                                    <div class="controls">
+	                                        <input type="text" name="maternity_leave_days" id="maternity_leave_days" value="$!obj.maternity_leave_days" placeholder="产假(天)" class="input-xlarge popovers" maxlength="4"
+	                                        	data-trigger="hover" data-content="输入产假天数，0~31之间整数或1位小数"/>
+	                                        <span class="help-inline"></span>
+	                                    </div>
+		                           	</div>
+		                        	<div class="control-group">
+		                        		<label class="control-label">公休日合计(天)</label>
+	                                    <div class="controls"><span class="text" id="legal_holiday_days_span_id">$!{obj.legal_holiday_days}天</span></div>
+		                           	</div>
+		                           	<div class="control-group">
+		                            	<label class="control-label">其他说明</label>
+		                              	<div class="controls">
+		                                	<textarea class="span6" name="remark" id="remark" rows="3">$!obj.remark</textarea>
+		                              	</div>
+		                            </div>
+                           			<div class="form-actions">
+                           				<input type="button" id="btn_submit" class="btn btn-primary" value="保存"/>
+                           				<a href="$!webPath/admin/work_attendance/attendance_record_list.htm?currentPage=$!currentPage" class="btn">返回</a>
+                           			</div>
+	                     		</div>
+	                  		</div>
+		                </div>
+		                <input type="hidden" name="currentPage" id="currentPage" value="$!currentPage"/>
+		                <input type="hidden" name="id" id="id" value="$!obj.id"/>
+				  	</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="footer">
+		$!httpInclude.include("/common/_footer.htm")	
+	</div>
+	<script src="$!webPath/resources/js/jquery-1.8.3.min.js"></script>
+    <script src="$!webPath/resources/assets/bootstrap/js/bootstrap.min.js"></script>   
+    <script src="$!webPath/resources/js/jquery.blockui.js"></script>
+    <!-- ie8 fixes -->
+    <!--[if lt IE 9]>
+    <script src="$!webPath/resources/js/excanvas.js"></script>
+    <script src="$!webPath/resources/js/respond.js"></script>
+    <![endif]-->   
+    <script src="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.jquery.js" type="text/javascript"></script>
+    <script src="$!webPath/resources/assets/uniform/jquery.uniform.min.js" type="text/javascript"></script>
+    <script src="$!webPath/resources/js/jquery.validate.min.js" type="text/javascript" ></script>
+	<script src="$!webPath/resources/js/jquery.validate.ext.js" type="text/javascript" ></script>
+	<script src="$!webPath/resources/js/jquery.form.min.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/assets/My97DatePicker/WdatePicker.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/assets/toastr/toastr.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/js/scripts.js"></script>
+    <script src="$!webPath/resources/js/custom/common.js"></script>
+    <script>
+	jQuery(document).ready(function() {   
+		App.init();
+		initToastr();
+		jqueryValidate();
+		bindEvent();
+		bindChangeEvent();
+	});
+	function jqueryValidate(){
+		jQuery.validator.addMethod("isDouble",function(value,element){
+			var reg=/(^0(\.\d{1,2}){1}$)|(^[1-9]\d{0,9}(\.\d{1,2})?$)/;
+			return this.optional(element) || (reg.test(value));
+		}, "必须是数字或小数, 整数位最多10位，小数位最多两位");
+		jQuery.validator.addMethod("decimal3point1lessthan31",function(value,element){
+			var reg=/(^[0-9](\.\d{1})?$)|(^[1-2]\d{1}(\.\d{1})?$)|(^30(\.\d{1})?$)|(^31(\.0)?$)/;
+			return this.optional(element) || (reg.test(value));
+		}, "必须是0~31(含)数字或小数, 整数位最多2位，小数位最多一位");
+		
+		jQuery.validator.addMethod("twodigits",function(value,element){
+			var reg=/\d{1}|(^[1-9]\d{1}$)/;
+			return this.optional(element) || (reg.test(value));
+		}, "必须是整数，最多两位");
+		jQuery.validator.addMethod("maxMonthCount",function(value,element){
+			var reg=/^\d{1}$|(^[1-2]\d{1}$)|^30$|^31$/;
+			return this.optional(element) || (reg.test(value));
+		}, "必须是0~31(含)整数");
+		jQuery.validator.addMethod("maxDoubleMonthCount",function(value,element){
+			var reg=/^\d{1}$|(^[1-5]\d{1}$)|^60$|^61$|^62$/;
+			return this.optional(element) || (reg.test(value));
+		}, "必须是0~62(含)整数");
+		jQuery.validator.addMethod("sixdigits",function(value,element){
+			var reg=/^\d{4}\b/;
+			return this.optional(element) || (reg.test(value));
+		}, "必须是4位数字");
+		
+		
+		jQuery("#theForm").validate({
+			errorPlacement : function(error, element) { 
+				$(error).appendTo($(element).parent());
+			},
+			rules:{
+				need_attendance_days:{twodigits:[]},
+				official_business_days:{decimal3point1lessthan31:[]},
+				not_clock_in_times:{maxMonthCount:[]},
+				late_early_times:{maxDoubleMonthCount:[]},
+				absent_days:{decimal3point1lessthan31:[]},
+				sick_leave_days:{decimal3point1lessthan31:[]},
+				casual_leave_days:{decimal3point1lessthan31:[]},
+				marriage_leave_days:{decimal3point1lessthan31:[]},
+				funeral_leave_days:{decimal3point1lessthan31:[]},
+				this_month_annual_leave_days:{decimal3point1lessthan31:[]},
+				total_annual_leave_days:{decimal3point1lessthan31:[]},
+				antenatal_examination_days:{decimal3point1lessthan31:[]},
+				maternity_leave_days:{decimal3point1lessthan31:[]},
+				legal_holiday_days:{decimal3point1lessthan31:[]},
+				employee_number:{sixdigits:[]},
+	       	},
+			messages:{
+			}
+		}); 
+		var validator = $("#theForm").data("validator");
+        validator.settings.ignore = ":hidden:not(select)";
+	}
+	function bindEvent(){
+		jQuery("#btn_submit").bind("click", function(){
+			if (jQuery("#theForm").valid()) {
+				jQuery("#loadingBar").show();
+				ajaxFormSubmit('theForm','defaultAjaxSaveCallBack');
+			}
+		});
+	}
+	
+	function bindChangeEvent(){
+		jQuery("#sick_leave_days,#casual_leave_days,#marriage_leave_days,#funeral_leave_days,#this_month_annual_leave_days,#antenatal_examination_days,#maternity_leave_days").bind("change",function() {
+			var sick_leave_days = $("#sick_leave_days").val();
+			var casual_leave_days = $("#casual_leave_days").val();
+			var marriage_leave_days = $("#marriage_leave_days").val();
+			var funeral_leave_days = $("#funeral_leave_days").val();
+			var this_month_annual_leave_days = $("#this_month_annual_leave_days").val();
+			var antenatal_examination_days = $("#antenatal_examination_days").val();
+			var maternity_leave_days = $("#maternity_leave_days").val();
+			
+			var total_days = 0;
+			if(!isEmpty(sick_leave_days)){
+				total_days = total_days + parseFloat(sick_leave_days)*10;
+			}
+			if(!isEmpty(casual_leave_days)){
+				total_days = total_days + parseFloat(casual_leave_days)*10;
+			}
+			if(!isEmpty(marriage_leave_days)){
+				total_days = total_days + parseFloat(marriage_leave_days)*10;
+			}
+			if(!isEmpty(funeral_leave_days)){
+				total_days = total_days + parseFloat(funeral_leave_days)*10;
+			}
+			if(!isEmpty(this_month_annual_leave_days)){
+				total_days = total_days + parseFloat(this_month_annual_leave_days)*10;
+			}
+			if(!isEmpty(antenatal_examination_days)){
+				total_days = total_days + parseFloat(antenatal_examination_days)*10;
+			}
+			if(!isEmpty(maternity_leave_days)){
+				total_days = total_days + parseFloat(maternity_leave_days)*10;
+			}
+			total_days = total_days;
+			if(total_days>310){
+				alert("所有请假和不能超过31天");
+				return false;
+			}
+			total_days = total_days/10;
+			$("#legal_holiday_days_span_id").html(total_days+"天");	
+		});
+	}
+	
+	function unBindEvent(){
+		jQuery("#btn_submit").unbind();
+	}
+	</script>
+</body>
+</html>

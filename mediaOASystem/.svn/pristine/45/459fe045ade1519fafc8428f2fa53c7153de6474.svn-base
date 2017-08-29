@@ -1,0 +1,231 @@
+package com.yuyu.soft.admin.controller;
+
+import java.text.DecimalFormat;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.yuyu.soft.base.annotation.SecurityMapping;
+import com.yuyu.soft.base.mv.JModelAndView;
+import com.yuyu.soft.service.ICandidateHireApprovalService;
+import com.yuyu.soft.service.IResumeService;
+import com.yuyu.soft.service.IUserService;
+import com.yuyu.soft.util.CommUtil;
+
+/**
+ * 人员统计分析
+ * @Filename: UserStatisticsController.java
+ * @Version: 1.0
+ * @Author: 李明
+ * @Email: limn_xmj@163.com
+ *
+ */
+@Controller
+public class UserStatisticsController {
+    @Resource
+    private IUserService                  userService;
+    @Resource
+    private IResumeService                resumeService;
+    @Resource
+    private ICandidateHireApprovalService candidateHireApprovalService;
+
+    @SecurityMapping(res_name = "人员统计分析", res_url = "/admin/statistics/user_statistics_list.htm*", res_group = "人员统计分析")
+    @RequestMapping({ "/admin/statistics/user_statistics_list.htm" })
+    public ModelAndView user_statistics_list(HttpServletRequest request,
+                                             HttpServletResponse response, String pageSize,
+                                             String currentPage, String entry_dimission_begin_time,
+                                             String entry_dimission_end_time,
+                                             String recruit_begin_time, String recruit_end_time) {
+        ModelAndView mv = new JModelAndView("admin/statistics/user_statistics_list.html", request,
+            response);
+        mv.addObject("user_relationship_statistics",
+            userService.user_statistics_user_relationship());
+        mv.addObject("user_age_statistics", userService.user_age_statistics());
+
+        int year = CommUtil.getThisYear();
+        String format = "yyyy-MM";
+        DecimalFormat df = new DecimalFormat("0.00");
+        //===============================入离职统计begin====================================//
+        if (CommUtil.isBlank(entry_dimission_begin_time)
+            && CommUtil.isBlank(entry_dimission_end_time)) {
+            entry_dimission_begin_time = year + "-01";
+            entry_dimission_end_time = year + "-12";
+        } else if (CommUtil.isBlank(entry_dimission_begin_time)
+                   && CommUtil.isNotNull(entry_dimission_end_time)) {
+            year = CommUtil.getYear(entry_dimission_end_time, format);
+            entry_dimission_begin_time = year + "-01";
+        } else if (CommUtil.isNotNull(entry_dimission_begin_time)
+                   && CommUtil.isBlank(entry_dimission_end_time)) {
+            year = CommUtil.getYear(entry_dimission_begin_time, format);
+            entry_dimission_end_time = year + "-12";
+        }
+        int begin_year = CommUtil.getYear(entry_dimission_begin_time, format);
+        int begin_month = CommUtil.getMonth(entry_dimission_begin_time, format);
+        int end_year = CommUtil.getYear(entry_dimission_end_time, format);
+        int end_month = CommUtil.getMonth(entry_dimission_end_time, format);
+        if (begin_year == 0 || begin_month == 0 || end_year == 0 || end_month == 0
+            || begin_year > end_year || (end_year == begin_year && begin_month > end_month)
+            || (end_year - begin_year == 1 && end_month >= begin_month)
+            || (end_year - begin_year) >= 2) {
+            entry_dimission_begin_time = year + "-01";
+            entry_dimission_end_time = year + "-12";
+        }
+
+        List<String> entry_dimission_year_month_list = getYearMonthList(entry_dimission_begin_time,
+            entry_dimission_end_time);
+
+        Map<String, Object> user_entry_count_map = userService.user_entry_count(
+            entry_dimission_begin_time, entry_dimission_end_time, entry_dimission_year_month_list);
+        Map<String, Object> user_dimission_count_map = userService.user_dimission_count(
+            entry_dimission_begin_time, entry_dimission_end_time, entry_dimission_year_month_list);
+        Map<String, Object> resume_count_map = resumeService.resume_count(
+            entry_dimission_begin_time, entry_dimission_end_time, entry_dimission_year_month_list);
+        int user_count = userService.user_count(entry_dimission_begin_time,
+            entry_dimission_end_time);
+        Map<String, Object> entry_rate_map = new LinkedHashMap<String, Object>();
+        Map<String, Object> dimission_rate_map = new LinkedHashMap<String, Object>();
+        for (int i = 0; i < entry_dimission_year_month_list.size(); i++) {
+            String year_month = entry_dimission_year_month_list.get(i);
+            int entry_count = CommUtil.null2Int(user_entry_count_map.get(year_month));
+            int resume_count = CommUtil.null2Int(resume_count_map.get(year_month));
+            int dimission_count = CommUtil.null2Int(user_dimission_count_map.get(year_month));
+            if (resume_count == 0) {
+                entry_rate_map.put(year_month, 0);
+            } else {
+                entry_rate_map.put(year_month, df.format((float) entry_count * 100 / resume_count));
+            }
+            if (resume_count == 0 || user_count == 0) {
+                dimission_rate_map.put(year_month, 0);
+            } else {
+                dimission_rate_map.put(year_month,
+                    df.format((float) dimission_count * 100 / user_count));
+            }
+        }
+        
+        //处理入离职统计x轴
+        Map<Integer,String> entry_x_map = new LinkedHashMap<Integer,String>();
+        Set<String> keySet = entry_rate_map.keySet();
+        int i = 1 ;
+        for (String string : keySet) {
+        	String replace = string.replace("_", "-");
+        	entry_x_map.put(i, replace);
+			i++;
+		}
+        mv.addObject("entry_x_map", entry_x_map);
+        
+        mv.addObject("entry_rate_map", entry_rate_map);
+        mv.addObject("dimission_rate_map", dimission_rate_map);
+        mv.addObject("entry_dimission_begin_time", entry_dimission_begin_time);
+        mv.addObject("entry_dimission_end_time", entry_dimission_end_time);
+        //===============================入离职统计end====================================//
+
+        //===============================招聘统计begin====================================//
+        if (CommUtil.isBlank(recruit_begin_time) && CommUtil.isBlank(recruit_end_time)) {
+            recruit_begin_time = year + "-01";
+            recruit_end_time = year + "-12";
+        } else if (CommUtil.isBlank(recruit_begin_time) && CommUtil.isNotNull(recruit_end_time)) {
+            year = CommUtil.getYear(recruit_end_time, format);
+            recruit_begin_time = year + "-01";
+        } else if (CommUtil.isNotNull(recruit_begin_time) && CommUtil.isBlank(recruit_end_time)) {
+            year = CommUtil.getYear(recruit_begin_time, format);
+            recruit_end_time = year + "-12";
+        }
+        int begin_year2 = CommUtil.getYear(recruit_begin_time, format);
+        int begin_month2 = CommUtil.getMonth(recruit_begin_time, format);
+        int end_year2 = CommUtil.getYear(recruit_end_time, format);
+        int end_month2 = CommUtil.getMonth(recruit_end_time, format);
+        if (begin_year2 == 0 || begin_month2 == 0 || end_year2 == 0 || end_month2 == 0
+            || begin_year2 > end_year2 || (end_year2 == begin_year2 && begin_month2 > end_month2)
+            || (end_year2 - begin_year2 == 1 && end_month2 >= begin_month2)
+            || (end_year2 - begin_year2) >= 2) {
+            recruit_begin_time = year + "-01";
+            recruit_end_time = year + "-12";
+        }
+        List<String> recruit_year_month_list = getYearMonthList(recruit_begin_time,
+            recruit_end_time);
+
+        Map<String, Object> inform_interview_map = resumeService.resume_count(recruit_begin_time,
+            recruit_end_time, recruit_year_month_list);//通知面试人数
+        Map<String, Object> approval_employments_map = candidateHireApprovalService
+            .approval_is_hired_count(recruit_begin_time, recruit_end_time, recruit_year_month_list);//审批录用人数
+        Map<String, Object> actual_employment_map = userService.user_entry_count(
+            recruit_begin_time, recruit_end_time, recruit_year_month_list);//实际录用人数
+
+        
+        //处理招聘统计x轴
+        Map<Integer,String> inform_x_map = new LinkedHashMap<Integer,String>();
+        Set<String> informkeySet = inform_interview_map.keySet();
+        int k = 1 ;
+        for (String string : informkeySet) {
+        	String replace = string.replace("_", "-");
+        	inform_x_map.put(i, replace);
+			i++;
+		}
+        mv.addObject("inform_x_map", inform_x_map);
+        
+        
+        
+        mv.addObject("inform_interview_map", inform_interview_map);
+        mv.addObject("approval_employments_map", approval_employments_map);
+        mv.addObject("actual_employment_map", actual_employment_map);
+        mv.addObject("recruit_begin_time", recruit_begin_time);
+        mv.addObject("recruit_end_time", recruit_end_time);
+        //===============================招聘统计end====================================//
+
+        return mv;
+    }
+
+    public List<String> getYearMonthList(String beginTime, String endTime) {
+        String format = "yyyy-MM";
+        List<String> yearMonthList = new LinkedList<String>();
+        int begin_year = CommUtil.getYear(beginTime, format);
+        int begin_month = CommUtil.getMonth(beginTime, format);
+        int end_year = CommUtil.getYear(endTime, format);
+        int end_month = CommUtil.getMonth(endTime, format);
+        if (begin_year == end_year) {
+            for (int i = begin_month; i <= end_month; i++) {
+                if (i < 10) {
+                    yearMonthList.add(begin_year + "_0" + i);
+                } else {
+                    yearMonthList.add(begin_year + "_" + i);
+                }
+            }
+        } else if (end_year - begin_year == 1) {
+            for (int i = begin_month; i <= 12; i++) {
+                if (i < 10) {
+                    yearMonthList.add(begin_year + "_0" + i);
+                } else {
+                    yearMonthList.add(begin_year + "_" + i);
+                }
+            }
+            for (int i = 1; i <= end_month; i++) {
+                if (i < 10) {
+                    yearMonthList.add(end_year + "_0" + i);
+                } else {
+                    yearMonthList.add(end_year + "_" + i);
+                }
+            }
+        }
+        return yearMonthList;
+    }
+
+    private Map<String, Object> getUserEntryRate(Map<String, Object> user_entry_count,
+                                                 Map<String, Object> resume_count,
+                                                 String entry_dimission_begin_time,
+                                                 String entry_dimission_end_time) {
+
+        return resume_count;
+
+    }
+
+}

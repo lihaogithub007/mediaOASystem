@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<!--[if IE 8]> <html class="ie8"> <![endif]-->
+<!--[if IE 9]> <html class="ie9"> <![endif]-->
+<!--[if !IE]><!--> <html> <!--<![endif]-->
+<head>
+<meta charset="utf-8" />
+<title>新媒体智能管理系统</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+<meta content="" name="description" />
+<meta content="" name="author" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="renderer" content="webkit|ie-comp|ie-stand" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap-fileupload.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/font-awesome/css/font-awesome.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style_responsive.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style_default.css" rel="stylesheet" id="style_color" />
+<link href="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/fancybox/source/jquery.fancybox.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/toastr/toastr.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/uniform/css/uniform.default.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/My97DatePicker/skin/WdatePicker.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/css/custom/custom.css" rel="stylesheet" type="text/css" />
+</head>
+<body class="fixed-top">
+	<div id="header" class="navbar navbar-inverse navbar-fixed-top">
+		$!httpInclude.include("/common/_header.htm") 
+	</div>
+	<div id="container" class="row-fluid">
+		<div id="sidebar" class="nav-collapse collapse">
+			$!httpInclude.include("/common/_sidebar.htm?op=fixed_assets") 
+		</div>
+		<div id="main-content">
+			<div class="container-fluid">
+				<div class="row-fluid">
+					<div class="span12">
+						<h3 class="page-title">固定资产编辑</h3>
+						<ul class="breadcrumb">
+							<li><a href="$!webPath/index.htm"><i class="icon-home"></i></a><span class="divider">&nbsp;</span></li>
+					        <li><a href="javascript:void(0);">行政管理</a><span class="divider">&nbsp;</span></li>
+							<li><a href="$!webPath/admin/office/fixed_assets_edit.htm">固定资产编辑</a><span class="divider-last">&nbsp;</span></li>
+						</ul>
+					</div>
+				</div>
+				<div class="row-fluid">
+					<form name="theForm" id="theForm" action="$!webPath/admin/office/fixed_assets_edit_save.htm" method="post" class="form-horizontal">
+		            	<div class="span12">
+							<div class="widget">
+		                    	<div class="widget-title">
+		                        	<h4><i class="icon-reorder"></i>固定资产编辑</h4>
+		                     	</div>
+                     			<div class="widget-body form">
+		                        	<div class="control-group">
+		                        		<label class="control-label"><font class="red_font">*</font>设备终生码</label>
+	                                    <div class="controls">
+	                                        <input type="text" name="equipment_lifetime_number" value="$!obj.equipment_lifetime_number" id="equipment_lifetime_number"   placeholder="设备终生码" class="input-xlarge popovers" maxlength="50"
+	                                        	data-trigger="hover" data-content="输入设备终生码，最多50字符"/>
+	                                        <span class="help-inline"></span>
+	                                    </div>
+		                           	</div>
+	                                <div class="control-group">
+		                           		<label class="control-label"><font class="red_font">*</font>设备名称</label>
+		                              	<div class="controls">
+		                                 	<select data-placeholder="请选择设备名称"  class="input-xlarge chosen" tabindex="-1" name="equipment_id"  id="equipment_id">
+												<option value="">请选择设备名称</option>
+												#foreach($obj in $!equipments)
+						                        <option value="$!obj.id">$!obj.equipment_name</option>
+						                        #end
+						                        <option value="-1">其他</option>
+											</select>
+		                              	</div>
+		                           	</div>
+		                           	<div class="control-group" id="hid_div_wrap" style="display:none;">
+                                        <div class="controls" >
+                                             <input type="text" name="equipment_name" id="equipment_name" placeholder="设备名称" class="input-xlarge popovers" maxlength="50"
+                                                data-trigger="hover" data-content="输入设备名称，最多50字符"/>
+                                        </div>
+                                    </div>
+		                           	<div class="control-group">
+		                        		<label class="control-label"><font class="red_font">*</font>型号</label>
+	                                    <div class="controls">
+	                                        <input type="text" name="equipment_model" value="$!obj.equipment_model" placeholder="型号" class="input-xlarge popovers" maxlength="50"
+	                                        	data-trigger="hover" data-content="输入型号，最多50字符"/>
+	                                        <span class="help-inline"></span>
+	                                    </div>
+		                           	</div>
+		                           	<div class="control-group">
+		                        		<label class="control-label"><font class="red_font">*</font>序列号</label>
+	                                    <div class="controls">
+	                                        <input type="text" name="serial_number"  value="$!obj.serial_number" placeholder="序列号" class="input-xlarge popovers" maxlength="50"
+	                                        	data-trigger="hover" data-content="输入序列号,最多50字符"/>
+	                                        <span class="help-inline"></span>
+	                                    </div>
+		                           	</div>
+		                           	<div class="control-group">
+		                        		<label class="control-label"><font class="red_font">*</font>单价</label>
+	                                    <div class="controls">
+	                                        <input type="text" name="unit_price" value="$!obj.unit_price" placeholder="单价" class="input-xlarge popovers" maxlength="13"
+	                                        	data-trigger="hover" data-content="输入单价, 只能输入数字"/>
+	                                        <span class="help-inline"></span>
+	                                    </div>
+		                           	</div>
+		                           	<div class="control-group">
+		                        		<label class="control-label"><font class="red_font">*</font>生产厂家</label>
+	                                    <div class="controls">
+	                                        <input type="text" name="manufacturer_name" value="$!obj.manufacturer_name" placeholder="生产厂家" class="input-xlarge popovers" maxlength="50"
+	                                        	data-trigger="hover" data-content="输入生产厂家,最多50字符"/>
+	                                        <span class="help-inline"></span>
+	                                    </div>
+		                           	</div>
+		                           	<div class="control-group">
+		                           		<label class="control-label">使用人</label>
+		                              	<div class="controls">
+		                                 	<select data-placeholder="请选择使用人"  class="input-xlarge chosen" tabindex="-1" name="user_id" id="user_id">
+												<option value="">请选择使用人</option>
+												#foreach($obj in $!users)
+						                        <option value="$!obj.id">$!{obj.true_name}($!obj.department.department_name)</option>
+						                        #end
+											</select>
+		                              	</div>
+		                           	</div>
+		                           	<div class="control-group">
+		                        		<label class="control-label">工作证号</label>
+	                                    <div class="controls">
+	                                        <input type="text" name="user_card_number" value="$!obj.user_card_number" readonly="readonly" id="user_card_number" placeholder="工作证号" class="input-xlarge popovers" maxlength="50"
+	                                        	data-trigger="hover" data-content="输入工作证号, 只能输入数字"/>
+	                                        <span class="help-inline"></span>
+	                                    </div>
+		                           	</div>
+		                           	<div class="control-group">
+		                        		<label class="control-label">使用部门</label>
+	                                    <div class="controls">
+	                                        <input type="text" name="user_company" value="$!obj.user_company" readonly="readonly" placeholder="使用部门" class="input-xlarge popovers" maxlength="50"
+	                                        	data-trigger="hover" />
+	                                        <span class="help-inline"></span>
+	                                    </div>
+		                           	</div>
+		                           	<div class="control-group">
+		                        		<label class="control-label">设备位置</label>
+	                                    <div class="controls">
+	                                        <input type="text" name="equipment_place" value="$!obj.equipment_place" placeholder="设备位置" class="input-xlarge popovers" maxlength="50"
+	                                        	data-trigger="hover" data-content="输入设备位置,最多50字符"/>
+	                                        <span class="help-inline"></span>
+	                                    </div>
+		                           	</div>
+		                           	<div class="control-group">
+		                            	<label class="control-label">备注</label>
+		                              	<div class="controls">
+		                                	<textarea class="span6" name="remark"  id="remark" rows="3">$!obj.remark</textarea>
+		                              	</div>
+		                           </div>
+                           			<div class="form-actions">
+                           				<input type="button" id="btn_submit" class="btn btn-primary" value="保存"/>
+                           				<a href="$!webPath/admin/office/fixed_assets_list.htm?currentPage=$!currentPage" class="btn">返回</a>
+                           			</div>
+	                     		</div>
+	                  		</div>
+		                </div>
+		                <input type="hidden" name="currentPage" id="currentPage" value="$!currentPage"/>
+		                <input type="hidden" name="id" value="$!obj.id"/>
+				  	</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="footer">
+		$!httpInclude.include("/common/_footer.htm")	
+	</div>
+	<script src="$!webPath/resources/js/jquery-1.8.3.min.js"></script>
+    <script src="$!webPath/resources/assets/bootstrap/js/bootstrap.min.js"></script>   
+    <script src="$!webPath/resources/js/jquery.blockui.js"></script>
+    <!-- ie8 fixes -->
+    <!--[if lt IE 9]>
+    <script src="$!webPath/resources/js/excanvas.js"></script>
+    <script src="$!webPath/resources/js/respond.js"></script>
+    <![endif]-->   
+    <script src="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.jquery.js" type="text/javascript"></script>
+    <script src="$!webPath/resources/assets/uniform/jquery.uniform.min.js" type="text/javascript"></script>
+    <script src="$!webPath/resources/js/jquery.validate.min.js" type="text/javascript" ></script>
+	<script src="$!webPath/resources/js/jquery.validate.ext.js" type="text/javascript" ></script>
+	<script src="$!webPath/resources/js/jquery.form.min.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/assets/My97DatePicker/WdatePicker.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/assets/toastr/toastr.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/js/scripts.js"></script>
+    <script src="$!webPath/resources/js/custom/common.js"></script>
+    <script>
+	jQuery(document).ready(function() { 
+		jQuery("#equipment_id").val("$!obj.equipment.id");
+		jQuery("#equipment_id").trigger("chosen:updated");
+		jQuery("#user_id").val("$!obj.user.id");
+		jQuery("#user_id").trigger("chosen:updated");
+		App.init();
+		initToastr();
+		jqueryValidate();
+		bindEvent();
+		bindChangeEvent();
+	});
+	function jqueryValidate(){
+		jQuery("#theForm").validate({
+			errorPlacement : function(error, element) { 
+				$(error).appendTo($(element).parent()); 
+			},
+			rules:{
+				equipment_lifetime_number:{
+					required:true,
+					//isMobile:[],
+					remote:{
+						url: "$!webPath/verify_equipment_lifetime_number.htm",     //后台处理程序
+				        type: "post",               //数据发送方式
+				        dataType:"json",           //接受数据格式   
+				        data: {                     //要传递的数据
+				        	"fixed_assets_id":"$!obj.id",
+				        	"equipment_lifetime_number": function(){
+				        		return jQuery("#equipment_lifetime_number").val();
+				        	}
+						}
+					} 
+				},
+				equipment_name:{
+					required:true,
+					remote:{
+						url: "$!webPath/verify_equipment_name.htm",     //后台处理程序
+				        type: "post",               //数据发送方式
+				        dataType:"json",           //接受数据格式   
+				        data: {                     //要传递的数据
+				        	"equipment_name": function(){
+				        		return jQuery("#equipment_name").val();
+				        	}
+						}
+					} 
+				},
+				equipment_id:{required:true},
+				equipment_model:{required:true},
+				serial_number:{required:true},
+				unit_price:{isDouble:[],required:true},
+				manufacturer_name :{required:true},
+				user_id:{required:true}
+	       	},
+			messages:{
+				equipment_lifetime_number:{
+	      			required:"设备终身码不能为空",
+					remote:"设备终身码已存在,不能重复" 
+	      		},
+	      		equipment_name:{
+	      			required:"设备名称不能为空",
+					remote:"设备名称已存在,不能重复" 
+	      		},
+	      		equipment_id:{required:"请选择设备名称"},
+				equipment_model:{required:"型号不能为空"},
+	      		serial_number:{required:"序列号不能为空"},
+	      		unit_price:{required:"单价不能为空"},
+	      		manufacturer_name:{required:"生产厂家不能为空"},
+	      		user_id:{required:"使用人不能为空"}
+			}
+		}); 
+		var validator = $("#theForm").data("validator");
+        validator.settings.ignore = ":hidden:not(select)";
+	}
+	function bindEvent(){
+		jQuery("#btn_submit").bind("click", function(){
+			if (jQuery("#theForm").valid()) {
+				jQuery("#loadingBar").show();
+				ajaxFormSubmit('theForm','defaultAjaxSaveCallBack');
+			}
+		});
+	}
+	function unBindEvent(){
+		jQuery("#btn_submit").unbind();
+	}
+	
+	function bindChangeEvent(){
+        jQuery("#equipment_id").change(function(){
+            var val = jQuery(this).val();
+            if("-1"==val){
+                showFunc();
+                addRule();
+            }else{
+                removeRule();
+                hideFunc();
+            }
+        });
+    }
+    function addRule(){
+        $("#equipment_name").rules("add",{ 
+            required:true,
+            messages:{
+                required:"设备名称不能为空"
+            }
+        });  
+    }
+    function removeRule(){
+        $("#equipment_name").rules("remove");
+    }
+    function showFunc(){
+        $("#hid_div_wrap").show();
+    }
+    function hideFunc(){
+        $("#hid_div_wrap").hide();
+    }
+	
+	
+	/* //选择其他跳转到添加设备页面
+	jQuery("#equipment_id").change(function(){
+		if(jQuery("#equipment_id").val() == "addEquipment"){
+			window.location.href="$!webPath/admin/syscfg/equipment_add.htm;"
+			 $("#equipment_id").removeAttr("name");
+			$("#addEquipment1").attr("type":"text");
+			$("#addEquipment1").attr("name":"equipment_id");
+			jQuery("#equipment_id").trigger("chosen:updated");
+			jQuery("#addEquipment1").trigger("chosen:updated"); 
+		} 
+		
+	})  */
+	
+	//自动显示工作证号
+	jQuery("#user_id").change(function(){
+		jQuery.ajax({
+			type : "post",
+			url : "$!webPath/admin/user/ajaxQueryUserCardNumber.htm",
+			data : {//设置数据源
+				id : jQuery(this).val()
+			},
+			dataType : "json",//设置需要返回的数据类型
+			success : function(data) {
+				//console.log(data);
+				jQuery("#user_card_number").val(data.data);
+			},
+			error : function() {
+				alert("系统异常，请稍后重试！");
+			}
+		});
+	}) 
+	</script>
+</body>
+</html>

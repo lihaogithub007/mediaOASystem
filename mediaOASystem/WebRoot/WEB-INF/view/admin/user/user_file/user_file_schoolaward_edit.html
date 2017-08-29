@@ -1,0 +1,91 @@
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="$!webPath/resources/css/style.css" rel="stylesheet"/>
+<link href="$!webPath/resources/assets/toastr/toastr.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/css/custom/resume.css" rel="stylesheet" type="text/css" />
+<form name="schoolawardForm" id="schoolawardForm" action="" method="post" class="form-horizontal">
+<div class="bd com" id="schoolaward_modify_$!userSchoolaward.id">
+    <div class="con">
+        <div class="c">
+            <label>获奖时间</label><i>*</i>
+            <div class="h30">
+                <div class="sh">
+                	<input type="text" name="award_date" id="award_date"  value="$!CommUtil.parseShortDateTime($!userSchoolaward.award_date)" 
+                		onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',maxDate:'%y-%M-%d'})" class="ef input-xlarge" readonly="readonly"/>
+                </div>
+                <div class="err"></div>
+            </div>
+        </div>
+        <div class="c">
+            <label>奖项名称</label><i>*</i>
+            <div class="h30">
+                <div class="sh">
+                	<input type="text" name="award_name" id="award_name" value="$!userSchoolaward.award_name" class="ef input-xlarge" maxlength="50"/>
+                </div>
+                <div class="err"></div>
+            </div>
+        </div>
+        <div class="c">
+            <label>奖项等级</label><i>*</i>
+            <div class="h30">
+                <div class="sh">
+                	<input type="text" name="award_level" id="award_level" value="$!userSchoolaward.award_level" class="ef input-xlarge" maxlength="50"/>
+                </div>
+                <div class="err"></div>
+            </div>
+        </div>
+        <div class="c">
+            <label>颁发单位</label><i>*</i>
+            <div class="h30">
+                <div class="sh">
+                	<input type="text" name="award_unit" id="award_unit" value="$!userSchoolaward.award_unit" class="ef input-xlarge" maxlength="50"/>
+                </div>
+                <div class="err"></div>
+            </div>
+        </div>
+    </div>
+    <div class="btnbox">
+        <span class="p_but" id="schoolaward_save_$!userSchoolaward.id" onclick="saveButtonClick(this,'schoolawardForm');">保存</span>
+        <span class="p_but gray" id="schoolaward_cancel_$!userSchoolaward.id" onclick="cancelButtonClick(this)">取消</span>
+    </div>
+</div>
+<input type="hidden" name="user_schoolaward_id" value="$!userSchoolaward.id"/>
+</form>
+<script src="$!webPath/resources/js/jquery-1.8.3.min.js"></script>
+<script src="$!webPath/resources/assets/bootstrap/js/bootstrap.min.js"></script>
+<script src="$!webPath/resources/assets/toastr/toastr.js" type="text/javascript" ></script>
+<script src="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.jquery.js" type="text/javascript"></script>
+<script src="$!webPath/resources/js/jquery.validate.min.js" type="text/javascript" ></script>
+<script src="$!webPath/resources/js/jquery.validate.ext.js" type="text/javascript" ></script>
+<script src="$!webPath/resources/js/jquery.form.min.js" type="text/javascript" ></script>
+<script>
+$(document).ready(function() {
+	App.init();
+	jqueryValidate();
+});
+function jqueryValidate(){
+	jQuery("#schoolawardForm").validate({   
+		errorElement : "span",
+		errorPlacement : function(error, element) { 
+			$(error).appendTo($(element).parent().siblings("div.err"));
+		},
+		onfocusout : function(element) {
+	        $(element).valid();
+	    },
+		rules:{     
+			award_date:{required:true},
+			award_name:{required:true},
+			award_level:{required:true},
+			award_unit:{required:true},
+       	},
+		messages:{
+			award_date:{required:"请选择获奖时间"},
+			award_name:{required:"请输入奖项名称"},
+			award_level:{required:"请输入奖项等级"},
+			award_unit:{required:"请输入颁发单位"},
+		}
+	}); 
+	var validator = $("#schoolawardForm").data("validator");
+    validator.settings.ignore = ":hidden:not(select)";
+}
+</script>

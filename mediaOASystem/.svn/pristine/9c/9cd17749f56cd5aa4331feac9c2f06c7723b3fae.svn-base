@@ -1,0 +1,4 @@
+$!httpInclude.include("/common/copyright.htm")
+<div id="loadingBar" style="position:fixed;top:0%;left:0%;z-index:999999;height:100%;width:100%;background:#000;opacity:0.4;filter:alpha(opacity-40);display:none;">
+	<img src="$!webPath/resources/img/loader.gif" width="31px" height="31px" style="position:absolute;z-index:999999;top:50%;left:50%;margin-top:-15.5px;margin-left:-15.5px;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;" alt="" />
+</div>

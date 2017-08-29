@@ -1,0 +1,119 @@
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="$!webPath/resources/css/style.css" rel="stylesheet"/>
+<link href="$!webPath/resources/assets/toastr/toastr.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/css/custom/resume.css" rel="stylesheet" type="text/css" />
+<form name="educationForm" id="educationForm" action="" method="post" class="form-horizontal">
+<div class="bd com" id="education_modify_$!resumeEducation.id">
+    <div class="con">
+        <div class="c">
+            <label>入学时间</label><i>*</i>
+            <div class="h30">
+                <div class="sh">
+                	<input type="text" name="admission_date" id="admission_date" value="$!CommUtil.parseShortDateTime($!resumeEducation.admission_date)" 
+     					onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',maxDate:'#F{$dp.$D(\'graduation_date\')}'})" class="ef input-xlarge" readonly="readonly"/>
+                </div>
+                <div class="err"></div>
+            </div>
+        </div>
+        <div class="c">
+            <label>毕业时间</label><i>*</i>
+            <div class="h30">
+                <div class="sh">
+                	<input type="text" name="graduation_date" id="graduation_date"  value="$!CommUtil.parseShortDateTime($!resumeEducation.graduation_date)" 
+                		onfocus="WdatePicker({dateFmt:'yyyy-MM-dd', minDate:'#F{$dp.$D(\'admission_date\')}',maxDate:'%y-%M-%d'})" class="ef input-xlarge" readonly="readonly"/>
+                </div>
+                <div class="err"></div>
+            </div>
+        </div>
+        <div class="c">
+            <label>学校</label><i>*</i>
+            <div class="h30">
+                <div class="sh">
+                	<input type="text" name="edu_school_name" id="edu_school_name" value="$!resumeEducation.edu_school_name" class="ef input-xlarge" maxlength="50"/>
+                </div>
+                <div class="err"></div>
+            </div>
+        </div>
+        <div class="c">
+            <label>专业</label>
+            <div class="h30">
+                <div class="sh">
+                	<input type="text" name="edu_major" id="edu_major" value="$!resumeEducation.edu_major" class="ef input-xlarge" maxlength="50"/>
+                </div>
+                <span class="f12">*高中以上学历请填写所学专业</span>
+                <div class="err"></div>
+                
+            </div>
+        </div>
+        <div class="c">
+            <label>学习性质</label>
+            <div class="h30">
+                <div class="sh">
+                	<select data-placeholder="请选择学习性质" class="input-xlarge chosen" name="edu_type" id="edu_type">
+						<option value="">请选择学习性质</option>
+						#foreach($key in ${edu_type_map.keySet()})
+		                <option value="$key">${edu_type_map.get($key)}</option>
+		                #end
+					</select>
+                </div>
+                <div class="err"></div>
+            </div>
+        </div>
+        <div class="c">
+            <label>学位</label>
+            <div class="h30">
+                <div class="sh">
+                	<input type="text" name="edu_offering" id="edu_offering" value="$!resumeEducation.edu_offering" class="ef input-xlarge" maxlength="50"/>
+                </div>
+                <span class="f12">*高中以上学历请填写学位</span>
+                <div class="err"></div>
+            </div>
+        </div>
+    </div>
+    <div class="btnbox">
+        <span class="p_but" id="education_save_$!resumeEducation.id" onclick="saveButtonClick(this,'educationForm');">保存</span>
+        <span class="p_but gray" id="education_cancel_$!resumeEducation.id" onclick="cancelButtonClick(this)">取消</span>
+    </div>
+</div>
+<input type="hidden" name="resume_education_id" value="$!resumeEducation.id"/>
+</form>
+<script src="$!webPath/resources/js/jquery-1.8.3.min.js"></script>
+<script src="$!webPath/resources/assets/bootstrap/js/bootstrap.min.js"></script>
+<script src="$!webPath/resources/assets/toastr/toastr.js" type="text/javascript" ></script>
+<script src="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.jquery.js" type="text/javascript"></script>
+<script src="$!webPath/resources/js/jquery.validate.min.js" type="text/javascript" ></script>
+<script src="$!webPath/resources/js/jquery.validate.ext.js" type="text/javascript" ></script>
+<script src="$!webPath/resources/js/jquery.form.min.js" type="text/javascript" ></script>
+<script>
+$(document).ready(function() {
+	
+	jQuery("#edu_type").val("$!{resumeEducation.edu_type}");
+	jQuery("#edu_type").trigger("chosen:updated");
+	App.init();
+	jqueryValidate();
+});
+function jqueryValidate(){
+	jQuery("#educationForm").validate({   
+		errorElement : "span",
+		errorPlacement : function(error, element) { 
+			$(error).appendTo($(element).parent().siblings("div.err"));
+		},
+		onfocusout : function(element) {
+	        $(element).valid();
+	    },
+		rules:{     
+			admission_date:{required:true},
+			graduation_date:{required:true},
+			edu_school_name:{required:true},
+       	},
+		messages:{
+			admission_date:{required:"请选择入学时间"},
+			graduation_date:{required:"请选择毕业时间"},
+			edu_school_name:{required:"请输入就读院校"},
+		}
+	}); 
+	var validator = $("#educationForm").data("validator");
+    validator.settings.ignore = ":hidden:not(select)";
+}
+</script>

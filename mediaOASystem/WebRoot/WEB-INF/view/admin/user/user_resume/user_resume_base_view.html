@@ -1,0 +1,104 @@
+<div class="head" id="Basic">
+	<div class="name" title="$!resume.name">$!CommUtil.substring($!resume.name,20)</div>
+    	<p class="at">
+        	应聘岗位：$!{resume.duty.duty_name}
+  			#if("1"=="$!resume.sex" || "2"=="$!resume.sex") &nbsp;│&nbsp; $!sex_map.get("$!resume.sex") #end
+  			#if(""!="$!resume.birthday") 
+  			&nbsp;│&nbsp; $!CommUtil.getAge($!resume.birthday)岁($!CommUtil.parseDateTime("yyyy/MM/dd",$!resume.birthday))
+			#end
+		</p>
+       	<div class="tab">
+           	<span class="email icons at" title="$!resume.email">$!resume.email</span>&nbsp;
+           	<span class="tel icons">$!resume.mobile</span>
+       	</div>
+       	<div class="abox">
+           	<div class="mbox" onclick="showMoreClickEvent(this)">
+            <span class="icons">更多展开</span><em class="icons"></em>
+		</div>
+        <div class="all">
+        	<div class="e e2_base clear_left">
+			    <label>目前薪资</label><i>：</i><div>&nbsp;$!{resume.current_salary}&nbsp;元&nbsp;(税前)</div>
+			</div>
+			<div class="e e2_base">
+			    <label>期望薪资</label><i>：</i><div>&nbsp;$!{resume.expect_salary}&nbsp;元&nbsp;(税前)</div>
+			</div>
+			<div class="e e2_base clear_left">
+			    <label>可到岗时间</label><i>：</i><div>&nbsp;$!resume.available_time</div>
+			</div>
+			<div class="e e2_base">
+			    <label>政治面貌</label><i>：</i><div>&nbsp;$!political_status_map.get("$!resume.political_status")</div>
+			</div>
+			<div class="e e2_base clear_left">
+			    <label>国籍</label><i>：</i><div>&nbsp;$!resume.nationality</div>
+			</div>
+			<div class="e e2_base">
+			    <label>民族</label><i>：</i><div>&nbsp;$!resume.nation</div>
+			</div>
+			<div class="e e2_base clear_left">
+			    <label>婚姻状况</label><i>：</i><div>&nbsp;$!marriage_status_map.get("$!resume.marriage_status")</div>
+			</div>
+			<div class="e e2_base">
+			    <label>子女情况</label><i>：</i><div>&nbsp;$!resume.condition_of_children</div>
+			</div>
+			<div class="e e2_base clear_left">
+			    <label>身高</label><i>：</i><div>&nbsp;$!resume.stature&nbsp;cm</div>
+			</div>
+			<div class="e e2_base">
+			    <label>体重</label><i>：</i><div>&nbsp;$!resume.body_weight&nbsp;kg</div>
+			</div>
+			<div class="e e2_base clear_left">
+			    <label>健康状况</label><i>：</i><div>&nbsp;$!resume.health_condition</div>
+			</div>
+			<div class="e e2_base">
+			    <label>过往病史</label><i>：</i><div>&nbsp;$!resume.past_illness_history</div>
+			</div>
+			<div class="e e2_base clear_left">
+			    <label>最高学历</label><i>：</i><div>&nbsp;$!resume.highest_education</div>
+			</div>
+			<div class="e e2_base">
+			    <label>毕业院校</label><i>：</i><div>&nbsp;$!resume.graduate_school</div>
+			</div>
+			<div class="e e2_base clear_left">
+			    <label>专业</label><i>：</i><div>&nbsp;$!resume.major</div>
+			</div>
+			<div class="e e2_base clear_left">
+			    <label>外语种类/水平</label><i>：</i><div>&nbsp;$!resume.foreign_language_level</div>
+			</div>
+			<div class="e e2_base">
+			    <label>计算机水平</label><i>：</i><div>&nbsp;$!resume.computer_skill</div>
+			</div>
+			<div class="e e2_base clear_left">
+			    <label>获得职称</label><i>：</i><div>&nbsp;$!resume.job_titles</div>
+			</div>
+			<div class="e e2_base">
+			    <label>资格证书</label><i>：</i><div>&nbsp;$!resume.qualification_certificate</div>
+			</div>
+			<div class="e e2_base clear_left">
+			    <label>户口所在地</label><i>：</i><div>&nbsp;$!resume.domicile_place</div>
+			</div>
+			<div class="e e2_base">
+			    <label>身份证号</label><i>：</i><div>&nbsp;$!resume.ID_number</div>
+			</div>
+			<div class="e e2_base clear_left">
+			    <label>家庭地址</label><i>：</i><div>&nbsp;$!resume.home_address</div>
+			</div>
+			<div class="e e2_base">
+			    <label>在京居住地址</label><i>：</i><div>&nbsp;$!resume.present_address</div>
+			</div>
+			<div class="e e2_base clear_left">
+			    <label>工作年限</label><i>：</i><div>&nbsp;$!resume.work_years</div>
+			</div>
+			<div class="e e2_base">
+			    <label>同行工作年限</label><i>：</i><div>&nbsp;$!resume.same_industry_work_years</div>
+			</div>
+			<div class="e e2_base clear_left" style="width:800px;">
+			    <label>兴趣爱好</label><i>：</i><div>&nbsp;$!resume.hobby_and_interest</div>
+			</div>
+			<div class="e e2_base clear_left" style="width:800px;">
+			    <label>技能专长</label><i>：</i><div>&nbsp;$!resume.skills</div>
+			</div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+<span class="ed_icon_blue icons" id="basedetail_edit" onclick="editButtonClick(this)"></span><span class="ed_icon_yellow icons"></span>

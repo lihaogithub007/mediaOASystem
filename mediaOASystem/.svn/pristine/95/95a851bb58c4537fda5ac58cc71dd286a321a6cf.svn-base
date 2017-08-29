@@ -1,0 +1,29 @@
+#if($!userSchoolawardList && $!userSchoolawardList.size()>0)
+	#foreach($obj in $!userSchoolawardList)
+	<div class="bd" id="schoolaward_view_$!obj.id">
+        <div class="con edit ebox">
+            <div class="e">
+			    <label>获奖时间</label><i>：</i>
+			    <div>&nbsp;$!CommUtil.parseDateTime("yyyy-MM-dd",$!obj.award_date)</div>
+			</div>
+            <div class="e">
+			    <label>奖项名称</label><i>：</i>
+			    <div>&nbsp;$!obj.award_name</div>
+			</div>
+			<div class="e">
+			    <label>奖项等级</label><i>：</i>
+			    <div>&nbsp;$!obj.award_level</div>
+			</div>
+			<div class="e">
+			    <label>颁发单位</label><i>：</i>
+			    <div>&nbsp;$!obj.award_unit</div>
+			</div>
+            <div class="clearfix"></div>
+            <span class="ed_icon"><em class="edi icons" id="schoolaward_edit_$!obj.id" onclick="editButtonClick(this)"></em>
+            <em class="del icons" id="schoolaward_delete_$!obj.id" onclick="deleteButtonClick(this)"></em></span>
+         </div>
+     </div>
+	#end
+#else
+	<div class="none icons" id="schooljob_empty">没有获奖记录！</div>
+#end

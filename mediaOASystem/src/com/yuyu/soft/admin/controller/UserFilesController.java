@@ -1,0 +1,690 @@
+package com.yuyu.soft.admin.controller;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.yuyu.soft.base.controller.BaseController;
+import com.yuyu.soft.base.mv.JModelAndView;
+import com.yuyu.soft.entity.Attachments;
+import com.yuyu.soft.entity.User;
+import com.yuyu.soft.entity.UserContract;
+import com.yuyu.soft.entity.UserContractRenewal;
+import com.yuyu.soft.entity.UserEducation;
+import com.yuyu.soft.entity.UserFamilyMember;
+import com.yuyu.soft.entity.UserPhoto;
+import com.yuyu.soft.entity.UserSchoolaward;
+import com.yuyu.soft.entity.UserWork;
+import com.yuyu.soft.service.IAttachmentsService;
+import com.yuyu.soft.service.IDepartmentService;
+import com.yuyu.soft.service.IDutyService;
+import com.yuyu.soft.service.IUserContractRenewalService;
+import com.yuyu.soft.service.IUserContractService;
+import com.yuyu.soft.service.IUserEducationService;
+import com.yuyu.soft.service.IUserFamilyMemberService;
+import com.yuyu.soft.service.IUserPhotoService;
+import com.yuyu.soft.service.IUserSchoolawardService;
+import com.yuyu.soft.service.IUserService;
+import com.yuyu.soft.service.IUserWorkService;
+import com.yuyu.soft.util.CacheUtils;
+import com.yuyu.soft.util.CommUtil;
+import com.yuyu.soft.util.Constants;
+import com.yuyu.soft.util.JsonUtil;
+import com.yuyu.soft.util.ResultMsg;
+import com.yuyu.soft.util.sms.MeilianSmsSender;
+
+/**
+ * 人事档案管理                      
+ * @Filename: UserFilesController.java
+ * @Version: 1.0
+ * @Author: 李明
+ * @Email: limn_xmj@163.com
+ *
+ */
+@Controller
+public class UserFilesController {
+
+    protected static final Log          log = LogFactory.getLog(UserFilesController.class);
+    @Resource
+    private IUserService                userService;
+    @Resource
+    private IDepartmentService          departmentService;
+    @Resource
+    private IDutyService                dutyService;
+    @Resource
+    private IUserWorkService            userWorkService;
+    @Resource
+    private IUserEducationService       userEducationService;
+    @Resource
+    private IUserSchoolawardService     userSchoolawardService;
+    @Resource
+    private IUserFamilyMemberService    userFamilyMemberService;
+    @Resource
+    private IUserContractService        userContractService;
+    @Resource
+    private IUserContractRenewalService userContractRenewalService;
+    @Resource
+    private IAttachmentsService         attachmentsService;
+    @Resource
+    private IUserPhotoService           userPhotoService;
+
+    /**
+     * 手机号验证页面
+     */
+    @RequestMapping({ "/user/user_file_mobile_validate.htm" })
+    public ModelAndView user_list(HttpServletRequest request, HttpServletResponse response) {
+        ModelAndView mv = new JModelAndView("admin/user/user_file/user_file_mobile_validate.html",
+            request, response);
+        return mv;
+    }
+
+    /**
+     * 获取手机号验证码
+     */
+    @RequestMapping({ "/getUserFileMobileCheckCode.htm" })
+    public void getUserFileMobileCheckCode(HttpServletRequest request,
+                                           HttpServletResponse response, String mobile) {
+        ResultMsg rmg = CommUtil.setResultMsgData(null, true, "短信发送成功");
+        if (CommUtil.isBlank(mobile)) {
+            CommUtil.setResultMsgData(rmg, false, "手机号不能为空");
+        }
+        mobile = mobile.trim();
+        if (rmg.getResult() && !CommUtil.matcherMobile(mobile)) {
+            CommUtil.setResultMsgData(rmg, false, "手机号格式不正确");
+        }
+        if (rmg.getResult()) {
+            List<User> users = userService.queryUserByMobile(mobile);
+            if (users.isEmpty()) {
+                CommUtil.setResultMsgData(rmg, false, "该手机号用户不存在，请联系管理员添加该手机号用户");
+            } else if (users.size() > 1) {
+                CommUtil.setResultMsgData(rmg, false, "查询到该手机号绑定多个用户，请联系管理员处理");
+            } else if (users.get(0).getArchive_status()) {
+                CommUtil.setResultMsgData(rmg, false, "该手机号用户人事档案已归档，不能进行编辑");
+            } else {
+                String code = CommUtil.randomString(4).toUpperCase();
+                String content = "您好，此短信为新媒体智能管理系统人事档案编辑验证短信，验证码为：" + code + "，如非本人操作请忽略";
+                boolean ret = false;
+                try {
+                    ret = MeilianSmsSender.sendMsg(mobile, content);
+                    log.info(content);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                if (ret) {
+                    String name = users.get(0).getTrue_name();
+                    CacheUtils.put("user_file_mobile_check_code", name + "_" + mobile, code);
+                } else {
+                    CommUtil.setResultMsgData(rmg, false, "短信发送失败");
+                }
+            }
+        }
+
+        JsonUtil.writeMsg(response, JsonUtil.write2JsonStr(rmg));
+    }
+
+    /**
+     * 验证手机号、验证码
+     */
+    @RequestMapping({ "/user/user_file_mobile_check.htm" })
+    public void user_file_mobile_check(HttpServletRequest request, HttpServletResponse response,
+                                       String mobile, String code) {
+        ResultMsg rmg = CommUtil.setResultMsgData(null, true, "验证码验证成功");
+        if (CommUtil.isBlank(mobile)) {
+            CommUtil.setResultMsgData(rmg, false, "手机号不能为空");
+        }
+        mobile = mobile.trim();
+        if (rmg.getResult() && !CommUtil.matcherMobile(mobile)) {
+            CommUtil.setResultMsgData(rmg, false, "手机号格式不正确");
+        }
+        if (rmg.getResult() && CommUtil.isBlank(code)) {
+            CommUtil.setResultMsgData(rmg, false, "验证码不能为空");
+        }
+        if (rmg.getResult()) {
+            mobile = mobile.trim();
+            List<User> users = userService.queryUserByMobile(mobile);
+            if (users.isEmpty()) {
+                CommUtil.setResultMsgData(rmg, false, "该手机号用户不存在，请联系管理员添加该手机号用户");
+            } else if (users.size() > 1) {
+                CommUtil.setResultMsgData(rmg, false, "查询到该手机号绑定多个用户，请联系管理员处理");
+            } else {
+                User user = users.get(0);
+                Object cache_code = CacheUtils.get("user_file_mobile_check_code",
+                    user.getTrue_name() + "_" + mobile);
+
+                if (!CommUtil.isNotNull(cache_code)) {
+                    CommUtil.setResultMsgData(rmg, false, "非验证码手机或验证码已失效，请重新获取验证");
+                } else if (!code.trim().equalsIgnoreCase(cache_code.toString())) {
+                    CommUtil.setResultMsgData(rmg, false, "验证码不正确");
+                } else {
+                    Map<String, Object> map = new HashMap<String, Object>();
+                    map.put("mobile", mobile);
+                    map.put("code", code);
+                    map.put("old_url", "/user_file_mobile_check.htm?mobile=" + mobile);
+                    rmg.setData(map);
+                }
+            }
+        }
+        JsonUtil.writeMsg(response, JsonUtil.write2JsonStr(rmg));
+    }
+
+    /**
+     * 人事档案编辑页面
+     */
+    @RequestMapping({ "/user/user_file_edit.htm" })
+    public ModelAndView user_file_edit(HttpServletRequest request, HttpServletResponse response,
+                                       String hid_mobile, String hid_code, String hid_url) {
+        if (CommUtil.isBlank(hid_mobile) || CommUtil.isBlank(hid_code) || CommUtil.isBlank(hid_url)
+            || hid_url.trim().indexOf("user_file_mobile_check.htm?mobile=" + hid_mobile) < 0) {
+            return new JModelAndView("admin/user/user_file/user_file_mobile_validate.html",
+                request, response);
+        }
+        List<User> users = userService.queryUserByMobile(hid_mobile.trim());
+        if (users.isEmpty()) {
+            return CommUtil.fullErrorPage(CommUtil.getURL(request)
+                                          + "/user/user_file_mobile_validate.htm",
+                "该手机号用户不存在，请联系管理员添加该手机号用户", request, response);
+        } else if (users.size() > 1) {
+            return CommUtil.fullErrorPage(CommUtil.getURL(request)
+                                          + "/user/user_file_mobile_validate.htm",
+                "查询到该手机号绑定多个用户，请联系管理员处理", request, response);
+        }
+        ModelAndView mv = new JModelAndView("admin/user/user_file/user_file_edit.html", request,
+            response);
+        User user = users.get(0);
+        mv.addObject("user", user);
+        mv.addObject("userWorkList", userWorkService.queryUserWork(user.getId()));//工作经历
+        mv.addObject("userEducationList", userEducationService.queryUserEducation(user.getId()));//教育经历
+        mv.addObject("userSchoolawardList",
+            userSchoolawardService.queryUserSchoolaward(user.getId()));//所获奖项
+        mv.addObject("userFamilyMemberList",
+            userFamilyMemberService.queryUserFamilyMember(user.getId()));//家庭成员
+        mv.addObject("userContractRenewalList",
+            userContractRenewalService.queryUserContractRenewal(user.getId()));//续签合同
+
+        mvAddAttachments(mv, "", user);
+        mv.addObject("user_relationship_map", Constants.USER_RELATIONSHIP_MAP);//员工关系
+        mv.addObject("blood_type_map", Constants.BLOOD_TYPE_MAP);//血型
+        mv.addObject("sex_map", Constants.SEX_MAP);//性别
+        mv.addObject("political_status_map", Constants.POLITICAL_STATUS_MAP);//政治面貌
+        mv.addObject("marriage_status_map", Constants.MARRIAGE_STATUS_MAP);//婚姻状况
+        mv.addObject("constellation_no_date_map", Constants.CONSTELLATION_NO_DATE_MAP);//星座
+        mv.addObject("have_or_not_map", Constants.HAVE_OR_NOT_MAP);//有无
+        mv.addObject("domicile_type_map", Constants.DOMICILE_TYPE_MAP);//户口性质
+        mv.addObject("ID_type_map", Constants.ID_TYPE_MAP);//身份证
+        mv.addObject("work_type_map", Constants.WORK_TYPE_MAP);//工作经历
+        mv.addObject("edu_degree_map", Constants.EDU_DEGREE_MAP);//学历
+        mv.addObject("family_relationship_map", Constants.FAMILY_RELATIONSHIP_MAP);//家庭成员与本人关系
+        mv.addObject("contract_type_map", Constants.CONTRACT_TYPE_MAP);//合同类型
+        return mv;
+    }
+
+    /**
+     * 人事档案基础信息
+     */
+    @RequestMapping({ "/user/user_file_base.htm" })
+    public ModelAndView user_file_base(HttpServletRequest request, HttpServletResponse response,
+                                       Long user_id, String action) {
+        if (!verify_user_id(user_id)) {
+            return null;
+        }
+        User user = userService.getUser(user_id);
+        ModelAndView mv = null;
+        if (CommUtil.isBlank(action) || "cancel".equals(action) || "view".equals(action)) {
+            mv = new JModelAndView("admin/user/user_file/user_file_base_view.html", request,
+                response);
+        } else if ("modify".equals(action)) {
+            mv = new JModelAndView("admin/user/user_file/user_file_base_edit.html", request,
+                response);
+        } else if ("save".equals(action)) {
+            try {
+                userService.user_file_save(request);
+            } catch (Exception e) {
+            }
+            mv = new JModelAndView("admin/user/user_file/user_file_base_view.html", request,
+                response);
+        }
+        mv.addObject("user", user);
+        mv.addObject("departments", departmentService.queryAllDepartment());
+        mv.addObject("dutys", dutyService.queryAllDuty());
+        mv.addObject("user_relationship_map", Constants.USER_RELATIONSHIP_MAP);//员工关系
+        mv.addObject("blood_type_map", Constants.BLOOD_TYPE_MAP);//血型
+        mv.addObject("sex_map", Constants.SEX_MAP);//性别
+        mv.addObject("political_status_map", Constants.POLITICAL_STATUS_MAP);//政治面貌
+        mv.addObject("marriage_status_map", Constants.MARRIAGE_STATUS_MAP);//婚姻状况
+        mv.addObject("constellation_map", Constants.CONSTELLATION_MAP);//星座
+        mv.addObject("constellation_no_date_map", Constants.CONSTELLATION_NO_DATE_MAP);//星座
+        mv.addObject("have_or_not_map", Constants.HAVE_OR_NOT_MAP);//有无
+        mv.addObject("domicile_type_map", Constants.DOMICILE_TYPE_MAP);//户口性质
+        mv.addObject("ID_type_map", Constants.ID_TYPE_MAP);//身份证
+        return mv;
+    }
+
+    /**
+     * 人事档案工作经历
+     */
+    @RequestMapping({ "/user/user_file_work.htm" })
+    public ModelAndView user_file_work(HttpServletRequest request, HttpServletResponse response,
+                                       Long user_id, String action, Long work_id) {
+        if (!verify_user_id(user_id)) {
+            return null;
+        }
+        User user = userService.getUser(user_id);
+        ModelAndView mv = null;
+        if (CommUtil.isBlank(action) || "cancel".equals(action) || "view".equals(action)) {
+            mv = new JModelAndView("admin/user/user_file/user_file_work_view.html", request,
+                response);
+        } else if ("new".equals(action)) {
+            mv = new JModelAndView("admin/user/user_file/user_file_work_edit.html", request,
+                response);
+        } else if ("modify".equals(action)) {
+            UserWork userWork = null;
+            if (work_id != null) {
+                userWork = userWorkService.getUserWork(work_id);
+            }
+            mv = new JModelAndView("admin/user/user_file/user_file_work_edit.html", request,
+                response);
+            if (userWork != null && userWork.getId() != null) {
+                mv.addObject("userWork", userWork);
+            }
+        } else if ("delete".equals(action)) {
+            if (work_id != null) {
+                try {
+                    UserWork userWork = userWorkService.getUserWork(work_id);
+                    userWorkService.delUserWork(userWork);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            mv = new JModelAndView("admin/user/user_file/user_file_work_view.html", request,
+                response);
+        } else if ("save".equals(action)) {
+            try {
+                userWorkService.user_work_save(request, user.getId());
+            } catch (Exception e) {
+            }
+            mv = new JModelAndView("admin/user/user_file/user_file_work_view.html", request,
+                response);
+        }
+        mv.addObject("user", user);
+        mv.addObject("userWorkList", userWorkService.queryUserWork(user.getId()));//工作经历
+        mv.addObject("work_type_map", Constants.WORK_TYPE_MAP);//工作经历
+        return mv;
+    }
+
+    /**
+     * 人事档案教育经历
+     */
+    @RequestMapping({ "/user/user_file_education.htm" })
+    public ModelAndView user_file_education(HttpServletRequest request,
+                                            HttpServletResponse response, Long user_id,
+                                            String action, Long education_id) {
+        if (!verify_user_id(user_id)) {
+            return null;
+        }
+        User user = userService.getUser(user_id);
+        ModelAndView mv = null;
+        if (CommUtil.isBlank(action) || "cancel".equals(action) || "view".equals(action)) {
+            mv = new JModelAndView("admin/user/user_file/user_file_education_view.html", request,
+                response);
+        } else if ("new".equals(action)) {
+            mv = new JModelAndView("admin/user/user_file/user_file_education_edit.html", request,
+                response);
+        } else if ("modify".equals(action)) {
+            UserEducation userEducation = null;
+            if (education_id != null) {
+                userEducation = userEducationService.getUserEducation(education_id);
+            }
+            mv = new JModelAndView("admin/user/user_file/user_file_education_edit.html", request,
+                response);
+            if (userEducation != null && userEducation.getId() != null) {
+                mv.addObject("userEducation", userEducation);
+            }
+        } else if ("delete".equals(action)) {
+            if (education_id != null) {
+                try {
+                    UserEducation userEducation = userEducationService
+                        .getUserEducation(education_id);
+                    userEducationService.delUserEducation(userEducation);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            mv = new JModelAndView("admin/user/user_file/user_file_education_view.html", request,
+                response);
+        } else if ("save".equals(action)) {
+            try {
+                userEducationService.user_education_save(request, user.getId());
+            } catch (Exception e) {
+            }
+            mv = new JModelAndView("admin/user/user_file/user_file_education_view.html", request,
+                response);
+        }
+        mv.addObject("user", user);
+        mv.addObject("userEducationList", userEducationService.queryUserEducation(user.getId()));//教育经历
+        mv.addObject("edu_degree_map", Constants.EDU_DEGREE_MAP);//学历
+        return mv;
+    }
+
+    /**
+     * 人事档案所获奖项
+     */
+    @RequestMapping({ "/user/user_file_schoolaward.htm" })
+    public ModelAndView user_file_schoolaward(HttpServletRequest request,
+                                              HttpServletResponse response, Long user_id,
+                                              String action, Long schoolaward_id) {
+        if (!verify_user_id(user_id)) {
+            return null;
+        }
+        User user = userService.getUser(user_id);
+        ModelAndView mv = null;
+        if (CommUtil.isBlank(action) || "cancel".equals(action) || "view".equals(action)) {
+            mv = new JModelAndView("admin/user/user_file/user_file_schoolaward_view.html", request,
+                response);
+        } else if ("new".equals(action)) {
+            mv = new JModelAndView("admin/user/user_file/user_file_schoolaward_edit.html", request,
+                response);
+        } else if ("modify".equals(action)) {
+            UserSchoolaward userSchoolaward = null;
+            if (schoolaward_id != null) {
+                userSchoolaward = userSchoolawardService.getUserSchoolaward(schoolaward_id);
+            }
+            mv = new JModelAndView("admin/user/user_file/user_file_schoolaward_edit.html", request,
+                response);
+            if (userSchoolaward != null && userSchoolaward.getId() != null) {
+                mv.addObject("userSchoolaward", userSchoolaward);
+            }
+        } else if ("delete".equals(action)) {
+            if (schoolaward_id != null) {
+                try {
+                    UserSchoolaward userSchoolaward = userSchoolawardService
+                        .getUserSchoolaward(schoolaward_id);
+                    userSchoolawardService.delUserSchoolaward(userSchoolaward);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            mv = new JModelAndView("admin/user/user_file/user_file_schoolaward_view.html", request,
+                response);
+        } else if ("save".equals(action)) {
+            try {
+                userSchoolawardService.user_schoolaward_save(request, user.getId());
+            } catch (Exception e) {
+            }
+            mv = new JModelAndView("admin/user/user_file/user_file_schoolaward_view.html", request,
+                response);
+        }
+        mv.addObject("user", user);
+        mv.addObject("userSchoolawardList",
+            userSchoolawardService.queryUserSchoolaward(user.getId()));//所获奖项
+        return mv;
+    }
+
+    /**
+     * 人事档案家庭成员
+     */
+    @RequestMapping({ "/user/user_file_family_member.htm" })
+    public ModelAndView user_file_family_member(HttpServletRequest request,
+                                                HttpServletResponse response, Long user_id,
+                                                String action, Long familymember_id) {
+        if (!verify_user_id(user_id)) {
+            return null;
+        }
+        User user = userService.getUser(user_id);
+        ModelAndView mv = null;
+        if (CommUtil.isBlank(action) || "cancel".equals(action) || "view".equals(action)) {
+            mv = new JModelAndView("admin/user/user_file/user_file_family_member_view.html",
+                request, response);
+        } else if ("new".equals(action)) {
+            mv = new JModelAndView("admin/user/user_file/user_file_family_member_edit.html",
+                request, response);
+        } else if ("modify".equals(action)) {
+            UserFamilyMember userFamilyMember = null;
+            if (familymember_id != null) {
+                userFamilyMember = userFamilyMemberService.getUserFamilyMember(familymember_id);
+            }
+            mv = new JModelAndView("admin/user/user_file/user_file_family_member_edit.html",
+                request, response);
+            if (userFamilyMember != null && userFamilyMember.getId() != null) {
+                mv.addObject("userFamilyMember", userFamilyMember);
+            }
+        } else if ("delete".equals(action)) {
+            if (familymember_id != null) {
+                try {
+                    UserFamilyMember userFamilyMember = userFamilyMemberService
+                        .getUserFamilyMember(familymember_id);
+                    userFamilyMemberService.delUserFamilyMember(userFamilyMember);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            mv = new JModelAndView("admin/user/user_file/user_file_family_member_view.html",
+                request, response);
+        } else if ("save".equals(action)) {
+            try {
+                userFamilyMemberService.user_family_member_save(request, user.getId());
+            } catch (Exception e) {
+            }
+            mv = new JModelAndView("admin/user/user_file/user_file_family_member_view.html",
+                request, response);
+        }
+        mv.addObject("user", user);
+        mv.addObject("userFamilyMemberList",
+            userFamilyMemberService.queryUserFamilyMember(user.getId()));//家庭成员
+        mv.addObject("family_relationship_map", Constants.FAMILY_RELATIONSHIP_MAP);
+        return mv;
+    }
+
+    /**
+     * 人事档案合同
+     */
+    @RequestMapping({ "/user/user_file_contract.htm" })
+    public ModelAndView user_file_contract(HttpServletRequest request,
+                                           HttpServletResponse response, Long user_id,
+                                           String action, Long contract_id) {
+        if (!verify_user_id(user_id)) {
+            return null;
+        }
+        User user = userService.getUser(user_id);
+        ModelAndView mv = null;
+        if (CommUtil.isBlank(action) || "cancel".equals(action) || "view".equals(action)) {
+            mv = new JModelAndView("admin/user/user_file/user_file_contract_view.html", request,
+                response);
+            List<UserContract> ucList = userContractService.queryUserContract(user.getId());
+            if (ucList.size() == 1) {
+                mv.addObject("userContract", ucList.get(0));
+            }
+        } else if ("new".equals(action)) {
+            mv = new JModelAndView("admin/user/user_file/user_file_contract_edit.html", request,
+                response);
+        } else if ("modify".equals(action)) {
+            UserContract userContract = null;
+            if (contract_id != null) {
+                userContract = userContractService.getUserContract(contract_id);
+            }
+            mv = new JModelAndView("admin/user/user_file/user_file_contract_edit.html", request,
+                response);
+            if (userContract != null && userContract.getId() != null) {
+                mv.addObject("userContract", userContract);
+            }
+        } else if ("save".equals(action)) {
+            try {
+                userContractService.user_contract_save(request, user.getId());
+            } catch (Exception e) {
+            }
+            mv = new JModelAndView("admin/user/user_file/user_file_contract_view.html", request,
+                response);
+            List<UserContract> ucList = userContractService.queryUserContract(user.getId());
+            if (ucList.size() == 1) {
+                mv.addObject("userContract", ucList.get(0));
+            }
+        }
+        mv.addObject("user", user);
+        mv.addObject("contract_type_map", Constants.CONTRACT_TYPE_MAP);
+        return mv;
+    }
+
+    /**
+     * 人事档案合同续签
+     */
+    @RequestMapping({ "/user/user_file_contract_renewal.htm" })
+    public ModelAndView user_file_contract_renewal(HttpServletRequest request,
+                                                   HttpServletResponse response, Long user_id,
+                                                   String action, Long contractrenewal_id) {
+        if (!verify_user_id(user_id)) {
+            return null;
+        }
+        User user = userService.getUser(user_id);
+        ModelAndView mv = null;
+        if (CommUtil.isBlank(action) || "cancel".equals(action) || "view".equals(action)) {
+            mv = new JModelAndView("admin/user/user_file/user_file_contract_renewal_view.html",
+                request, response);
+        } else if ("new".equals(action)) {
+            mv = new JModelAndView("admin/user/user_file/user_file_contract_renewal_edit.html",
+                request, response);
+        } else if ("modify".equals(action)) {
+            UserContractRenewal userContractRenewal = null;
+            if (contractrenewal_id != null) {
+                userContractRenewal = userContractRenewalService
+                    .getUserContractRenewal(contractrenewal_id);
+            }
+            mv = new JModelAndView("admin/user/user_file/user_file_contract_renewal_edit.html",
+                request, response);
+            if (userContractRenewal != null && userContractRenewal.getId() != null) {
+                mv.addObject("userContractRenewal", userContractRenewal);
+            }
+        } else if ("delete".equals(action)) {
+            if (contractrenewal_id != null) {
+                try {
+                    UserContractRenewal userContractRenewal = userContractRenewalService
+                        .getUserContractRenewal(contractrenewal_id);
+                    userContractRenewalService.delUserContractRenewal(userContractRenewal);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            mv = new JModelAndView("admin/user/user_file/user_file_contract_renewal_view.html",
+                request, response);
+        } else if ("save".equals(action)) {
+            try {
+                userContractRenewalService.user_contract_renewal_save(request, user.getId());
+            } catch (Exception e) {
+            }
+            mv = new JModelAndView("admin/user/user_file/user_file_contract_renewal_view.html",
+                request, response);
+        }
+        mv.addObject("user", user);
+        mv.addObject("userContractRenewalList",
+            userContractRenewalService.queryUserContractRenewal(user.getId()));//续签合同
+        return mv;
+    }
+
+    /**
+     * 上传证照
+     */
+    @RequestMapping({ "/user/user_file_photo.htm" })
+    public ModelAndView user_file_photo(HttpServletRequest request, HttpServletResponse response,
+                                        Long user_id, String action, String photo_column,
+                                        String attachments_ids) {
+        if (!verify_user_id(user_id)) {
+            return null;
+        }
+        User user = userService.getUser(user_id);
+        ModelAndView mv = null;
+        if (CommUtil.isBlank(action) || "cancel".equals(action) || "view".equals(action)) {
+            mv = new JModelAndView("admin/user/user_file/user_file_photo_view.html", request,
+                response);
+        } else if ("modify".equals(action)) {
+            mv = new JModelAndView("admin/user/user_file/user_file_photo_edit.html", request,
+                response);
+        } else if ("save".equals(action)) {
+            try {
+                userPhotoService.user_photo_save(user.getId(), photo_column, attachments_ids);
+            } catch (Exception e) {
+            }
+            mv = new JModelAndView("admin/user/user_file/user_file_photo_view.html", request,
+                response);
+        }
+        mvAddAttachments(mv, photo_column, user);
+        mv.addObject("user", user);
+        mv.addObject("photo_column", photo_column);
+        return mv;
+    }
+
+    private void mvAddAttachments(ModelAndView mv, String photo_column, User user) {
+        UserPhoto userPhoto = user.getUserPhoto();
+        if (userPhoto == null || userPhoto.getId() == null) {
+            return;
+        }
+        userPhoto = userPhotoService.getUserPhoto(userPhoto.getId());
+
+        List<Attachments> idphotoAttachments = attachmentsService.getAttachmentsByIds(userPhoto
+            .getID_attach_ids());
+        List<Attachments> degreephotoAttachments = attachmentsService.getAttachmentsByIds(userPhoto
+            .getDegree_attach_ids());
+        List<Attachments> bluetwoinchphotoAttachments = attachmentsService
+            .getAttachmentsByIds(userPhoto.getBlue_small_two_inch_attach_ids());
+        List<Attachments> whitetwoinchphotoAttachments = attachmentsService
+            .getAttachmentsByIds(userPhoto.getWhite_small_two_inch_attach_ids());
+        List<Attachments> othersphotoAttachments = attachmentsService.getAttachmentsByIds(userPhoto
+            .getOthers_attach_ids());
+
+        if ("idphoto".equalsIgnoreCase(photo_column)) {
+            mv.addObject("attachments", idphotoAttachments);
+        } else if ("degreephoto".equalsIgnoreCase(photo_column)) {
+            mv.addObject("attachments", degreephotoAttachments);
+        } else if ("bluetwoinchphoto".equalsIgnoreCase(photo_column)) {
+            mv.addObject("attachments", bluetwoinchphotoAttachments);
+        } else if ("whitetwoinchphoto".equalsIgnoreCase(photo_column)) {
+            mv.addObject("attachments", whitetwoinchphotoAttachments);
+        } else if ("othersphoto".equalsIgnoreCase(photo_column)) {
+            mv.addObject("attachments", othersphotoAttachments);
+        }
+        mv.addObject("idphotoAttachments", idphotoAttachments);
+        mv.addObject("degreephotoAttachments", degreephotoAttachments);
+        mv.addObject("bluetwoinchphotoAttachments", bluetwoinchphotoAttachments);
+        mv.addObject("whitetwoinchphotoAttachments", whitetwoinchphotoAttachments);
+        mv.addObject("othersphotoAttachments", othersphotoAttachments);
+
+    }
+
+    @RequestMapping({ "/admin/user/userFileUpload.htm" })
+    public void upload(HttpServletRequest request, HttpServletResponse response) {
+        List<Attachments> list = null;
+        try {
+            list = BaseController.uploadifyNoUser(request, response, "user_file",
+                attachmentsService);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (list == null || list.size() == 0) {
+            return;
+        }
+        System.out.println(BaseController.write2JsonStr(request, list));
+        JsonUtil.writeMsg(response, BaseController.write2JsonStr(request, list));
+    }
+
+    /**
+     * 验证用户ID
+     */
+    private boolean verify_user_id(Long user_id) {
+        if (user_id == null) {
+            return false;
+        }
+        User user = userService.getUser(user_id);
+        if (user == null) {
+            return false;
+        }
+        return true;
+    }
+}

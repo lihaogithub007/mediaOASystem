@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>在线预览</title>
+<script type="text/javascript" src="$!webPath/resources/assets/preview/jquery-1.8.3.min.js"></script>
+</head>
+<body>
+<input type="hidden" name="btn_preview" id="btn_preview" /> 
+<script type="text/javascript">
+	$(function(){
+		$("#btn_preview").click(function () {
+			window.open("$!webPath/resources/assets/preview/pdfjs/web/viewer.html?file=$!webPath/$!attach.save_path/$!file_name", "_self");
+		});
+		$("#btn_preview").click();
+	});
+</script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<script src="$!webPath/resources/js/jquery-1.8.3.min.js"></script>
+<script>
+jQuery(document).ready(function() {
+	jQuery("li.has-sub").removeClass("active");
+	jQuery("ul.sub>li").removeClass("active");
+	jQuery("ul.sub>li[op=$!op]").parent("ul").parent("li.has-sub").addClass("active");
+	jQuery("ul.sub>li[op=$!op]").addClass("active");
+});
+</script>
+<div class="sidebar-toggler hidden-phone"></div>
+<ul class="sidebar-menu">
+	<li class="has-sub">
+		<a href="javascript:void(0);">
+			<span class="icon-box"><i class="icon-user"></i></span>个人办公
+            <span class="arrow"></span>
+        </a>
+		<ul class="sub">
+		    <li op="usercenter"><a href="$!webPath/admin/usercenter/usercenter.htm">个人资料</a></li>
+		    <li op="usercenter_reset_password"><a href="$!webPath/admin/usercenter/usercenter_reset_password.htm">密码修改</a></li>
+		    <li op="usercenter_address_book"><a href="$!webPath/admin/usercenter/usercenter_address_book_list.htm">通讯录</a></li>
+		</ul>
+	</li>
+	<li class="has-sub">
+		<a href="javascript:void(0);" class="">
+			<span class="icon-box"><i class="icon-envelope"></i></span>消息管理
+			<span class="arrow"></span>
+		</a>
+		<ul class="sub">
+		    <li op="schedule_sms"><a href="$!webPath/admin/sms/schedule_sms_remind_list.htm">日程安排</a></li>
+		    <li op="holiday_sms"><a href="$!webPath/admin/sms/holiday_sms_remind_list.htm">问候短信</a></li>
+		    <li op="contract_sms"><a href="$!webPath/admin/sms/contract_sms_remind_list.htm">合同到期提醒</a></li>
+		    <li op="sms_remind_logs"><a href="$!webPath/admin/sms/sms_remind_logs_list.htm">短信提醒记录</a></li>
+		</ul>
+	</li>
+	<li class="has-sub">
+		<a href="javascript:void(0);" class="">
+			<span class="icon-box"><i class="icon-tasks"></i></span>行政办公
+			<span class="arrow"></span>
+		</a>
+		<ul class="sub">
+		    <li op="fixed_assets"><a href="$!webPath/admin/office/fixed_assets_list.htm">固定资产管理</a></li>
+		    <li op="inside_income_dispatches"><a href="$!webPath/admin/office/inside_income_dispatches_list.htm">台内收文管理</a></li>
+		    <li op="outside_income_dispatches"><a href="$!webPath/admin/office/outside_income_dispatches_list.htm">台外收文管理</a></li>
+		    <li op="event_apply_form"><a href="$!webPath/admin/office/event_apply_form_list.htm">事项申请表</a></li>
+		    <li op="department_awards"><a href="$!webPath/admin/office/department_awards_list.htm">部门评奖</a></li>
+		</ul>
+	</li>
+	<li class="has-sub">
+		<a href="javascript:void(0);" class="">
+			<span class="icon-box"><i class="icon-sitemap"></i></span>人事管理
+			<span class="arrow"></span>
+		</a>
+		<ul class="sub">
+		    <li op="user_manage"><a href="$!webPath/admin/user/user_list.htm">人员档案</a></li>
+		    <li op="department_manage"><a href="$!webPath/admin/user/department_list.htm">组织机构</a></li>
+		    <li op="foreign_expert_manage"><a href="$!webPath/admin/user/foreign_expert_list.htm">外籍专家信息名录</a></li>
+		    <li op="resume_manage"><a href="$!webPath/admin/user/resume_list.htm">简历管理</a></li>
+		    <li op="candidate_hire_approval_manage"><a href="$!webPath/admin/user/candidate_hire_approval_list.htm">应聘人员录用审批</a></li>
+		    <li op="assessment_manage"><a href="$!webPath/admin/user/assessment_list.htm">评优管理</a></li>
+		</ul>
+	</li>
+	<li class="has-sub">
+		<a href="javascript:void(0);" class="">
+			<span class="icon-box"><i class="icon-time"></i></span>考勤管理
+			<span class="arrow"></span>
+		</a>
+		<ul class="sub">
+		    <li op="workforce_management_manage"><a href="$!webPath/admin/work_attendance/workforce_management_list.htm">排班管理</a></li>
+		    <li op="attendance_record_manage"><a href="$!webPath/admin/work_attendance/attendance_record_list.htm">考勤记录</a></li>
+		    <li op="vacation_apply_manage"><a href="$!webPath/admin/work_attendance/vacation_apply_list.htm">请假申请</a></li>
+		    <li op="overtime_record_manage"><a href="$!webPath/admin/work_attendance/overtime_record_list.htm">加班记录</a></li>
+		</ul>
+	</li>
+	<li class="has-sub">
+		<a href="javascript:void(0);" class="">
+			<span class="icon-box"><i class=" icon-list-alt"></i></span>项目协同
+			<span class="arrow"></span>
+		</a>
+		<ul class="sub">
+		    <li op="cooperation_manage"><a href="$!webPath/admin/projectcoo/cooperation_list.htm">协同记录</a></li>
+		</ul>
+	</li>
+	<li class="has-sub">
+		<a href="javascript:void(0);" class="">
+			<span class="icon-box"><i class="icon-cog"></i></span>系统设置
+			<span class="arrow"></span>
+		</a>
+		<ul class="sub">
+		    <li op="equipment_manage"><a href="$!webPath/admin/syscfg/equipment_list.htm">设备管理</a></li>
+		    <li op="dispatch_unit"><a href="$!webPath/admin/syscfg/dispatch_unit_list.htm">发文单位管理</a></li>
+		</ul>
+	</li>
+	
+	<li class="has-sub">
+		<a href="javascript:void(0);" class="">
+			<span class="icon-box"><i class="icon-bar-chart"></i></span>统计管理
+			<span class="arrow"></span>
+		</a>
+		<ul class="sub">
+		    <li op="workload_statistics_manage"><a href="$!webPath/admin/statistics/workload_statistics_list.htm">工作量统计</a></li>
+		    <li op="user_statistics_manage"><a href="$!webPath/admin/statistics/user_statistics_list.htm">人员统计分析</a></li>
+		</ul>
+	</li>
+</ul>

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">     
+    
+	<!-- 系统调度控制器 -->
+	<bean id="sendHolidaySmsTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<!-- 调用的类 -->
+		<property name="targetObject" ref="perDateHolidaySmsRemindTimer_task" />
+		<!-- 调用类中的方法 -->
+		<property name="targetMethod" value="execute" />
+		<property name="concurrent" value="false" />
+	</bean>
+	<bean id="perDateHolidaySmsRemindTimer_cronTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="sendHolidaySmsTask" />
+		<!-- 每天上午9:00执行-->
+		<property name="cronExpression" value="0 0 9 * * ?" />
+	</bean>
+    
+	<bean id="sendScheduleSmsTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="perFifteenMinuteScheduleSmsRemindTimer_task" />
+		<property name="targetMethod" value="execute" />
+		<property name="concurrent" value="false" />
+	</bean>
+	<bean id="perFifteenMinuteScheduleSmsRemindTimer_cronTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="sendScheduleSmsTask" />
+		<!-- 每15分钟一次  -->
+		<property name="cronExpression" value="0 0/15 * * * ?" /><!-- 0/15 从整点开始每隔15分钟  -->
+		<!-- <property name="cronExpression" value="0 */15 8-23 * * ?" />  8点到23点每15分钟一次  -->
+	</bean>
+	
+	<bean id="contractSmsRemindTimer"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="contractSmsRemindTimer_task" />
+		<property name="targetMethod" value="execute" />
+		<property name="concurrent" value="false" />
+	</bean>
+	<bean id="contractSmsRemindTimer_cronTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="contractSmsRemindTimer" />
+		<!-- 每天上午9:00执行 -->
+		<property name="cronExpression" value="0 0 9 * * ?" />
+	</bean>  
+	
+	<!-- 每月1日零点初始化考勤记录任务 -->
+	<bean id="initAttendanceRecordTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="perMonthInitAttendanceRecordTimer_task" />
+		<property name="targetMethod" value="execute" />
+		<property name="concurrent" value="false" />
+	</bean>
+	<bean id="perMonthInitAttendanceRecordTimer_cronTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="initAttendanceRecordTask" />
+		<property name="cronExpression" value="0 0 0 1 * ?" />
+	</bean>
+	
+	<!-- 每日凌晨1点初始化考勤记录任务：（前一天新增员工）-->
+	<bean id="perDateInitAttendanceRecordTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="perDateInitAttendanceRecordTimer_task" />
+		<property name="targetMethod" value="execute" />
+		<property name="concurrent" value="false" />
+	</bean>
+	<bean id="perDateInitAttendanceRecordTimer_cronTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="perDateInitAttendanceRecordTask" />
+		<property name="cronExpression" value="0 0 1 * * ?" />
+	</bean>
+	
+	<!-- 结束 -->
+	<bean id="schdulerFactory" lazy-init="false"
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="perDateHolidaySmsRemindTimer_cronTrigger" />
+				<ref bean="perFifteenMinuteScheduleSmsRemindTimer_cronTrigger" />
+				<ref bean="contractSmsRemindTimer_cronTrigger" />
+				<ref bean="perMonthInitAttendanceRecordTimer_cronTrigger" /><!-- 每月1日零点初始化考勤记录任务 -->
+				<ref bean="perDateInitAttendanceRecordTimer_cronTrigger" /><!-- 每日凌晨1点初始化考勤记录任务：（前一天新增员工） -->
+			</list>
+		</property>
+	</bean>
+ </beans>
+ 

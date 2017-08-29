@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+       ">
+	<!-- 扫描注解Bean -->
+    <context:component-scan base-package="com.yuyu.soft.*">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+    
+    <bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="classpath:jdbc.properties" />
+		<!-- <property name="locations">  
+            <list>  
+                <value>classpath:jdbc.properties</value>  
+            </list>  
+        </property>  -->
+	</bean>
+	
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">  
+        <property name="driverClass" value="${jdbc.driverClassName}" />  
+        <property name="jdbcUrl" value="${jdbc.url}" />  
+        <property name="user" value="${jdbc.username}" />  
+        <property name="password" value="${jdbc.password}" />  
+    </bean>  
+	
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"/>
+        <!-- hibernate自身属性 -->  
+        <property name="hibernateProperties">  
+            <props>  
+                <prop key="hibernate.autoReconnect">true</prop>  
+                <prop key="hibernate.show_sql">${hibernate.showsql}</prop>  
+                <prop key="hibernate.format_sql">${hibernate.formatsql}</prop>  
+                <prop key="hibernate.connection.autocommit">${hibernate.connection.autocommit}</prop>  
+                <prop key="hibernate.dialect">${hibernate.dialect}</prop>  
+                <!-- c3p0 -->  
+                <!-- 需要再次配置数据源,c3p0才起作用 -->  
+                <prop key="hibernate.connection.provider_class">org.hibernate.service.jdbc.connections.internal.C3P0ConnectionProvider</prop>   
+                <prop key="hibernate.connection.driver_class">${jdbc.driverClassName}</prop>  
+                <prop key="hibernate.connection.url">${jdbc.url}</prop>  
+                <prop key="hibernate.connection.username">${jdbc.username}</prop>  
+                <prop key="hibernate.connection.password">${jdbc.password}</prop>  
+  
+                <!-- 连接池中JDBC连接的最小数量。Hibernate默认为1 -->  
+                <prop key="hibernate.c3p0.min_size">3</prop>  
+                <!-- 连接池中JDBC连接的最大数量。Hibernate默认为100 -->  
+                <prop key="hibernate.c3p0.max_size">56</prop>  
+                <!-- 何时从连接池中移除一个空闲的连接（以秒为单位）时。Hibernate默认为0，永不过期 -->  
+                <prop key="hibernate.c3p0.timeout">321</prop>  
+                <!-- 被缓存的预编译语句数量。用来提高性能。Hibernate默认为0，缓存不可用 -->  
+                <prop key="c3p0.max_statements">255</prop>  
+                <!-- 一个连接被自动验证前的闲置时间（以秒为单位）。Hibernate默认为0 -->  
+                <prop key="hibernate.c3p0.idle_test_period">300</prop>  
+                <!-- 当连接池里面的连接用完的时候，C3P0一下获取的新的连接数 -->  
+                <prop key="hibernate.c3p0.acquire_increment">2</prop>  
+                <!-- 每次都验证连接是否可用 -->  
+                <prop key="hibernate.c3p0.validate">true</prop>  
+            </props>  
+        </property>  
+      
+        <property name="packagesToScan">
+			<list>
+				<value>com.yuyu.soft.entity</value>
+			</list>
+		</property> 
+    </bean>  
+    
+ 	<!-- 事务管理配置  -->  
+    <bean id="txManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+    
+  	<!-- 开启AOP监听 只对当前配置文件有效 
+	<aop:aspectj-autoproxy expose-proxy="true"/>
+  	-->
+	
+	<!-- 开启注解事务 只对当前配置文件有效
+  	<tx:annotation-driven transaction-manager="txManager"/>
+	 -->
+  	
+  	<!-- 配置事务传播特性 --> 
+    <tx:advice id="txAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="get*" read-only="true" />
+			<tx:method name="query*" read-only="true" />
+			<tx:method name="count*" read-only="true" />
+			<tx:method name="*" read-only="false" propagation="REQUIRED"/>
+		</tx:attributes>
+	</tx:advice>
+	
+	<!-- 配置参与事务的类 -->
+	<aop:config>
+		<aop:advisor advice-ref="txAdvice"
+			pointcut="execution(* com.yuyu.soft.service.impl.*.*(..))" />
+	</aop:config>
+</beans>

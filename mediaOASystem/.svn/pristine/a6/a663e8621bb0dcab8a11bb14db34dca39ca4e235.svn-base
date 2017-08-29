@@ -1,0 +1,170 @@
+package com.yuyu.soft.timer;
+
+import java.io.IOException;
+import java.text.Format;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Component;
+
+import com.yuyu.soft.entity.ContractSmsRemind;
+import com.yuyu.soft.entity.Duty;
+import com.yuyu.soft.entity.TimerLogs;
+import com.yuyu.soft.entity.User;
+import com.yuyu.soft.service.IContractSmsRemindService;
+import com.yuyu.soft.service.ISmsRemindLogsService;
+import com.yuyu.soft.service.ITimerLogsService;
+import com.yuyu.soft.service.IUserService;
+import com.yuyu.soft.util.CommUtil;
+import com.yuyu.soft.util.sms.MeilianSmsSender;
+
+/**
+ * 合同到期提醒定时任务
+ * 
+ * @Filename: ContractSmsRemindTimer.java
+ * @Version: 1.0
+ *
+ */
+@Component("contractSmsRemindTimer_task")
+public class ContractSmsRemindTimer {
+
+    protected static final Log        log = LogFactory.getLog(ContractSmsRemindTimer.class);
+    @Resource
+    private ITimerLogsService         timerLogsService;
+    @Resource
+    private IUserService              userService;
+    @Resource
+    private IContractSmsRemindService contractSmsRemindService;
+    @Resource
+    private ISmsRemindLogsService     smsRemindLogsService;
+
+    public void execute() throws IOException {
+
+        TimerLogs timerLog = timerLogsService.saveLogs("合同到期提醒定时任务");
+        /*
+         * try { sendHolidaySms(); } catch (Exception e) { e.printStackTrace();
+         * log.error("节日短信问候发送失败，时间：" + CommUtil.getCurrentTime()); }
+         */
+        try {
+            sendTodayContractSmsRemind();
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("合同到期提醒发送失败，时间：" + CommUtil.getCurrentTime());
+        }
+
+        timerLogsService.updateLogs(timerLog);
+    }
+
+    // 今天的合同到期提醒
+    private void sendTodayContractSmsRemind() {
+
+        // 获取每个用户的最大合同时间[user_id,date]
+        List<Object[]> contractSmsRemindMaxTime = contractSmsRemindService
+            .queryContractSmsRemindMaxTime();
+
+        //合同到期提醒设置表
+        List<ContractSmsRemind> list = contractSmsRemindService
+            .queryContractSmsRemindForTimerTask();
+        //转换时间
+        Format f = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = new Date();
+
+        if (contractSmsRemindMaxTime == null || contractSmsRemindMaxTime.size() == 0) {
+            log.info("无人员合同记录" + CommUtil.getCurrentTime());
+            return;
+        } else {
+            for (Object[] obj : contractSmsRemindMaxTime) {
+                Date d = new Date();
+                String substring = obj[1].toString().substring(0, 10);
+                try {
+                    d = (Date) f.parseObject(substring);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                long time = (d.getTime() - date.getTime()) / 1000 / 3600 / 24 + 1;
+
+                if (list == null || list.size() == 0) {
+                    log.info("无合同到期提醒设置" + CommUtil.getCurrentTime());
+                    return;
+                } else {
+                    for (ContractSmsRemind contractSmsRemind : list) {
+                        Integer remindTime = contractSmsRemind.getRemind_time();
+                        String remind_content = contractSmsRemind.getRemind_content();
+                        Long remind_time = Long.valueOf(remindTime);
+                        if (time == remind_time) {
+                            long id = Long.parseLong(obj[0].toString());
+                            // 合同到期的用户
+                            User user = userService.getUser(id);
+                            // 合同到期的用户真实姓名
+                            String expire_user_true_name = user.getTrue_name();
+
+                            // 收信人类型
+                            Integer remind_type = contractSmsRemind.getRemind_type();
+                            if (remind_type != null) {
+                                if (remind_type == 0) {
+                                    Duty duty = contractSmsRemind.getDuty();
+                                    List<User> userList = duty.getUserList();
+                                    if (userList == null || userList.size() == 0) {
+                                        log.info("岗位下无员工，时间：" + CommUtil.getCurrentTime());
+                                        return;
+                                    } else {
+                                        for (User u : userList) {
+                                            String mobile = u.getMobile();
+                                            String content = expire_user_true_name + remind_content;
+                                            if (CommUtil.isBlank(mobile)
+                                                && mobile.trim().length() != 11) {
+                                                log.info("【合同到期提醒】：" + u.getTrue_name()
+                                                         + "手机号为空或有误：" + mobile);
+                                                continue;
+                                            }
+                                            try {
+                                                boolean flag = MeilianSmsSender.sendMsg(mobile,
+                                                    content);
+                                                if (flag) {
+                                                    log.info("【合同到期提醒】【短信发送成功】手机号：" + mobile
+                                                             + ", 内容：" + content + ", 时间："
+                                                             + CommUtil.getCurrentTime());
+                                                } else {
+                                                    log.error("【合同到期提醒】【短信发送失败】手机号：" + mobile
+                                                              + ", 内容：" + content + ", 时间："
+                                                              + CommUtil.getCurrentTime());
+                                                }
+
+                                            } catch (Exception e) {
+                                                log.error("【合同到期提醒】【短信发送失败】手机号：" + mobile + ", 内容："
+                                                          + content + ", 时间："
+                                                          + CommUtil.getCurrentTime());
+                                            }
+                                        }
+                                    }
+                                } else if (remind_type == 1) {
+                                    String mobile = contractSmsRemind.getUser().getMobile();
+                                    String content = expire_user_true_name + remind_content;
+                                    if (CommUtil.isBlank(mobile) && mobile.trim().length() != 11) {
+                                        log.info("【合同到期提醒】：" + user.getTrue_name() + "手机号为空或有误："
+                                                 + mobile);
+                                        continue;
+                                    }
+                                    try {
+                                        MeilianSmsSender.sendMsg(mobile, content);
+                                        log.info("【合同到期提醒】【短信发送成功】手机号：" + mobile + ", 内容："
+                                                 + content + ", 时间：" + CommUtil.getCurrentTime());
+                                    } catch (Exception e) {
+                                        log.error("【合同到期提醒】【短信发送失败】手机号：" + mobile + ", 内容："
+                                                  + content + ", 时间：" + CommUtil.getCurrentTime());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

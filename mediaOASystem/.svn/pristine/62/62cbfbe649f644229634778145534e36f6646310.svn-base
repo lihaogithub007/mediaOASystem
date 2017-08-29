@@ -1,0 +1,598 @@
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="$!webPath/resources/css/style.css" rel="stylesheet"/>
+<link href="$!webPath/resources/assets/toastr/toastr.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/css/custom/resume.css" rel="stylesheet" type="text/css" />
+<form name="baseForm" id="baseForm" action="" method="post" class="form-horizontal">
+<div class="head" id="Basic">
+    <div class="cbox">
+        <div class="h30">
+            <div class="c c2">
+                <label>姓名</label><i>*</i>
+                <div class="sh">
+					<input type="text" id="true_name" name="true_name" value="$!user.true_name" class="ef input-xlarge" maxlength="50"/>
+                </div>
+                <div class="err"></div>
+            </div>
+            <div class="c c4">
+            	<label>手机号</label><i>*</i>
+                <div class="sh">
+                    <input type="text" name="user_mobile" id="user_mobile" value="$!user.mobile" class="ef input-xlarge" disabled="disabled"/>
+                </div>
+                <div class="err"></div>
+            </div>
+        </div>
+        <div class="h30">
+            <div class="c c2" float-index="false">
+                <label>性别</label><i>*</i>
+                <div class="sh">
+                    <select data-placeholder="请选择性别" class="ef input-xlarge chosen" name="sex" id="sex">
+						<option value="">请选择性别</option>
+						#foreach($key in ${sex_map.keySet()})
+		                <option value="$key">${sex_map.get($key)}</option>
+		                #end
+					</select>
+                </div>
+                <div class="err"></div>
+            </div>
+            <div class="c c4" float-index="false">
+            	<label>民族</label>
+               	<div class="sh">
+               		<input type="text" name="nation" id="nation" value="$!user.userBase.nation" class="ef input-xlarge" maxlength="20"/>
+               	</div>
+               	<div class="err"></div>
+            </div>
+        </div>
+        <div class="h30"> 
+        	<div class="c c2" float-index="false">
+            	<label>出生日期</label><i>*</i>
+                <div class="sh">
+                    <input type="text" name="birthday" id="birthday" value="$!CommUtil.parseShortDateTime($!user.birthday)" class="ef input-xlarge" 
+                    	onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',maxDate:'%y-%M-%d'})" readonly="readonly"/>
+                </div>
+                <div class="err"></div>
+        	</div>
+        	<div class="c c4" float-index="false">
+            	<label>年龄</label>
+               	<div class="sh">
+               		#if(""!="$!user.userBase.age") #set($user_age=$!user.userBase.age) #else #set($user_age=$!CommUtil.getAge($!user.birthday)) #end
+               		<input type="text" name="age" id="age" value="$!user_age" class="ef input-xlarge" readonly="readonly"/>
+               	</div>
+               	<div class="err"></div>
+            </div>
+        </div>
+        <div class="h30" style="*position:relative;*z-index:1">
+            <div class="c c2">
+                <label>工作证号</label>
+                <div class="sh">
+                    <input type="text" name="card_number" id="card_number" value="$!user.card_number" class="ef input-xlarge" maxlength="50"/>
+                </div>
+                <div class="err"></div>
+            </div>
+            <div class="c c4" float-index="false" style="">
+                <label>座机</label><i>&nbsp;</i>
+                <div class="sh">
+                    <input type="text" name="tel_number" id="tel_number" value="$!user.tel_number" class="ef input-xlarge" maxlength="20">
+                </div>
+                <div class="err"></div>
+            </div>
+        </div>
+        <div class="h30" style="*position:relative;*z-index:1">
+            <div class="c c2">
+                <label>部门/科组</label><i>*</i>
+                <div class="sh">
+                	<select data-placeholder="请选择部门" class="ef input-xlarge chosen" name="department_id" id="department_id">
+						<option value="">请选择部门</option>
+						#foreach($obj in $!departments)
+                      	<option value="$!obj.id">$!obj.department_name</option>
+                      	#end
+					</select>
+                </div>
+                <div class="err"></div>
+            </div>
+            <div class="c c4" float-index="false">
+                <label>岗位</label><i>&nbsp;</i>
+				<div class="sh">
+                   	<select data-placeholder="请选择岗位" class="ef input-xlarge chosen" name="duty_id" id="duty_id">
+						<option value="">请选择岗位</option>
+						#foreach($obj in $!dutys)
+                       	<option value="$!obj.id">$!obj.duty_name</option>
+                       	#end
+					</select>
+                </div>
+                <div class="err"></div>
+            </div>
+        </div>
+        <div class="h30" style="*position:relative;*z-index:1">
+            <div class="c c2">
+                <label>聘用类型</label><i>&nbsp;</i>
+                <div class="sh">
+                   	<select data-placeholder="请选择聘用类型" class="ef input-xlarge chosen" name="user_relationship" id="user_relationship">
+						<option value="">请选择聘用类型</option>
+						#foreach($key in ${user_relationship_map.keySet()})
+		                <option value="$key">${user_relationship_map.get($key)}</option>
+		                #end
+					</select>
+                </div>
+                <div class="err"></div>
+            </div>
+            <div class="c c4" float-index="false">
+                <label>邮箱</label><i>&nbsp;</i>
+                <div class="sh">
+                    <input type="text" name="email" id="email" value="$!user.email" class="ef input-xlarge" maxlength="30">
+                </div>
+                <div class="err"></div>
+                <span class="f12">有企业邮箱的填企业邮箱</span>
+            </div>
+        </div>
+    </div>
+    <div class="abox">
+        <div class="mbox" onclick="showMoreClickEvent(this)">
+            <span class="icons">更多展开</span><em class="icons"></em>
+        </div>
+        <div class="all">
+			<div class="h30"> 
+                <div class="c c2" float-index="false">
+                    <label>出生地</label>
+                    <div class="sh">
+                        <input type="text" name="birth_place" id="birth_place" value="$!user.userBase.birth_place" class="ef input-xlarge" maxlength="50"/>
+                    </div>
+                    <div class="err"></div>
+                </div>
+                <div class="c c4" float-index="false">
+                    <label>血型</label>
+                    <div class="sh">
+                        <select data-placeholder="请选择血型" class="ef input-xlarge chosen" name="blood_type" id="blood_type">
+							<option value="">请选择血型</option>
+							#foreach($key in ${blood_type_map.keySet()})
+			                <option value="$key">${blood_type_map.get($key)}</option>
+			                #end
+						</select>
+                    </div>
+                    <div class="err"></div>
+                </div>
+            </div>
+			<div class="h30"> 
+                <div class="c c2">
+                    <label>籍贯</label>
+                    <div class="sh">
+                        <input type="text" name="native_place" id="native_place" value="$!user.userBase.native_place" class="ef input-xlarge" maxlength="50"/>
+                    </div>
+                    <div class="err"></div>
+                </div>
+                <div class="c c4" float-index="false">
+                	<label>星座</label><i>&nbsp;</i>
+                    <div class="sh">
+                        <select data-placeholder="请选择星座" class="ef input-xlarge chosen" name="constellation" id="constellation">
+							<option value="">请选择星座</option>
+							#foreach($key in ${constellation_map.keySet()})
+			                <option value="$key">${constellation_map.get($key)}</option>
+			                #end
+						</select>
+                    </div>
+                    <div class="err"></div>
+                </div>
+            </div>
+			<div class="h30"> 
+                <div class="c c2" float-index="false">
+                    <label>证件类型</label>
+                    <div class="sh">
+                        <select data-placeholder="请选择证件类型" class="ef input-xlarge chosen" name="ID_type" id="ID_type">
+							<option value="">请选择证件类型</option>
+							#foreach($key in ${ID_type_map.keySet()})
+			                <option value="$key">${ID_type_map.get($key)}</option>
+			                #end
+						</select>
+                    </div>
+                    <div class="err"></div>
+                </div>
+                <div class="c c4" float-index="false">
+                    <label>证件号码</label>
+                    <div class="sh">
+                        <input type="text" name="ID_number" id="ID_number" value="$!user.userBase.ID_number" class="ef input-xlarge" maxlength="20"/>
+                    </div>
+                    <div class="err"></div>
+                </div>
+            </div>
+			<div class="h30"> 
+                <div class="c c2" float-index="false">
+                    <label>政治面貌</label>
+                    <div class="sh">
+                        <select data-placeholder="请选择政治面貌" class="ef input-xlarge chosen" name="political_status" id="political_status">
+							<option value="">请选择政治面貌</option>
+							#foreach($key in ${political_status_map.keySet()})
+			                <option value="$key">${political_status_map.get($key)}</option>
+			                #end
+						</select>
+                    </div>
+                    <div class="err"></div>
+                </div>
+                <div class="c c4" float-index="false">
+                    <label>入党(团)时间</label>
+                    <div class="sh">
+                        <input type="text" name="join_party_date" id="join_party_date" value="$!CommUtil.parseShortDateTime($!user.userBase.join_party_date)" class="ef input-xlarge" 
+                        	onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',maxDate:'%y-%M-%d'})" readonly="readonly"/>
+                    </div>
+                    <div class="err"></div>
+                </div>
+            </div>
+            <div class="h30"> 
+                <div class="c c2" float-index="false">
+                    <label>婚姻状况</label>
+                    <div class="sh">
+                        <select data-placeholder="请选择婚姻状况" class="ef input-xlarge chosen" name="marriage_status" id="marriage_status">
+							<option value="">请选择婚姻状况</option>
+							#foreach($key in ${marriage_status_map.keySet()})
+			                <option value="$key">${marriage_status_map.get($key)}</option>
+			                #end
+						</select>
+                    </div>
+                    <div class="err"></div>
+                </div>
+                <div class="c c4" float-index="false">
+                    <label>子女情况</label>
+                    <div class="sh">
+                        <input type="text" name="condition_of_children" id="condition_of_children" value="$!user.userBase.condition_of_children" class="ef input-xlarge" maxlength="10"/>
+                    </div>
+                    <div class="err"></div>
+                    <span class="f12">无子女请填“无”, 有子女请填“几子几女”</span>
+                </div>
+            </div>
+            <div class="h30"> 
+                <div class="c c2" float-index="false">
+                    <label>最高学历</label>
+                    <div class="sh">
+                        <input type="text" name="highest_education" id="highest_education" value="$!user.userBase.highest_education" class="ef input-xlarge" maxlength="20"/>
+                    </div>
+                    <div class="err"></div>
+                </div>
+                <div class="c c4" float-index="false">
+                    <label>获得时间</label>
+                    <div class="sh">
+                    	<input type="text" name="highest_education_gain_time" id="highest_education_gain_time" value="$!CommUtil.parseShortDateTime($!user.userBase.highest_education_gain_time)" class="ef input-xlarge" 
+                        	onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',maxDate:'%y-%M-%d'})" readonly="readonly"/>
+                    </div>
+                    <div class="err"></div>
+                </div>
+            </div>
+            <div class="h30"> 
+                <div class="c c2" float-index="false">
+                    <label>最高学位</label>
+                    <div class="sh">
+                        <input type="text" name="highest_offering" id="highest_offering" value="$!user.userBase.highest_offering" class="ef input-xlarge" maxlength="20"/>
+                    </div>
+                    <div class="err"></div>
+                </div>
+                <div class="c c4" float-index="false">
+                    <label>获得时间</label>
+                    <div class="sh">
+                    	<input type="text" name="highest_offering_gain_time" id="highest_offering_gain_time" value="$!CommUtil.parseShortDateTime($!user.userBase.highest_offering_gain_time)" class="ef input-xlarge" 
+                        	onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',maxDate:'%y-%M-%d'})" readonly="readonly"/>
+                    </div>
+                    <div class="err"></div>
+                </div>
+            </div>
+            <div class="h30"> 
+                <div class="c c2" float-index="false">
+                    <label>职称</label>
+                    <div class="sh">
+                        <input type="text" name="job_titles" id="job_titles" value="$!user.userBase.job_titles" class="ef input-xlarge" maxlength="20"/>
+                    </div>
+                    <div class="err"></div>
+                </div>
+                <div class="c c4" float-index="false">
+                    <label>职称等级</label>
+                    <div class="sh">
+                    	<input type="text" name="job_titles_level" id="job_titles_level" value="$!user.userBase.job_titles_level" class="ef input-xlarge" maxlength="20"/>
+                    </div>
+                    <div class="err"></div>
+                </div>
+            </div>
+            <div class="h30"> 
+                <div class="c c2" float-index="false">
+                    <label>职称评定单位</label>
+                    <div class="sh">
+                        <input type="text" name="job_titles_evaluation_unit" id="job_titles_evaluation_unit" value="$!user.userBase.job_titles_evaluation_unit" class="ef input-xlarge" maxlength="50"/>
+                    </div>
+                    <div class="err"></div>
+                </div>
+                <div class="c c4" float-index="false">
+                    <label>职称评定时间</label>
+                    <div class="sh">
+                    	<input type="text" name="job_titles_evaluation_time" id="job_titles_evaluation_time" value="$!CommUtil.parseShortDateTime($!user.userBase.job_titles_evaluation_time)" class="ef input-xlarge" 
+                        	onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',maxDate:'%y-%M-%d'})" readonly="readonly"/>
+                    </div>
+                    <div class="err"></div>
+                </div>
+            </div>
+            <div class="h30"> 
+                <div class="c c2" float-index="false">
+                    <label>职称证书号</label>
+                    <div class="sh">
+                        <input type="text" name="job_titles_cert_id" id="job_titles_cert_id" value="$!user.userBase.job_titles_cert_id" class="ef input-xlarge" maxlength="20"/>
+                    </div>
+                    <div class="err"></div>
+                </div>
+                <div class="c c4" float-index="false">
+                    <label>首次工作时间</label>
+                    <div class="sh">
+                        <input type="text" name="first_work_date" id="first_work_date" value="$!CommUtil.parseShortDateTime($!user.userBase.first_work_date)" class="ef input-xlarge" 
+                        	onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',maxDate:'%y-%M-%d'})" readonly="readonly"/>
+                    </div>
+                    <div class="err"></div>
+                </div>
+            </div>
+            <div class="h30"> 
+                <div class="c c2" float-index="false">
+                	<label>工作年限</label>
+                    <div class="sh">
+                        <input type="text" name="work_years" id="work_years" value="$!user.userBase.work_years" class="ef input-xlarge" readonly="readonly"/>
+                    </div>
+                    <div class="err"></div>
+                </div>
+                <div class="c c4" float-index="false">
+                	<label>同行工作年限</label>
+                    <div class="sh">
+                        <input type="text" name="same_industry_work_years" id="same_industry_work_years" value="$!user.userBase.same_industry_work_years" class="ef input-xlarge" maxlength="2"/>
+                    </div>
+                    <div class="err"></div>
+                </div>
+            </div>
+            <div class="h30">
+	            <div class="c c2">
+	                <label>外语种类水平</label>
+                    <div class="sh">
+                    	<input type="text" name="foreign_language_level" id="foreign_language_level" value="$!user.userBase.foreign_language_level" class="ef input-xlarge" maxlength="50"/>
+                    </div>
+                    <div class="err"></div>
+                    <span class="f12">*请填写所考取最高级别的证书和成绩</span>
+                </div>
+                <div class="c c4" float-index="false">
+                    <label>计算机水平</label>
+                    <div class="sh">
+                    	<input type="text" name="computer_skill" id="computer_skill" value="$!user.userBase.computer_skill" class="ef input-xlarge" maxlength="20"/>
+                    </div>
+                    <div class="err"></div>
+                    <span class="f12">*请填写等级考试名称和级别，无考级填写精通、熟练、一般</span>
+                </div>
+            </div>
+            <div class="h30"> 
+                <div class="c c2" float-index="false">
+                    <label>是否有记者证</label>
+                    <div class="sh">
+                        <select data-placeholder="是否有记者证" class="ef input-xlarge chosen" name="is_have_press_card" id="is_have_press_card">
+							<option value="">是否有记者证</option>
+							#foreach($key in ${have_or_not_map.keySet()})
+			                <option value="$key">${have_or_not_map.get($key)}</option>
+			                #end
+						</select>
+                    </div>
+                    <div class="err"></div>
+                </div>
+                <div class="c c4" float-index="false">
+                    <label>记者证号</label>
+                    <div class="sh">
+                    	<input type="text" name="press_card_no" id="press_card_no" value="$!user.userBase.press_card_no" class="ef input-xlarge" maxlength="20"/>
+                    </div>
+                    <div class="err"></div>
+                </div>
+            </div>
+            <div class="h30"> 
+                <div class="c c2" float-index="false">
+                    <label>家庭地址</label>
+                    <div class="sh">
+                        <input type="text" name="home_address" id="home_address" value="$!user.userBase.home_address" class="ef input-xlarge" maxlength="50"/>
+                    </div>
+                    <div class="err"></div>
+                    <span class="f12">*非租住地址，请具体到门牌号</span>
+                </div>
+                <div class="c c4" float-index="false">
+                    <label>邮编</label>
+                    <div class="sh">
+                    	<input type="text" name="home_postcode" id="home_postcode" value="$!user.userBase.home_postcode" class="ef input-xlarge" maxlength="10"/>
+                    </div>
+                    <div class="err"></div>
+                </div>
+            </div>
+            <div class="h30"> 
+                <div class="c c2" float-index="false">
+                    <label>现住址</label>
+                    <div class="sh">
+                        <input type="text" name="present_address" id="present_address" value="$!user.userBase.present_address" class="ef input-xlarge" maxlength="50"/>
+                    </div>
+                    <div class="err"></div>
+                    <span class="f12">*请具体到门牌号</span>
+                </div>
+                <div class="c c4" float-index="false">
+                    <label>邮编</label>
+                    <div class="sh">
+                    	<input type="text" name="present_postcode" id="present_postcode" value="$!user.userBase.present_postcode" class="ef input-xlarge" maxlength="10"/>
+                    </div>
+                    <div class="err"></div>
+                </div>
+            </div>
+            <div class="h30"> 
+                <div class="c c2" float-index="false">
+                    <label>人事档案地址</label>
+                    <div class="sh">
+                        <input type="text" name="personnel_file_address" id="personnel_file_address" value="$!user.userBase.personnel_file_address" class="ef input-xlarge" maxlength="50"/>
+                    </div>
+                    <div class="err"></div>
+                </div>
+                <div class="c c4" float-index="false">
+                    <label>邮编</label>
+                    <div class="sh">
+                    	<input type="text" name="personnel_file_postcode" id="personnel_file_postcode" value="$!user.userBase.personnel_file_postcode" class="ef input-xlarge" maxlength="10"/>
+                    </div>
+                    <div class="err"></div>
+                </div>
+            </div>
+            <div class="h30"> 
+                <div class="c c2" float-index="false">
+                    <label>户口所在地</label>
+                    <div class="sh">
+                        <input type="text" name="domicile_place" id="domicile_place" value="$!user.userBase.domicile_place" class="ef input-xlarge" maxlength="50"/>
+                    </div>
+                    <div class="err"></div>
+                    <span class="f12">*请与户口本一致</span>
+                </div>
+                <div class="c c4" float-index="false">
+                    <label>户口性质</label>
+                    <div class="sh">
+                    	<select data-placeholder="请选择户口性质" class="ef input-xlarge chosen" name="domicile_type" id="domicile_type">
+							<option value="">请选择户口性质</option>
+							#foreach($key in ${domicile_type_map.keySet()})
+			                <option value="$key">${domicile_type_map.get($key)}</option>
+			                #end
+						</select>
+                    </div>
+                    <div class="err"></div>
+                </div>
+            </div>
+			<div class="h30"> 
+                <div class="c c2" float-index="false">
+                    <label>紧急联系人</label>
+                    <div class="sh">
+                        <input type="text" name="emergency_contact_name" id="emergency_contact_name" value="$!user.userBase.emergency_contact_name" class="ef input-xlarge" maxlength="50"/>
+                    </div>
+                    <div class="err"></div>
+                </div>
+                <div class="c c4" float-index="false">
+                    <label>紧急联系电话</label>
+                    <div class="sh">
+                    	<input type="tel" name="emergency_contact_mobile" id="emergency_contact_mobile" value="$!user.userBase.emergency_contact_mobile" class="ef input-xlarge"/>
+                    </div>
+                    <div class="err"></div>
+                </div>
+            </div>
+            <div class="c" style="padding-left:100px;">
+                <label style="width:85px;">爱好/特长</label>
+                <textarea name="hobby_and_speciality" id="hobby_and_speciality" oninput="checkTextAreaInput(this, '400')">$!user.userBase.hobby_and_speciality</textarea>
+                <div class="err"></div>
+                <div class="h30">
+                	<span class="f12">*请填写精通的特长和技能，到达可参赛的程度，如有成绩的请填写成绩</span>
+                	#set($hobby_and_speciality_length=0)
+                	#if(""!="$!{user.userBase.hobby_and_speciality}") #set($hobby_and_speciality_length=$!user.userBase.hobby_and_speciality.length()) #end
+                    <span class="frt" id="hobby_and_speciality_chars">$!hobby_and_speciality_length/400 字</span>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+<div class="btnbox">
+    <span class="p_but" id="basedetail_save" onclick="saveButtonClick(this,'baseForm')">保存</span>
+    <span class="p_but gray" id="basedetail_cancel" onclick="cancelButtonClick(this)">取消</span>
+</div>
+<input type="hidden" name="user_base_id" value="$!user.userBase.id"/>
+</form>
+<script src="$!webPath/resources/js/jquery-1.8.3.min.js"></script>
+<script src="$!webPath/resources/assets/bootstrap/js/bootstrap.min.js"></script>
+<script src="$!webPath/resources/assets/toastr/toastr.js" type="text/javascript" ></script>
+<script src="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.jquery.js" type="text/javascript"></script>
+<script src="$!webPath/resources/js/jquery.validate.min.js" type="text/javascript" ></script>
+<script src="$!webPath/resources/js/jquery.validate.ext.js" type="text/javascript" ></script>
+<script src="$!webPath/resources/js/jquery.form.min.js" type="text/javascript" ></script>
+<script>
+$(document).ready(function() {
+	$("#sex").val("$!{user.userBase.sex}");
+	$("#sex").trigger("chosen:updated");
+	$("#department_id").val("$!{user.department.id}");
+	$("#department_id").trigger("chosen:updated");
+	$("#duty_id").val("$!{user.duty.id}"); 
+	$("#duty_id").trigger("chosen:updated");
+	$("#user_relationship").val("$!{user.user_relationship}"); 
+	$("#user_relationship").trigger("chosen:updated");
+	$("#blood_type").val("$!{user.userBase.blood_type}"); 
+	$("#blood_type").trigger("chosen:updated");
+	$("#constellation").val("$!{user.userBase.constellation}"); 
+	$("#constellation").trigger("chosen:updated");
+	$("#ID_type").val("$!{user.userBase.ID_type}"); 
+	$("#ID_type").trigger("chosen:updated");
+	$("#political_status").val("$!{user.userBase.political_status}"); 
+	$("#political_status").trigger("chosen:updated");
+	$("#marriage_status").val("$!{user.userBase.marriage_status}"); 
+	$("#marriage_status").trigger("chosen:updated");
+	$("#is_have_press_card").val("$!{user.userBase.is_have_press_card}"); 
+	$("#is_have_press_card").trigger("chosen:updated");
+	$("#domicile_type").val("$!{user.userBase.domicile_type}"); 
+	$("#domicile_type").trigger("chosen:updated");
+	App.init();
+	jqueryValidate();
+	bindChangeEvent();
+	$("div.chosen-container.chosen-container-single").css("width","284");
+});
+function jqueryValidate(){
+	jQuery.validator.addMethod("workYearsReg",function(value,element){
+		var reg=/\d{1}|(^[1-9]\d{1}$)/;
+		return this.optional(element) || (reg.test(value));
+	}, "必须是0~100(不含)整数");
+	
+	jQuery("#baseForm").validate({
+		errorElement : "span",
+		errorPlacement : function(error, element) { 
+			$(error).appendTo($(element).parent().siblings("div.err"));
+		},
+		onfocusout : function(element) {
+	        $(element).valid();
+	    },
+		rules:{     
+			true_name:{required:true},
+			birthday:{required:true},
+			department_id:{required:true},
+			sex:{required:true},
+			email:{email:true},
+			home_postcode:{isZipCode:[]},
+			present_postcode:{isZipCode:[]},
+			personnel_file_postcode:{isZipCode:[]},
+			emergency_contact_mobile:{isMobile:[]},
+			work_years:{workYearsReg:[]},
+			same_industry_work_years:{workYearsReg:[]},
+       	},
+		messages:{
+			true_name:{required:"请输入用户姓名"},
+      		birthday:{required:"请选择出生日期"},
+      		department_id:{required:"请选择所属部门/科组"},
+      		sex:{required:"请选择性别"},
+      		
+		}
+	}); 
+	var validator = $("#baseForm").data("validator");
+    validator.settings.ignore = ":hidden:not(select)";
+}
+function bindChangeEvent(){
+    jQuery("#department_id").change(function(){
+        jQuery.ajax({
+            type : "post",
+            url : "$!webPath/admin/duty/ajaxQueryDutyUnderDepartment.htm",
+            data : {//设置数据源
+                department_id : jQuery(this).val()
+            },
+            dataType : "json",//设置需要返回的数据类型
+            success : function(data) {
+                if(data && data != null && data.result){
+                    console.log(data.data);
+                    jQuery("#duty_id").empty();  
+                    jQuery("#duty_id").append("<option value=''>请选择岗位</option>");
+                    jQuery.each(data.data, function(index, item){
+                        var option = jQuery("<option>").val(item.id).text(item.duty_name);
+                        jQuery("#duty_id").append(option);
+                    });
+                    jQuery("#duty_id").trigger("chosen:updated");
+                }
+            },
+            error : function() {
+                alert("系统异常，请稍后重试！");
+            }
+        });
+    });
+    //年龄
+    $("#birthday").bind("blur",function(){
+    	$("#age").val(getAge($(this).val()));
+    });
+    //工作年限
+    $("#first_work_date").bind("blur",function(){
+    	$("#work_years").val(getAge($(this).val()));
+    });
+}
+</script>

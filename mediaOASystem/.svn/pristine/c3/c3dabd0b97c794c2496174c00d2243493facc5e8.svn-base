@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="ehcache.xsd"
+         updateCheck="false" 
+         monitoring="autodetect"
+         dynamicConfig="true">
+         
+    <diskStore path="java.io.tmpdir"/>
+    <!--
+       name:缓存名称。
+       maxEntriesLocalHeap:堆内存中最大缓存对象数，0没有限制
+	   maxEntriesLocalDisk:磁盘中的最大对象数，默认为0不限制
+       maxElementsInMemory：设置基于内存的缓存可存放对象的最大数目。 如果放入cache中的元素超过这个数值，
+       				有两种情况：1、若overflowToDisk的属性值为true，会将cache中多出的元素放入磁盘文件中。
+       						2、若overflowToDisk的属性值为false，会根据memoryStoreEvictionPolicy的策略替换cache中原有的元素。
+      
+       maxElementsOnDisk：设置基于硬盘的缓存可存放对象的最大数目
+       eternal:对象是否永久有效，一但设置了，timeout将不起作用。
+       timeToIdleSeconds：设置对象在失效前的允许闲置时间（单位：秒）。仅当eternal=false对象不是永久有效时使用，可选属性，默认值是0，也就是可闲置时间无穷大。
+       timeToLiveSeconds：设置对象在失效前允许存活时间（单位：秒）。最大时间介于创建时间和失效时间之间。仅当eternal=false对象不是永久有效时使用，默认是0.，也就是对象存活时间无穷大。
+       overflowToDisk：当内存中对象数量达到maxElementsInMemory时，Ehcache将会对象写到磁盘中。
+       diskSpoolBufferSizeMB：这个参数设置DiskStore（磁盘缓存）的缓存区大小。默认是30MB。每个Cache都应该有自己的一个缓冲区。
+       diskPersistent：是否缓存虚拟机重启期数据。（Server重启时将缓存序列化到本地，后再加载，保证缓存在重启后依然有效） Whether the disk store persists between restarts of the Virtual Machine. The default value is false.
+       diskExpiryThreadIntervalSeconds：磁盘失效线程运行时间间隔，默认是120秒。
+       memoryStoreEvictionPolicy：当达到maxElementsInMemory限制时，Ehcache将会根据指定的策略去清理内存。默认策略是LRU（最近最少使用）。你可以设置为FIFO（先进先出）或是LFU（较少使用）。
+       clearOnFlush：内存数量最大时是否清除。
+    -->
+   
+   <cache name="user_file_mobile_check_code"
+         maxEntriesLocalHeap="10000"
+         maxEntriesLocalDisk="100000"
+         eternal="false"
+         overflowToDisk="true"
+         timeToIdleSeconds="300"
+         timeToLiveSeconds="300"
+         diskPersistent="true"
+         diskExpiryThreadIntervalSeconds="1"
+         memoryStoreEvictionPolicy="LFU"
+       />      
+       
+   <cache name="user_resume_mobile_check_code"
+         maxEntriesLocalHeap="10000"
+         maxEntriesLocalDisk="100000"
+         eternal="false"
+         overflowToDisk="true"
+         timeToIdleSeconds="300"
+         timeToLiveSeconds="300"
+         diskPersistent="true"
+         diskExpiryThreadIntervalSeconds="1"
+         memoryStoreEvictionPolicy="LFU"
+       />      
+</ehcache>

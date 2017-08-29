@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<!--[if IE 8]> <html class="ie8"> <![endif]-->
+<!--[if IE 9]> <html class="ie9"> <![endif]-->
+<!--[if !IE]><!--> <html> <!--<![endif]-->
+<head>
+<meta charset="utf-8" />
+<title>新媒体智能管理系统</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+<meta content="" name="description" />
+<meta content="" name="author" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="renderer" content="webkit|ie-comp|ie-stand" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap-fileupload.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/font-awesome/css/font-awesome.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style_responsive.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style_default.css" rel="stylesheet" id="style_color" />
+<link href="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/fancybox/source/jquery.fancybox.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/toastr/toastr.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/uniform/css/uniform.default.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/My97DatePicker/skin/WdatePicker.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/css/custom/custom.css" rel="stylesheet" type="text/css" />
+</head>
+<body class="fixed-top">
+	<div id="header" class="navbar navbar-inverse navbar-fixed-top">
+		$!httpInclude.include("/common/_header.htm") 
+	</div>
+	<div id="container" class="row-fluid">
+		<div id="sidebar" class="nav-collapse collapse">
+			$!httpInclude.include("/common/_sidebar.htm?op=inside_income_dispatches") 
+		</div>
+		<div id="main-content">
+			<div class="container-fluid">
+				<div class="row-fluid">
+					<div class="span12">
+						<h3 class="page-title">台内收文编辑</h3>
+						<ul class="breadcrumb">
+							<li><a href="$!webPath/index.htm"><i class="icon-home"></i></a><span class="divider">&nbsp;</span></li>
+					        <li><a href="javascript:void(0);">行政办公</a><span class="divider">&nbsp;</span></li>
+							<li><a href="$!webPath/admin/office/inside_income_dispatches_edit.htm?id=$!obj.id&currentPage=$!currentPage">台内收文编辑</a><span class="divider-last">&nbsp;</span></li>
+						</ul>
+					</div>
+				</div>
+				<div class="row-fluid">
+					<form name="theForm" id="theForm" action="$!webPath/admin/office/inside_income_dispatches_edit_save.htm" method="post" class="form-horizontal">
+		            	<div class="span12">
+							<div class="widget">
+		                    	<div class="widget-title">
+		                        	<h4><i class="icon-reorder"></i>台内收文编辑</h4>
+		                     	</div>
+                     			<div class="widget-body form">
+		                        	<div class="control-group">
+		                           		<label class="control-label"><font class="red_font">*</font>发文单位</label>
+		                              	<div class="controls">
+		                                 	<select data-placeholder="请选择发文单位" class="input-xlarge chosen" tabindex="-1" name="dispatch_unit_id" id="dispatch_unit_id">
+												<option value="">请选择发文单位</option>
+												#foreach($obj in $!dispatchUnits)
+						                        <option value="$!obj.id">$!obj.dispatch_unit_name</option>
+						                        #end
+						                        <option value="-1">其他</option>
+											</select>
+		                              	</div>
+		                           	</div>
+		                           	<div class="control-group" id="hid_div_wrap" style="display:none;">
+		                        		<label class="control-label"><font class="red_font">*</font>发文单位名称</label>
+	                                    <div class="controls">
+	                                    	 <input type="text" name="dispatch_unit_name" id="dispatch_unit_name" placeholder="发文单位名称" class="span6 popovers"
+	                                        	data-trigger="hover" data-content="输入发文单位名称，最多50字符" maxlength="50"/>
+	                                    </div>
+		                           	</div>
+		                           	<div class="control-group">
+		                        		<label class="control-label"><font class="red_font">*</font>年份和文号</label>
+	                                    <div class="controls">
+	                                        <input type="text" name="year_and_document_number" value="$!obj.year_and_document_number" placeholder="年份和文号" class="span6 popovers"
+	                                        	data-trigger="hover" data-content="输入年份和文号，最多50字符"  maxlength="50"/>
+	                                        <span class="help-inline"></span>
+	                                    </div>
+		                           	</div>
+		                        	<div class="control-group">
+		                        		<label class="control-label"><font class="red_font">*</font>标题</label>
+	                                    <div class="controls">
+	                                        <input type="text" name="title" value="$!obj.title" placeholder="标题" class="span6 popovers" maxlength="50"
+	                                        	data-trigger="hover" data-content="输入台内收文标题，最多50字符"/>
+	                                        <span class="help-inline"></span>
+	                                    </div>
+		                           	</div>
+		                           	<div class="control-group">
+		                        		<label class="control-label"><font class="red_font">*</font>印发日期</label>
+	                                    <div class="controls">
+	                                    	 <input type="text" name="print_and_dispatch_time" value="$!CommUtil.parseShortDateTime($!obj.print_and_dispatch_time)" 
+	                                    	 	placeholder="印发日期" class="span6 popovers" data-trigger="hover" data-content="请点击选择印发日期" readonly="readonly" 
+	                                    	 	onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'})"/>
+	                                        <span class="help-inline"></span>
+	                                    </div>
+		                           	</div>
+		                           	<div class="control-group">
+		                        		<label class="control-label"><font class="red_font">*</font>收文日期</label>
+	                                    <div class="controls">
+	                                    	 <input type="text" name="income_dispatches_time" value="$!CommUtil.parseShortDateTime($!obj.income_dispatches_time)" 
+	                                    	 	placeholder="收文日期" class="span6 popovers" data-trigger="hover" data-content="请点击选择收文日期" readonly="readonly" 
+	                                    	 	onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'})"/>
+	                                        <span class="help-inline"></span>
+	                                    </div>
+		                           	</div>
+		                           	<div class="control-group">
+		                            	<label class="control-label">备注</label>
+		                              	<div class="controls">
+		                                	<textarea class="span6" name="remark" id="remark" rows="3">$!obj.remark</textarea>
+		                              	</div>
+		                          	<div><a href="$!webPath/admin/office/download_insideIncomeDispatches.htm?id=$!obj.id" class="btn">批量下载</a></div>
+		                            </div>
+		                            $!httpInclude.include("/common/_include_upload_file.htm")  
+                                    <table role="presentation" class="table table-striped">
+                                    	<tbody class="files">
+                                    		#if($!attachments.size()>0)
+                                    		#foreach($attach in $!attachments)
+	                                    	<tr class="template-download fade in">
+												<td>
+											    	<span class="preview">
+											    		#if($!CommUtil.isImage("$!attach.mime_type"))
+											            <a class="fancybox-button" data-rel="fancybox-button" title="$!attach.original_file_name" href="$!webPath/$!attach.save_path/$!attach.save_file_name">
+															<div class="zoom">
+																<img style="widht:50px; height:25px;" src="$!webPath/$!attach.save_path/$!attach.save_file_name">
+																<div class="zoom-icon"></div>
+															</div>
+														</a>
+											            #end    
+											    	</span>
+											    </td>
+										        <td>
+										            <p class="name">
+										                <input type="hidden" name="attachments_id" value="$!attach.id">
+										                <a href="$!webPath/$!attach.save_path/$!attach.save_file_name" title="$!attach.original_file_name" target="_blank" >$!attach.original_file_name</a>
+										            </p>
+										        </td>
+										        <td>
+										            <span class="size">$!CommUtil.formatFileSize("$!attach.file_size")</span>
+										        </td>
+										        <td>
+										            <button class="btn btn-danger delete" name="btn_delete_single">
+										                <i class="icon-trash"></i><span>删除</span>
+										            </button>
+										            #if($!CommUtil.isOffice("$!attach.ext_name") || $!CommUtil.isPDF("$!attach.ext_name"))
+										            	<a class="btn btn-primary" href="$!webPath/preview/file_preview.htm?id=$!attach.id" target="_blank"><span>&nbsp;&nbsp;预览&nbsp;</span></a>
+										            #end
+										        </td>
+										    </tr>
+											#end
+											#end
+                                    	</tbody>
+                                    </table>
+									<div class="clearfix space15"></div>
+                           			<div class="form-actions">
+                           				<input type="button" id="btn_submit" class="btn btn-primary" value="保存"/>
+                           				<a href="$!webPath/admin/office/inside_income_dispatches_list.htm?currentPage=$!currentPage" class="btn">返回</a>
+                           			</div>
+	                     		</div>
+	                  		</div>
+		                </div>
+		                <input type="hidden" name="currentPage" id="currentPage" value="$!currentPage"/>
+		                <input type="hidden" name="id" id="id" value="$!obj.id"/>
+				  	</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="footer">
+		$!httpInclude.include("/common/_footer.htm")	
+	</div>
+	<script src="$!webPath/resources/js/jquery-1.8.3.min.js"></script>
+    <script src="$!webPath/resources/assets/fileupload/js/vendor/jquery.ui.widget.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/tmpl.min.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/load-image.min.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/canvas-to-blob.min.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/jquery.blueimp-gallery.min.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/jquery.iframe-transport.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/jquery.fileupload.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/jquery.fileupload-process.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/jquery.fileupload-image.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/jquery.fileupload-validate.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/jquery.fileupload-ui.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/main.js"></script>
+	<!--[if (gte IE 8)&(lt IE 10)]>
+	<script src="$!webPath/resources/assets/fileupload/js/cors/jquery.xdr-transport.js"></script>
+	<![endif]-->
+    <script src="$!webPath/resources/assets/bootstrap/js/bootstrap.min.js"></script>   
+    <script src="$!webPath/resources/js/jquery.blockui.js"></script>
+    <!-- ie8 fixes -->
+    <!--[if lt IE 9]>
+    <script src="$!webPath/resources/js/excanvas.js"></script>
+    <script src="$!webPath/resources/js/respond.js"></script>
+    <![endif]-->   
+    <script src="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.jquery.js" type="text/javascript"></script>
+    <script src="$!webPath/resources/assets/fancybox/source/jquery.fancybox.pack.js"></script>  
+    <script src="$!webPath/resources/assets/uniform/jquery.uniform.min.js" type="text/javascript"></script>
+    <script src="$!webPath/resources/js/jquery.validate.min.js" type="text/javascript" ></script>
+	<script src="$!webPath/resources/js/jquery.validate.ext.js" type="text/javascript" ></script>
+	<script src="$!webPath/resources/js/jquery.form.min.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/assets/My97DatePicker/WdatePicker.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/assets/toastr/toastr.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/js/scripts.js"></script>
+    <script src="$!webPath/resources/js/custom/common.js"></script>
+    <script>
+	jQuery(document).ready(function() {   
+		jQuery("#dispatch_unit_id").val("$!{obj.dispatchUnit.id}");
+		jQuery("#dispatch_unit_id").trigger("chosen:updated");
+		App.init();
+		initToastr();
+		jqueryValidate();
+		bindEvent();
+		bindChangeEvent();
+	});
+	function jqueryValidate(){
+		jQuery("#theForm").validate({
+			errorPlacement : function(error, element) { 
+				$(error).appendTo($(element).parent()); 
+			},
+			rules:{
+				dispatch_unit_id:{required:true},
+				year_and_document_number:{required:true},
+				title:{required:true},
+				print_and_dispatch_time:{required:true},
+				income_dispatches_time:{required:true},
+	       	},
+			messages:{
+				dispatch_unit_id:{required:"发文单位不能为空"},
+	      		year_and_document_number:{required:"年份和文号不能为空"},
+	      		title:{required:"标题不能为空"},
+	      		print_and_dispatch_time:{required:"印发日期不能为空"},
+	      		income_dispatches_time:{required:"收文日期不能为空"},
+			}
+		}); 
+		var validator = $("#theForm").data("validator");
+        validator.settings.ignore = ":hidden:not(select)";
+	}
+	function bindEvent(){
+		jQuery("#btn_submit").bind("click", function(){
+			if (jQuery("#theForm").valid()) {
+				jQuery("#loadingBar").show();
+				setAttachmentsIds();
+				ajaxFormSubmit('theForm','defaultAjaxSaveCallBack');
+			}
+		});
+	}
+	function unBindEvent(){
+		jQuery("#btn_submit").unbind();
+	}
+	function bindChangeEvent(){
+		jQuery("#dispatch_unit_id").change(function(){
+			var val = jQuery(this).val();
+			if("-1"==val){
+				showFunc()
+				addRule();
+			}else{
+				removeRule();
+				hideFunc();
+			}
+		});
+	}
+	function addRule(){
+		$("#dispatch_unit_name").rules("add",{ 
+			required:true,
+		    messages:{
+		    	required:"发文单位名称不能为空"
+		    }
+		});  
+	}
+	function removeRule(){
+		$("#dispatch_unit_name").rules("remove");
+	}
+	function showFunc(){
+		$("#hid_div_wrap").show();
+	}
+	function hideFunc(){
+		$("#hid_div_wrap").hide();
+	}
+	</script>
+	<script type="text/javascript">
+    var uploader = $("#theForm");
+    $(function () {
+        "use strict";
+        uploader.fileupload({
+            "url": "$!webPath/admin/office/iidUpload.htm",
+            "method": "post",
+            "autoUpload": false,
+            "limitMultiFileUploads": 2, 
+            "limitConcurrentUploads": 1, 
+            "maxFileSize": 50 * 1024 * 1024,
+            "maxNumberOfFiles": 10,
+            messages: {
+                maxNumberOfFiles: '文件个数不能超过10个',
+                maxFileSize: '文件过大, 最大不能超过50M',
+            },
+            "previewMaxWidth": 50,
+            "previewMaxHeight": 50,
+        });
+    });
+    function setAttachmentsIds(){
+    	var attach_nodes = jQuery("input[name='attachments_id']");
+    	var size = attach_nodes.length;
+    	if(0==size){
+    		jQuery("#attachments_ids").val("");
+    	}else{
+    		var arr = [];
+    		for(var i=0; i<size; i++){
+    			var attachments_id = jQuery(attach_nodes[i]).val();
+    			if(isEmpty(attachments_id) || contains(arr, attachments_id)){
+    				continue;
+    			}else{
+    				arr.push(attachments_id);
+    			}
+    		}
+        	jQuery("#attachments_ids").val(arr.join(","));
+        	console.log("attachments_ids==>"+jQuery("#attachments_ids").val());
+    	}
+    }
+	</script>
+</body>
+</html>

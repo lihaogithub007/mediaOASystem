@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<!--[if IE 8]> <html class="ie8"> <![endif]-->
+<!--[if IE 9]> <html class="ie9"> <![endif]-->
+<!--[if !IE]><!--> <html> <!--<![endif]-->
+<head>
+<meta charset="utf-8" />
+<title>新媒体智能管理系统</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+<meta content="" name="description" />
+<meta content="" name="author" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="renderer" content="webkit|ie-comp|ie-stand" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/bootstrap/css/bootstrap-fileupload.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/font-awesome/css/font-awesome.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style_responsive.css" rel="stylesheet" />
+<link href="$!webPath/resources/css/style_default.css" rel="stylesheet" id="style_color" />
+<link href="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/fancybox/source/jquery.fancybox.css" rel="stylesheet" />
+<link href="$!webPath/resources/assets/toastr/toastr.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/uniform/css/uniform.default.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/assets/My97DatePicker/skin/WdatePicker.css" rel="stylesheet" type="text/css" />
+<link href="$!webPath/resources/css/custom/custom.css" rel="stylesheet" type="text/css" />
+<style>
+.accordion {
+    margin-bottom: 10px;
+}
+.accordion .accordion-group{
+    padding-bottom: 20px;
+}
+.form-horizontal .control-group{
+	margin-bottom: 10px;
+}
+.form-horizontal .control-label{
+	width:124px;
+}
+.form-horizontal .controls {
+    margin-left: 140px;
+}
+.float_left{
+	float:left;
+	width:50%;
+	min-width:365px;
+}
+.clear_left{
+	clear:left;
+}
+.accordion-inner-add {
+    padding: 9px 15px;
+}
+</style>
+</head>
+<body class="fixed-top">
+	<div id="header" class="navbar navbar-inverse navbar-fixed-top">
+		$!httpInclude.include("/common/_header.htm") 
+	</div>
+	<div id="container" class="row-fluid">
+		<div id="sidebar" class="nav-collapse collapse">
+			$!httpInclude.include("/common/_sidebar.htm?op=vacation_apply_manage") 
+		</div>
+		<div id="main-content">
+			<div class="container-fluid">
+				<div class="row-fluid">
+					<div class="span12">
+						<h3 class="page-title">休假申请添加</h3>
+						<ul class="breadcrumb">
+							<li><a href="$!webPath/index.htm"><i class="icon-home"></i></a><span class="divider">&nbsp;</span></li>
+					        <li><a href="javascript:void(0);">考勤管理</a><span class="divider">&nbsp;</span></li>
+							<li><a href="$!webPath/admin/work_attendance/vacation_apply_add.htm?currentPage=$!currentPage">休假申请添加</a><span class="divider-last">&nbsp;</span></li>
+						</ul>
+					</div>
+				</div>
+				<div class="row-fluid">
+					<form name="theForm" id="theForm" action="$!webPath/admin/work_attendance/vacation_apply_add_save.htm" method="post" class="form-horizontal">
+		            	<div class="span12">
+							<div class="widget">
+		                    	<div class="widget-title">
+		                        	<h4><i class="icon-reorder"></i>休假申请添加</h4>
+		                     	</div>
+                     			<div class="widget-body form">
+		                           	<div class="control-group">
+		                           		<label class="control-label"><font class="red_font">*</font>申请人</label>
+		                              	<div class="controls">
+		                                 	<select data-placeholder="请选择申请人" class="span6 chosen" tabindex="-1" name="user_id" id="user_id">
+												<option value="">请选择申请人</option>
+												#foreach($obj in $!users)
+						                        <option value="$!obj.id">$!{obj.true_name}($!obj.department.department_name)($!obj.duty.duty_name)</option>
+						                        #end
+											</select>
+		                              	</div>
+		                           	</div>
+		                           	<div class="control-group">
+		                        		<label class="control-label"><font class="red_font">*</font>休假日期</label>
+	                                    <div class="controls">
+	                                    	<input type="text" name="vacation_begin_date" id="vacation_begin_date" placeholder="休假开始日期" 
+	                                    		class="span3 popovers" data-trigger="hover" data-content="请选择输休假开始日期" readonly="readonly"
+	                                        	onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',maxDate:'#F{$dp.$D(\'vacation_end_date\')}'})"/>
+	                                        -&nbsp;<input type="text" name="vacation_end_date" id="vacation_end_date" placeholder="休假结束日期" 
+	                                    		class="span3 popovers" data-trigger="hover" data-content="请选择输休假结束日期" readonly="readonly"
+	                                        	onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',minDate:'#F{$dp.$D(\'vacation_begin_date\')}'})"/>
+	                                        <span class="help-inline">*包含休息日</span>
+	                                    </div>
+		                           	</div>
+		                           	<div class="control-group">
+		                           		<label class="control-label"><font class="red_font">*</font>休假天数</label>
+		                              	<div class="controls">
+		                              		<input type="text" name="vacation_dates" id="vacation_dates" placeholder="休假天数" 
+		                              			class="span6 popovers" data-trigger="hover" data-content="请输入休假天数, 整数或小数, 整数位最多3位, 小数位最多一位" maxlength="5"/>
+		                              	</div>
+		                           	</div>
+		                           	<div class="control-group">
+		                           		<label class="control-label"><font class="red_font">*</font>休假明细</label>
+		                              	<div class="controls">
+		                              		<a href="javascript:void(0);" class="btn btn-primary" id="btn_add_vacation_apply_details">添加明细</a>
+		                              	</div>
+		                           	</div>
+		                           	<div class="control-group">
+		                           		<label class="control-label"></label>
+		                              	<div class="controls" id="vacation_apply_details_area"></div>
+		                           	</div>
+		                           	<div class="control-group" id="upload_file_area" style="display:none;">
+		                           		<label class="control-label"></label>
+		                              	<div class="controls">
+		                              		$!httpInclude.include("/common/_include_upload_file.htm")  
+						                  	<table role="presentation" class="table table-striped"><tbody class="files"></tbody></table>
+						          			<div class="clearfix space15"></div>
+		                              	</div>
+		                           	</div>
+		                           	<div class="control-group">
+		                           		<label class="control-label">休假审批</label>
+		                              	<div class="controls">
+		                              		<a href="javascript:void(0);" class="btn btn-primary" id="btn_add_vacation_apply_approval">添加审批</a>
+		                              	</div>
+		                           	</div>
+		                           	<div class="control-group">
+		                           		<label class="control-label"></label>
+		                              	<div class="controls" id="vacation_apply_approval_area"></div>
+		                           	</div>
+                           			<div class="form-actions">
+                           				<input type="button" id="btn_submit" class="btn btn-primary" value="保存"/>
+                           				<a href="$!webPath/admin/work_attendance/vacation_apply_list.htm?currentPage=$!currentPage" class="btn">返回</a>
+                           			</div>
+	                     		</div>
+	                  		</div>
+		                </div>
+		                <input type="hidden" name="currentPage" id="currentPage" value="$!currentPage"/>
+				  	</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="footer">
+		$!httpInclude.include("/common/_footer.htm")	
+	</div>
+    <script src="$!webPath/resources/js/jquery-1.8.3.min.js"></script>
+    <script src="$!webPath/resources/assets/fileupload/js/vendor/jquery.ui.widget.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/tmpl.min.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/load-image.min.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/canvas-to-blob.min.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/jquery.blueimp-gallery.min.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/jquery.iframe-transport.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/jquery.fileupload.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/jquery.fileupload-process.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/jquery.fileupload-image.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/jquery.fileupload-validate.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/jquery.fileupload-ui.js"></script>
+	<script src="$!webPath/resources/assets/fileupload/js/main.js"></script>
+	<!--[if (gte IE 8)&(lt IE 10)]>
+	<script src="$!webPath/resources/assets/fileupload/js/cors/jquery.xdr-transport.js"></script>
+	<![endif]-->
+    <script src="$!webPath/resources/assets/bootstrap/js/bootstrap.min.js"></script>   
+    <script src="$!webPath/resources/js/jquery.blockui.js"></script>
+    <!-- ie8 fixes -->
+    <!--[if lt IE 9]>
+    <script src="$!webPath/resources/js/excanvas.js"></script>
+    <script src="$!webPath/resources/js/respond.js"></script>
+    <![endif]-->   
+    <script src="$!webPath/resources/assets/chosen-bootstrap/chosen/v1.7/chosen.jquery.js" type="text/javascript"></script>
+    <script src="$!webPath/resources/assets/uniform/jquery.uniform.min.js" type="text/javascript"></script>
+    <script src="$!webPath/resources/js/jquery.validate.min.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/js/jquery.validate.ext.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/js/jquery.form.min.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/assets/My97DatePicker/WdatePicker.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/assets/toastr/toastr.js" type="text/javascript" ></script>
+    <script src="$!webPath/resources/js/scripts.js"></script>
+    <script src="$!webPath/resources/js/custom/common.js"></script>
+    <script>
+	jQuery(document).ready(function() {   
+		App.init();
+		initToastr();
+		jqueryValidate();
+		bindEvent();
+		add_vacation_apply_details();
+		add_vacation_apply_approval();
+	});
+	function jqueryValidate(){
+		jQuery.validator.addMethod("decimal4point1",function(value,element){
+    		var reg=/(^0(\.\d{1}){1}$)|(^[1-9]\d{0,2}(\.\d{1})?$)/;
+    		return this.optional(element) || (reg.test(value));
+    	}, "必须是数字或小数, 整数位最多3位，小数位最多一位");
+		jQuery("#theForm").validate({
+			errorPlacement : function(error, element) { 
+				$(error).appendTo($(element).parent()); 
+			},
+			rules:{
+				user_id:{required:true},
+				vacation_begin_date:{required:true},
+				vacation_end_date:{required:true},
+				vacation_dates:{required:true,decimal4point1:[]},
+	       	},
+			messages:{
+				user_id:{required:"请选择申请人"},
+				vacation_begin_date:{required:"请选择休假开始日期"},
+				vacation_end_date:{required:"请选择休假结束日期"},
+				vacation_dates:{required:"请输入休假天数"},
+			}
+		}); 
+		var validator = $("#theForm").data("validator");
+        validator.settings.ignore = ":hidden:not(select)";
+	}
+	function bindEvent(){
+		jQuery("#btn_submit").bind("click", function(){
+			if (jQuery("#theForm").valid() && doCheck()) {
+				setAttachmentsIds();
+				if(attachments_check()){
+					jQuery("#loadingBar").show();
+					save_form();	
+				}
+			}
+		});
+	}
+	//校验
+	function doCheck(){
+		var vacation_apply_details = $("input[name='vacation_apply_details']");
+		var size = vacation_apply_details.size();
+		if(0==size){
+			alert("请添加休假明细");
+			return false;
+		}
+		return true;
+	}
+	//保存
+	function save_form(){
+		var vacation_apply_details = $("input[name='vacation_apply_details']");
+		var vad_size = vacation_apply_details.size();
+        var vad_arr = [];
+       	for(var i = 0; i < vad_size; i++){
+       		var vad_id = jQuery(vacation_apply_details[i]).attr("id");
+       		vad_id = vad_id.substring("vacation_apply_details".length+1,vad_id.length);
+       		if(isEmpty(vad_id)){
+       			alert("休假明细ID标识为空");
+       			jQuery("#loadingBar").hide();
+       			return false;
+       		}
+       		var data = {};
+       		data.leave_type = jQuery("#leave_type_"+vad_id).val();
+       		data.begin_time = jQuery("#begin_time_"+vad_id).val();
+       		data.end_time = jQuery("#end_time_"+vad_id).val();
+       		data.dates = jQuery("#dates_"+vad_id).val();
+       		vad_arr.push(data);
+        }
+       	
+       	var vacation_apply_approval = $("input[name='vacation_apply_approval']");
+		var vaa_size = vacation_apply_approval.size();
+       	var vaa_arr = [];
+       	for(var i = 0; i < vaa_size; i++){
+       		var vaa_id = jQuery(vacation_apply_approval[i]).attr("id");
+       		vaa_id = vaa_id.substring("vacation_apply_approval".length+1,vaa_id.length);
+       		if(isEmpty(vaa_id)){
+       			alert("ID标识为空");
+       			jQuery("#loadingBar").hide();
+       			return false;
+       		}
+       		var data = {};
+       		data.department_name = jQuery("#department_name_"+vaa_id).val();
+       		data.approval_user_id = jQuery("#approval_user_id_"+vaa_id).val();
+       		data.approval_text = jQuery("#approval_text_"+vaa_id).val();
+       		vaa_arr.push(data);
+        }
+       	var options = { 
+   			type : "post", 
+            async:false,
+            dataType:"json",
+            data:{
+            	"vad_arr" : JSON.stringify(vad_arr),
+            	"vaa_arr" : JSON.stringify(vaa_arr),
+            },
+            success     	   : success_ajax, 
+            error			   : error_ajax,
+        };	
+        jQuery("#theForm").ajaxSubmit(options);
+    }
+    function success_ajax(data){
+    	defaultAjaxSaveCallBack(data);
+    }
+    function error_ajax(data){
+		jQuery("#loadingBar").hide();
+		alert("信息提交错误");
+    }
+	function unBindEvent(){
+		jQuery("#btn_submit").unbind();
+	}
+	
+	//添加休假申请明细
+	var vacation_apply_details_count = 0;
+	function add_vacation_apply_details(){
+        jQuery("#btn_add_vacation_apply_details").bind("click", function(){
+        	vacation_apply_details_count++;
+        	jQuery.ajax({
+				type : "post",
+				url : "$!webPath/admin/work_attendance/ajaxAddVacationApplyDetails.htm",
+				data : {
+					count:vacation_apply_details_count
+				},
+				datatype:"text",
+			    async:false,
+			    success:function(data){
+			    	if(data){
+			    		$("#vacation_apply_details_area").append(data);
+			        }
+			    },
+			    error : function() {
+			        alert("系统异常，请稍后重试！");
+			    }
+			});
+        });
+    }
+	//添加审批
+	var vacation_apply_approval_count = 0;
+	function add_vacation_apply_approval(){
+        jQuery("#btn_add_vacation_apply_approval").bind("click", function(){
+        	vacation_apply_approval_count++;
+        	jQuery.ajax({
+				type : "post",
+				url : "$!webPath/admin/work_attendance/ajaxAddVacationApplyApproval.htm",
+				data : {
+					count:vacation_apply_approval_count
+				},
+				datatype:"text",
+			    async:false,
+			    success:function(data){
+			    	if(data){
+			    		$("#vacation_apply_approval_area").append(data);
+			        }
+			    },
+			    error : function() {
+			        alert("系统异常，请稍后重试！");
+			    }
+			});
+        });
+    }
+	//删除行
+	function del(node){
+		var div_node = jQuery(node).parent("div").parent("div").parent("div").parent("div").parent("div").parent("div");
+		jQuery(div_node).remove();
+	} 
+	function show_hide_upload_area(){
+		var show_flag = false;
+		
+		jQuery("select[name^='leave_type_']").each(function(i){
+			var thisVal = jQuery(this).val();
+			if("2"==thisVal || "5"==thisVal || "6"==thisVal){
+				show_flag = true;
+				return false;
+			}
+		});
+		if(show_flag){
+			jQuery("#upload_file_area").show();
+		}else{
+			jQuery("#upload_file_area").hide();
+		}
+	}
+	</script>
+	<script type="text/javascript">
+    var uploader = $("#theForm");
+    $(function () {
+        "use strict";
+        uploader.fileupload({
+            "url": "$!webPath/admin/office/eafUpload.htm",
+            "method": "post",
+            "autoUpload": false,
+            "limitMultiFileUploads": 2, 
+            "limitConcurrentUploads": 1, 
+            "acceptFileTypes": /(\.|\/)(gif|jpe?g|png)$/i,
+            "maxFileSize": 20*1024*1024,
+            "maxNumberOfFiles": 10,
+            messages: {
+                maxNumberOfFiles: '文件个数不能超过10个',
+                maxFileSize: '文件过大, 最大不能超过20M',
+                acceptFileTypes:'只能上传图片, 图片格式为gif、jpg、jgeg、png',
+            },
+            "previewMaxWidth": 50,
+            "previewMaxHeight": 50,
+        });
+    });
+    function setAttachmentsIds(){
+		var flag = false;
+		jQuery("select[name^='leave_type_']").each(function(i){
+			var thisVal = jQuery(this).val();
+			if("2"==thisVal || "5"==thisVal || "6"==thisVal){
+				flag = true;
+				return false;
+			}
+		});
+		if(flag){
+			var attach_nodes = jQuery("input[name='attachments_id']");
+	    	var size = attach_nodes.length;
+	    	if(0==size){
+	    		jQuery("#attachments_ids").val("");
+	    	}else{
+	    		var arr = [];
+	    		for(var i=0; i<size; i++){
+	    			var attachments_id = jQuery(attach_nodes[i]).val();
+	    			if(isEmpty(attachments_id) || contains(arr, attachments_id)){
+	    				continue;
+	    			}else{
+	    				arr.push(attachments_id);
+	    			}
+	    		}
+	        	jQuery("#attachments_ids").val(arr.join(","));
+	    	}
+		}else{
+			jQuery("#attachments_ids").val("");
+		}
+    	
+    }
+    function attachments_check(){
+    	var check_flag = false;
+    	var msg = "";
+    	jQuery("select[name^='leave_type_']").each(function(i){
+			var thisVal = jQuery(this).val();
+			if("2"==thisVal){
+				check_flag = true;
+				msg = "请附医院证明";
+				return false;
+			}else if("5"==thisVal){
+				check_flag = true;
+				msg = "请附子女出生证明";
+				return false;
+			}else if("6"==thisVal){
+				check_flag = true;
+				msg = "请附结婚证复印件";
+				return false;
+			}
+		});
+    	var attachments_ids = jQuery("#attachments_ids").val();
+    	if(check_flag && isEmpty(attachments_ids)){
+    		alert(msg);
+    		return false;
+    	}
+    	return true;
+    }
+	</script>
+</body>
+</html>

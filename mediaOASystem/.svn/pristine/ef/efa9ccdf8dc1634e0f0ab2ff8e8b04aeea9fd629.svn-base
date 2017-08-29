@@ -1,0 +1,266 @@
+<style>
+.accordion {
+    margin-bottom: 10px;
+}
+.accordion .accordion-group{
+    padding-bottom: 20px;
+}
+.form-horizontal .control-group{
+	margin-bottom: 10px;
+}
+.form-horizontal .control-label{
+	width:124px;
+}
+.form-horizontal .controls {
+    margin-left: 140px;
+}
+.float_left{
+	float:left;
+	width:50%;
+	min-width:365px;
+}
+.clear_left{
+	clear:left;
+}
+</style>
+#if($resumes)
+#foreach($resume in $resumes)
+<div class="accordion">
+	<div class="accordion-group">
+		<div class="accordion-heading">
+	    	<a class="accordion-toggle collapsed" data-toggle="collapse" href="#collapse_$!{resume.id}">
+	    		<div class="name_wrap" title="$!{resume.name}($!resume.mobile)">姓名：$!CommUtil.substring($!{resume.name},4)($!resume.mobile)</div>
+	    	</a>
+	    </div>
+	    <div id="collapse_$!{resume.id}" class="accordion-body collapse in">
+	    	<div class="accordion-inner">
+	        	<div class="control-group float_left clear_left">
+                    <label class="control-label"><font class="red_font">*</font>应聘岗位</label>
+                    <div class="controls">
+                        <select data-placeholder="请选择应聘岗位" class="input-xlarge chosen" tabindex="" name="duty_id_$!{resume.id}" id="duty_id_$!{resume.id}">
+                            <option value="">请选择应聘岗位</option>
+                            #foreach($obj in $!dutys)
+                            <option value="$!obj.id">$!{obj.duty_name}($!obj.department.department_name)</option>
+                            #end
+                        </select>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+	        	<div class="control-group float_left">
+               		<label class="control-label">笔试成绩</label>
+                    <div class="controls">
+                    	<input type="text" name="written_score" id="written_score_$!{resume.id}" class="input-xlarge popovers" placeholder="笔试成绩" maxlength="5"
+                        	data-trigger="hover" data-content="输入笔试成绩，整数或小数，最多一位小数"/>
+                    </div>
+				</div>
+	        	<div class="control-group float_left clear_left">
+               		<label class="control-label">面试成绩</label>
+                    <div class="controls">
+                    	<input type="text" name="interview_score" id="interview_score_$!{resume.id}" class="input-xlarge popovers" placeholder="面试成绩" maxlength="5"
+                        	data-trigger="hover" data-content="输入面试成绩，整数或小数，最多一位小数"/>
+                    </div>
+				</div>
+				<div class="control-group float_left">
+               		<label class="control-label">最终成绩</label>
+                    <div class="controls">
+                    	<input type="text" name="final_score" id="final_score_$!{resume.id}" class="input-xlarge popovers" placeholder="最终成绩" maxlength="5"
+                        	data-trigger="hover" data-content="输入最终成绩，整数或小数，最多一位小数"/>
+                    </div>
+				</div>
+				<div class="control-group float_left clear_left">
+               		<label class="control-label"><font class="red_font">*</font>是否录用</label>
+                    <div class="controls">
+                    	<select data-placeholder="是否录用" class="input-xlarge chosen" tabindex="-1" name="hire_result_$!{resume.id}" id="hire_result_$!{resume.id}">
+							<option value="">是否录用</option>
+							#foreach($key in ${is_or_not_map.keySet()})
+			                <option value="$key">${is_or_not_map.get($key)}</option>
+			                #end
+						</select>
+                    </div>
+				</div>
+				<div class="control-group float_left" id="hired_status_wrap_$!{resume.id}" style="display:none;">
+                    <label class="control-label">录用状态</label>
+                    <div class="controls">
+                        <select data-placeholder="请选择录用状态" class="input-xlarge chosen" name="hired_status_$!{resume.id}" id="hired_status_$!{resume.id}">
+							#foreach($key in ${hired_status_map.keySet()})
+				            <option value="$key">${hired_status_map.get($key)}</option>
+				            #end
+						</select>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+	        	<div class="control-group float_left clear_left">
+                    <label class="control-label">现薪资(元)</label>
+                    <div class="controls">
+                        <input type="text" name="current_salary_$!{resume.id}" id="current_salary_$!{resume.id}" value="$!resume.current_salary" placeholder="现薪资" class="input-xlarge popovers" maxlength="13"
+                        	data-trigger="hover" data-content="输入现薪资，整数或小数，最多两位小数"/>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="control-group float_left">
+                    <label class="control-label">期望薪资(元)</label>
+                    <div class="controls">
+                        <input type="text" name="expect_salary_$!{resume.id}" id="expect_salary_$!{resume.id}" value="$!resume.expect_salary" placeholder="期望薪资" class="input-xlarge popovers" maxlength="13"
+                        	data-trigger="hover" data-content="输入期望薪资，整数或小数，最多两位小数"/>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="control-group float_left clear_left">
+                    <label class="control-label">个人情况</label>
+                    <div class="controls">
+						#set($personal_information='')
+						#if($!resume.resumeEducationList.size()>0)
+							#foreach($edu in $!resume.resumeEducationList)
+								#if(!$edu.disabled)
+									#set($personal_information = $personal_information+${edu.edu_school_name}+${edu.edu_major}+'专业'+$!CommUtil.parseDateTime('yyyy年MM月', $!edu.graduation_date)+'毕业, ')
+								#end
+							#end
+						#else
+							#set($personal_information = $personal_information+'XX大学XX专业XX毕业, ')
+						#end
+						#if($!resume.resumeWorkList.size()>0)
+							#foreach($work in $!resume.resumeWorkList)
+								#if(!$work.disabled)
+									#set($personal_information = $personal_information+$!CommUtil.parseDateTime('yyyy年', $!work.work_time_begin)+'-'+$!CommUtil.parseDateTime('yyyy年', $!work.work_time_end)+'在'+${work.work_comp_name}+'公司担任'+${work.work_duty_name}+'职务, ' )
+								#end
+							#end
+						#else
+							#set($personal_information = $personal_information+'XX年-XX年在XXX公司担任XX职务, ')
+						#end
+						#set($work_years='X')
+						#if(''!='$!{resume.work_years}')
+							#set($work_years=$!{resume.work_years})
+						#end
+						#set($foreign_language_level='英语X水平')
+						#if(''!='$!{resume.foreign_language_level}')
+							#set($foreign_language_level=$!{resume.foreign_language_level})
+						#end
+						#set($personal_information = $personal_information+'具有'+$work_years+'年工作经验, '+$foreign_language_level)
+                        <textarea name="personal_information" id="personal_information_$!{resume.id}" class="input-xlarge" rows="3">$!personal_information</textarea>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="control-group float_left">
+                    <label class="control-label">核定岗级</label>
+                    <div class="controls">
+                        <input type="text" name="duty_level_$!{resume.id}" id="duty_level_$!{resume.id}" placeholder="核定岗级" class="input-xlarge popovers" maxlength="13"
+                        	data-trigger="hover" data-content="输入核定岗级，整数或小数，最多两位小数"/>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="control-group float_left">
+                    <label class="control-label">建议薪资</label>
+                    <div class="controls">
+                        <input type="text" name="suggest_salary_$!{resume.id}" id="suggest_salary_$!{resume.id}" placeholder="建议薪资" class="input-xlarge popovers" maxlength="13"
+                        	data-trigger="hover" data-content="输入建议薪资，整数或小数，最多两位小数"/>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="control-group float_left clear_left">
+                    <label class="control-label">组别</label>
+                    <div class="controls">
+                        <select data-placeholder="请选择组别" class="input-xlarge chosen" tabindex="" name="department_id_$!{resume.id}" id="department_id_$!{resume.id}">
+                            <option value="">请选择组别</option>
+                            #foreach($obj in $!departments)
+                            <option value="$!obj.id">$!obj.department_name</option>
+                            #end
+                        </select>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="control-group float_left">
+                    <label class="control-label">入职日期</label>
+                    <div class="controls">
+                        <input type="text" name="entry_time" id="entry_time_$!{resume.id}" placeholder="入职日期" class="input-xlarge popovers"
+                        	data-trigger="hover" data-content="提交时请选择输入入职日期" readonly="readonly" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'})"/>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="control-group float_left clear_left">
+                    <label class="control-label">科组审批</label>
+                    <div class="controls">
+                        <input type="text" name="department_approval" id="department_approval_$!{resume.id}" placeholder="科组审批" class="input-xlarge popovers" maxlength="50"
+                        	data-trigger="hover" data-content="提交时请请输入科组审批，最多50字符"/>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="control-group float_left">
+                    <label class="control-label">领导审批</label>
+                    <div class="controls">
+                        <input type="text" name="leader_approval" id="leader_approval_$!{resume.id}" placeholder="领导审批" class="input-xlarge popovers" maxlength="50"
+                        	data-trigger="hover" data-content="提交时请输入领导审批，最多50字符"/>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+			</div>
+			<input type="hidden" name="resume_id" value="$!resume.id"/>
+		</div>
+	</div>
+</div>
+#end
+#end
+<script type="text/javascript">
+jQuery(document).ready(function(){
+	jQuery('.popovers').popover();
+	#foreach($resume in $resumes)
+		jQuery("#duty_id_$!{resume.id}").val("$!{resume.duty.id}");
+		jQuery("#department_id_$!{resume.id}").val("$!{resume.duty.department.id}");
+		addRule("duty_id_$!{resume.id}","请选择应聘岗位");
+		addRule("hire_result_$!{resume.id}","请选择是否录用");
+		addRuleIsDecimal4point1("written_score_$!{resume.id}");
+		addRuleIsDecimal4point1("interview_score_$!{resume.id}");
+		addRuleIsDecimal4point1("final_score_$!{resume.id}");
+		addRuleIsDouble("current_salary_$!{resume.id}");
+		addRuleIsDouble("expect_salary_$!{resume.id}");
+		addRuleIsDouble("duty_level_$!{resume.id}");
+		addRuleIsDouble("suggest_salary_$!{resume.id}");
+	#end
+	jQuery("select[name^='duty_id']").change(function(){
+		var id = jQuery(this).attr("id");
+		id = id.substring(8,id.length);
+		var thisVal = jQuery(this).val();
+		if(isEmpty(thisVal)){
+			jQuery("#department_id_"+id).val("");
+		}else{
+			var text = jQuery(this).find("option:selected").text();
+			text = text.substring(text.indexOf("(")+1, text.indexOf(")"));
+			jQuery("#department_id_"+id+" option:contains('"+text+"')").each(function(){
+				if (jQuery(this).text() == text) {
+		  			jQuery(this).attr('selected', true);
+			  	}
+			});
+		}
+	});
+	jQuery("select[name^='hire_result']").change(function(){
+		var id = jQuery(this).attr("id");
+		id = id.substring(12,id.length);
+		var thisVal = jQuery(this).val();
+		if("1"==thisVal){
+			jQuery("#hired_status_wrap_"+id).show();	
+		}else{
+			jQuery("#hired_status_wrap_"+id).hide();
+		}
+	});
+});
+function addRule(id,msg){
+	jQuery("#"+id).rules("add",{ 
+		required:true,
+		messages:{
+			required:msg
+		}
+	});  
+}
+function addRuleIsDouble(id){
+	jQuery("#"+id).rules("add",{ 
+		isDouble:[],
+	}); 
+}
+function addRuleIsDecimal4point1(id){
+	jQuery("#"+id).rules("add",{ 
+		decimal4point1:[],
+	}); 
+}
+function removeRule(id){
+	jQuery("#"+id).rules("remove"); 
+}
+</script>

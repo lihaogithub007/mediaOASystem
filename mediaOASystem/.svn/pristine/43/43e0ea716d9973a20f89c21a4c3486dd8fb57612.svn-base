@@ -1,0 +1,140 @@
+<div class="head" id="Basic">
+	<div class="name">$!user.true_name</div>
+	<p class="at">
+	   	$!user_relationship_map.get("$!{user.user_relationship}")&nbsp;│&nbsp;
+	   	$!user.department.department_name&nbsp;│&nbsp;
+       	$!user.duty.duty_name&nbsp;│&nbsp;
+       	$!user.card_number
+       	#if("1"=="$!user.userBase.sex" || "2"=="$!user.userBase.sex") &nbsp;│&nbsp; $!sex_map.get("$!user.userBase.sex") #end
+       	#if(""!="$!user.birthday") 
+       	&nbsp;│&nbsp; 
+    	#if(""!="$!user.userBase.age") $!user.userBase.age #else $!CommUtil.getAge($!user.birthday) #end岁 
+    	($!CommUtil.parseDateTime("yyyy/MM/dd",$!user.birthday))
+    	#end
+    	#if(""!="$!user.userBase.nation")&nbsp;│&nbsp; $!user.userBase.nation #end
+	</p>
+	<div class="tab">
+   		<span class="email icons at" title="$!user.email">$!user.email</span>&nbsp;
+       	<span class="tel icons">$!user.mobile</span>
+   	</div>
+   	<div class="abox">
+       	<div class="mbox" onclick="showMoreClickEvent(this)">
+        	<span class="icons">更多展开</span><em class="icons"></em>
+        </div>
+        <div class="all">
+        	<div class="e e2_base clear_left">
+                <label>出生地</label><i>：</i><div>&nbsp;$!user.userBase.birth_place</div>
+            </div>
+            <div class="e e2_base">
+                <label>血型</label><i>：</i><div>&nbsp;$!blood_type_map.get("$!user.userBase.blood_type")</div>
+            </div>
+            <div class="e e2_base clear_left">
+                <label>籍贯</label><i>：</i><div>&nbsp;$!user.userBase.native_place</div>
+            </div>
+            <div class="e e2_base">
+                <label>星座</label><i>：</i><div>&nbsp;$!constellation_no_date_map.get("$!user.userBase.constellation")</div>
+            </div>
+            <div class="e e2_base clear_left">
+                <label>证件类型</label><i>：</i><div>&nbsp;$!ID_type_map.get("$!user.userBase.ID_type")</div>
+            </div>
+            <div class="e e2_base">
+                <label>证件号码</label><i>：</i><div>&nbsp;$!user.userBase.ID_number</div>
+            </div>
+            <div class="e e2_base clear_left">
+                <label>政治面貌</label><i>：</i><div>&nbsp;$!political_status_map.get("$!user.userBase.political_status")</div>
+            </div>
+            <div class="e e2_base">
+                <label>入党(团)时间</label><i>：</i><div>&nbsp;$!CommUtil.parseShortDateTime($!user.userBase.join_party_date)</div>
+            </div>
+            <div class="e e2_base clear_left">
+                <label>婚姻状况</label><i>：</i><div>&nbsp;$!marriage_status_map.get("$!user.userBase.marriage_status")</div>
+            </div>
+            <div class="e e2_base">
+                <label>子女情况</label><i>：</i><div>&nbsp;$!user.userBase.condition_of_children</div>
+            </div>
+            <div class="e e2_base clear_left">
+                <label>最高学历</label><i>：</i><div>&nbsp;$!user.userBase.highest_education</div>
+            </div>
+            <div class="e e2_base">
+                <label>获得时间</label><i>：</i><div>&nbsp;$!CommUtil.parseShortDateTime($!user.userBase.highest_education_gain_time)</div>
+            </div>
+            <div class="e e2_base clear_left">
+                <label>最高学位</label><i>：</i><div>&nbsp;$!user.userBase.highest_offering</div>
+            </div>
+            <div class="e e2_base">
+                <label>获得时间</label><i>：</i><div>&nbsp;$!CommUtil.parseShortDateTime($!user.userBase.highest_offering_gain_time)</div>
+            </div>
+            <div class="e e2_base clear_left">
+                <label>职称</label><i>：</i><div>&nbsp;$!user.userBase.job_titles</div>
+            </div>
+            <div class="e e2_base">
+                <label>职称等级</label><i>：</i><div>&nbsp;$!user.userBase.job_titles_level</div>
+            </div>
+            <div class="e e2_base clear_left">
+                <label>评定单位</label><i>：</i><div>&nbsp;$!user.userBase.job_titles_evaluation_unit</div>
+            </div>
+            <div class="e e2_base">
+                <label>评定时间</label><i>：</i><div>&nbsp;$!CommUtil.parseShortDateTime($!user.userBase.job_titles_evaluation_time)</div>
+            </div>
+            <div class="e e2_base clear_left">
+                <label>证书号</label><i>：</i><div>&nbsp;$!user.userBase.job_titles_cert_id</div>
+            </div>
+            <div class="e e2_base">
+                <label>首次工作时间</label><i>：</i><div>&nbsp;$!CommUtil.parseShortDateTime($!user.userBase.first_work_date)</div>
+            </div>
+            <div class="e e2_base clear_left">
+                <label>工作年限</label><i>：</i><div>&nbsp;$!user.userBase.work_years</div>
+            </div>
+             <div class="e e2_base">
+                <label>同行工作时间</label><i>：</i><div>&nbsp;$!user.userBase.same_industry_work_years</div>
+            </div>
+            <div class="e e2_base clear_left">
+                <label>是否有记者证</label><i>：</i><div>&nbsp;$!have_or_not_map.get("$!user.userBase.is_have_press_card")</div>
+            </div>
+            <div class="e e2_base">
+                <label>记者证号</label><i>：</i><div>&nbsp;$!user.userBase.press_card_no</div>
+            </div>
+            <div class="e e2_base clear_left">
+                <label>家庭地址</label><i>：</i><div>&nbsp;$!user.userBase.home_address</div>
+            </div>
+            <div class="e e2_base">
+                <label>邮编</label><i>：</i><div>&nbsp;$!user.userBase.home_postcode</div>
+            </div>
+            <div class="e e2_base clear_left">
+                <label>现住址</label><i>：</i><div>&nbsp;$!user.userBase.present_address</div>
+            </div>
+            <div class="e e2_base">
+                <label>邮编</label><i>：</i><div>&nbsp;$!user.userBase.present_postcode</div>
+            </div>
+            <div class="e e2_base clear_left">
+                <label>人事档案地址</label><i>：</i><div>&nbsp;$!user.userBase.personnel_file_address</div>
+            </div>
+            <div class="e e2_base">
+                <label>邮编</label><i>：</i><div>&nbsp;$!user.userBase.personnel_file_postcode</div>
+            </div>
+            <div class="e e2_base clear_left">
+                <label>户口所在地</label><i>：</i><div>&nbsp;$!user.userBase.domicile_place</div>
+            </div>
+            <div class="e e2_base">
+                <label>户口性质</label><i>：</i><div>&nbsp;$!domicile_type_map.get("$!user.userBase.domicile_type")</div>
+            </div>
+            <div class="e e2_base clear_left">
+                <label>紧急联系人</label><i>：</i><div>&nbsp;$!user.userBase.emergency_contact_name</div>
+            </div>
+            <div class="e e2_base">
+                <label>紧急联系电话</label><i>：</i><div>&nbsp;$!user.userBase.emergency_contact_mobile</div>
+            </div>
+            <div class="e e2_base clear_left">
+                <label>外语种类/水平</label><i>：</i><div>&nbsp;$!user.userBase.foreign_language_level</div>
+            </div>
+            <div class="e e2_base">
+                <label>计算机水平</label><i>：</i><div>&nbsp;$!user.userBase.computer_skill</div>
+            </div>
+            <div class="e e2_base" style="width:800px;">
+                <label>爱好/特长</label><i>：</i><div>&nbsp;$!user.userBase.hobby_and_speciality</div>
+            </div>
+        	<div class="clearfix"></div>
+    	</div>
+	</div>
+</div>
+<span class="ed_icon_blue icons" id="basedetail_edit" onclick="editButtonClick(this)"></span><span class="ed_icon_yellow icons"></span>

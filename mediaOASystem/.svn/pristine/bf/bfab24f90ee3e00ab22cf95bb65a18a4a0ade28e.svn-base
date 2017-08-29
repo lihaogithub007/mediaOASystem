@@ -1,0 +1,104 @@
+package com.yuyu.soft.base.controller;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.yuyu.soft.base.annotation.SecurityMapping;
+import com.yuyu.soft.entity.ResGroup;
+import com.yuyu.soft.service.IResGroupService;
+import com.yuyu.soft.service.IResService;
+import com.yuyu.soft.util.CommUtil;
+
+/**
+ * 资源初始化
+ *                       
+ * @Filename: MenuSecurityManageController.java
+ * @Version: 1.0
+ * @Author: 李明
+ * @Email: limn_xmj@163.com
+ *
+ */
+@Controller
+public class ResSecurityManageController {
+
+    @Resource
+    private IResService      resService;
+
+    @Resource
+    private IResGroupService resGroupService;
+
+    public ModelAndView init_res(HttpServletRequest request, HttpServletResponse response) {
+        //        admin/init_res.htm
+        List<Class> clzs = new ArrayList<Class>();
+        //
+        //        clzs.add(ScheduleSmsRemindController.class);//节日短信问候
+        //        clzs.add(HolidaySmsRemindController.class);//节日短信问候
+        //        clzs.add(SmsRemindLogsController.class);//短信提醒记录
+        //
+        //        clzs.add(FixedAssetsController.class);//固定资产
+        //        clzs.add(InsideIncomeDispatchesController.class);//台内收文
+        //        clzs.add(OutsideIncomeDispatchesController.class);//台外收文
+        //        clzs.add(EventApplyFormController.class);//事项申请表
+        //        clzs.add(DepartmentAwardsController.class);//部门评奖
+        //
+        //        clzs.add(UserController.class);//员工
+        //        clzs.add(DepartmentController.class);//部门/科组
+        //        clzs.add(DutyController.class);//岗位
+        //
+        //        clzs.add(SyscfgController.class);//系统设置
+
+        //        clzs.add(ContractSmsRemindController.class);//合同到期提醒
+        //        clzs.add(ForeignExpertController.class);//外籍专家名录
+        //        clzs.add(AdminResumeController.class);//简历管理
+        //        clzs.add(CandidateHireApprovalController.class);//应聘人员录用审批
+        //        clzs.add(AssessmentController.class);//评优管理
+        //        clzs.add(WorkforceManagementController.class);//排班管理
+        //        clzs.add(AttendanceRecordController.class);//考勤记录
+        //        clzs.add(VacationApplyController.class);//请假申请
+        //        clzs.add(OvertimeRecordController.class);//加班记录
+        //        clzs.add(ProjectCooperationController.class);//协同记录
+        //        clzs.add(WorkloadStatisticsController.class);//工作量统计
+        //        clzs.add(UserStatisticsController.class);//人员统计分析
+
+        //固定资产管理 批量删除
+        //人事档案 导出excel 档案编辑  归档  打印
+
+        Annotation[] annotation;
+        for (Class clz : clzs) {
+            try {
+                Method[] ms = clz.getMethods();
+                for (Method m : ms) {
+                    annotation = m.getAnnotations();
+                    for (Annotation tag : annotation) {
+                        if (SecurityMapping.class.isAssignableFrom(tag.annotationType())) {
+                            String res_name = ((SecurityMapping) tag).res_name();
+                            String res_url = ((SecurityMapping) tag).res_url();
+                            String res_group_name = ((SecurityMapping) tag).res_group();
+                            /*
+                            System.out.println("\n res_name==>" + res_name + ",res_url==>"
+                                               + res_url + ", res_group_name==>" + res_group_name);
+                            */
+                            ResGroup rg = resGroupService.getByName(res_group_name);
+                            if (rg == null) {
+                                rg = resGroupService.add_save(res_group_name);
+                            }
+                            resService.add_save(res_name, res_url, rg);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return CommUtil.successPage("/index.htm", "初始化资源成功", request, response);
+    }
+}

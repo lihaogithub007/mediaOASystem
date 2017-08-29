@@ -1,0 +1,50 @@
+<div class="bd" id="resumeothers_view_$!resume.resumeOthers.id">
+    <div class="con edit">
+        <div class="e_no_width">
+            <label>何时何地受到何种奖励：</label>
+            <div>&nbsp;$!resume.resumeOthers.reward_name</div>
+        </div>
+        <div class="e_no_width">
+            <label>何时何地受到何种处分：</label>
+            <div>&nbsp;$!resume.resumeOthers.punishment_name</div>
+        </div>
+        <div class="e_no_width">
+            <label>离职原因：</label>
+            <div>&nbsp;$!dimission_reason_map.get("$!resume.resumeOthers.dimission_reason")</div>
+        </div>
+        <div class="e_no_width">
+            <label>与原单位劳动合同情况：</label>
+            <div>&nbsp;$!resume.resumeOthers.contract_status_with_old_unit</div>
+        </div>
+        <div class="e_no_width">
+            <label>有无竞业条例：</label>
+            <div>&nbsp;$!have_or_not_map.get("$!resume.resumeOthers.has_non_competition")</div>
+        </div>
+        <div class="e_no_width">
+            <label>应聘原因：</label>
+            <div>&nbsp;$!resume.resumeOthers.apply_reason</div>
+        </div>
+        <div class="e_no_width">
+            <label>有无亲属在本单位任职：</label>
+            <div>&nbsp;$!have_or_not_map.get("$!resume.resumeOthers.has_relatives_in_unit")</div>
+        </div>
+        <div class="e_no_width">
+            <label>如未能被申请岗位录用，有无其他意向岗位：</label>
+            <div>&nbsp;$!have_or_not_map.get("$!resume.resumeOthers.accept_other_positions")</div>
+        </div>
+        <div class="e_no_width">
+            <label>是否接受单位调剂：</label>
+            <div>&nbsp;$!is_or_not_map.get("$!resume.resumeOthers.accept_unit_adjustment")</div>
+        </div>
+        <div class="e_no_width">
+            <label>个人评价：</label>
+            <div>&nbsp;$!resume.resumeOthers.self_evaluation</div>
+        </div>
+        <div class="e_no_width">
+            <label>其他补充说明或其它个人特别的期望：</label>
+            <div>&nbsp;$!resume.resumeOthers.supplement_instruction</div>
+        </div>
+        <div class="clearfix"></div>
+        <span class="ed_icon"><em class="edi icons" id="resumeothers_edit_$!resume.resumeOthers.id" onclick="editButtonClick(this)"></em></span>
+    </div>
+</div>
